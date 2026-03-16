@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Regístrate</title>
+    <link rel="stylesheet" href="css/header.css">
+    <link rel="stylesheet" href="css/signUp.css">
+    <script src="js/signup.js"></script>
+
+</head>
+<body>
+    
+   <header>
+    <!--Logo que rederige al index-->
+        <nav id="header-izq">
+            <a href="index.html" target="_self">
+            <img src="" alt="logo" 
+             width=""> <!--Todo esto está en blanco hasta que tengamos el logo listo y el index-->
+        </a>
+        </nav>
+        
+        <nav id="hBotones"> 
+            <a class="hBoton" href="" target="_self">Protectoras</a>
+            <a class="hBoton" href="" target="_self">Colaboradores</a>
+            <a class="hBoton" href="registro.html" target="_self">Regístrate!</a>
+            <a class="hBoton" href="" target="_self" id="boton-destacado">Inicia Sesión</a>
+
+        </nav>
+    </header>
+    <div id="padre-nuestro" class="vAdoptante">
+    <div id="elegir-registro">
+        <button class="tipo-registro" id="adoptantes">Quiero adoptar!</button>
+        <button class="tipo-registro" id="protectora">Soy una protectora</button>
+    </div>
+    
+    <!--Formulario de registro de adoptantes-->
+
+    <div id="estructura">
+        <form action="sesion/registro.php" id="registro" method="POST">
+        <input type="hidden" name="tipo" value="usuario">
+        <input type="text" id="adopt-nombre" name="adopt-nombre" placeholder="Nombre">
+        <br>
+        
+        <input type="text" id="adopt-apellido" name="adopt-apellido" placeholder="Apellidos">
+        <br>
+        
+        <input type="text" id="adopt-email" name="adopt-email" placeholder="Correo electrónico">
+        <br>
+    
+        <input type="text" id="adopt-email2" name="adopt-email2" placeholder="Repite el correo electrónico">
+        <br>
+
+        <input type="password" id="adopt-password" name="adopt-password" placeholder="Contraseña">
+         <br>
+
+        <input type="password" id="adopt-password2" name="adopt-password2" placeholder="Repite tu contraseña">
+        <br><br>
+        <input type="submit" Value="Enviar">
+
+    </form>
+
+    <!--Formulario de registro de protectoras-->
+    <form action="sesion/registro.php" id="registro2" method="POST">
+        <input type="hidden" name="tipo" value="protectora">
+    
+        <input type="text" id="prote-nombre" name="prote-nombre" placeholder="Nombre de la protectora">
+        <br>
+        
+        <div id="grupo1">
+            <div>
+                <select name="ciudad" id="prote-ciudad">
+                <option value="" disabled selected hidden>Ciudad</option>
+                <option value="almeria">Almería</option>
+                <option value="cadiz">Cádiz</option>
+                <option value="cordoba">Córdoba</option>
+                <option value="granada">Granada</option>
+                <option value="huelva">Huelva</option>
+                <option value="jaen">Jaén</option>
+                <option value="malaga">Málaga</option>
+                <option value="sevilla">Sevilla</option>
+            </select>
+            </div>
+            <div>
+                <input type="text" id="prote-localidad" name="prote-localidad" placeholder="Localidad">
+            </div>
+        </div>
+        <br>
+
+        <input type="text" id="prote-direccion" name="prote-direccion" placeholder="Dirección">
+        <br>
+
+        <input type="text" id="prote-email" name="prote-email" placeholder="Correo electrónico">
+        <br>
+
+        <input type="text" id="prote-email2" name="prote-email2" placeholder="Repite el correo electrónico">
+        <br>
+
+        <input type="password" id="prote-password" name="prote-password" placeholder="Contraseña">
+         <br>
+
+        <input type="password" id="prote-password2" name="prote-password2" placeholder="Repite tu contraseña">
+        <br><br>
+        <input type="submit" Value="Enviar">
+
+    </form>
+    </div>
+    </div> 
+    
+</body>
+</html>
