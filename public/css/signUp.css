@@ -149,3 +149,18 @@ input[type="text"], input[type="password"]{
     box-shadow: 4px 4px 10px rgba(0,0,0,0.5);
     cursor: pointer;
 }
+
+/*
+Creado por mi, para ver errores?
+*/
+.error{
+    display: block;
+    color: #8B0000;
+    background-color: #FCEBEB;
+    border: 1px solid #F09595;
+    border-radius: 4px;
+    padding: 10px 14px;
+    margin: 8px 0;
+    font-size: 14px;
+    text-align: center;
+}

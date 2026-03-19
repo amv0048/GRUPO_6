@@ -8,6 +8,9 @@
     <link rel="stylesheet" href="css/signUp.css">
     <script src="js/singup.js"></script>
 
+    <script src="js/signup.js"></script>   
+    <script src="js/validacionPhP.js"></script>
+     
 </head>
 <body>
     
@@ -37,7 +40,7 @@
     <!--Formulario de registro de adoptantes-->
 
     <div id="estructura">
-        <form action="sesion/registro.php" id="registro" method="POST">
+        <form action="../src/sesion/signup.php" id="registro" method="POST">
         <input type="hidden" name="tipo" value="usuario">
         <input type="text" id="adopt-nombre" name="adopt-nombre" placeholder="Nombre">
         <br>
@@ -61,7 +64,7 @@
     </form>
 
     <!--Formulario de registro de protectoras-->
-    <form action="sesion/registro.php" id="registro2" method="POST">
+    <form action="../src/sesion/signup.php" id="registro2" method="POST">
         <input type="hidden" name="tipo" value="protectora">
     
         <input type="text" id="prote-nombre" name="prote-nombre" placeholder="Nombre de la protectora">
