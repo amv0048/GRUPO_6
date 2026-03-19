@@ -27,14 +27,16 @@ window.onload = () =>{
             default:
                 break;
         }
+
+        let div = document.createElement("div")
+        div.setAttribute("class" , "error")
+        div.textContent = DescError;
+
+        document.getElementById("estructura").prepend(div)
+
     }
 
 
 
-
-    let div = document.createElement("div")
-    div.setAttribute("class" , "error")
-    div.textContent = DescError;
-
-    document.getElementById("estructura").prepend(div)
+   
 }
