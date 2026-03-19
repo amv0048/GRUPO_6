@@ -1,9 +1,9 @@
 
-window.onload = () =>{
+window.addEventListener("load" , () =>{
     let params = new URLSearchParams(window.location.search);
     let error = params.get("error");
     let DescError = "";
-    
+    alert("hola")
     if(error){
         switch (error) {
             case "nombre":
@@ -42,4 +42,4 @@ window.onload = () =>{
 
 
    
-}
+})
