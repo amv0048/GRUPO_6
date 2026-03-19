@@ -9,7 +9,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // ── EMAIL ────────────────────────────────────────────────
     $tmp_email = htmlspecialchars(trim($_POST["login-email"]));
     if ($tmp_email == "") {
-        header("Location: ../login.html?error=email");
+        header("Location: ../../public/login.html?error=email");
         exit();
     } else {
         $email = $tmp_email;
@@ -18,7 +18,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // ── CONTRASEÑA ───────────────────────────────────────────
     $tmp_pass = trim($_POST["login-password"]); // HAY 
     if ($tmp_pass == "") {
-        header("Location: ../login.html?error=pass");
+        header("Location: ../../public/login.html?error=pass");
         exit();
     } else {
         $pass = $tmp_pass;
@@ -34,7 +34,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         if ($resultado->num_rows === 0) {
             $consulta->close();
-            header("Location: ../login.html?error=noexiste");
+            header("Location: ../../public/login.html?error=noexiste");
             exit();
         }
 
@@ -42,7 +42,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $consulta->close();
 
         if (!password_verify($pass, $info_usuario["contraseña"])) {
-            header("Location: ../login.html?error=passNoCoincide");
+            header("Location: ../../public/login.html?error=passNoCoincide");
             exit();
         }
 
@@ -51,7 +51,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $_SESSION["email"]  = $info_usuario["email"];
         $_SESSION["admin"]  = $info_usuario["admin"];
 
-        header("Location: ../index.php"); // esto que opasa es html o php
+        header("Location: ../index.php"); // ESTO NO ESTÁ AQUI
         exit();
     }
 }
