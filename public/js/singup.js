@@ -1,5 +1,4 @@
 window.onload = function () {
-
     //Elegir Formulario
     const padreNuestro = document.querySelector('#padre-nuestro');
     const proteBtn = document.querySelector('#protectora');
@@ -48,6 +47,19 @@ window.onload = function () {
         }
     }
 
+    function validarPass(input){
+        const regex = /^(?=.*[A-Z])(?=.*[a-z])(?=.*[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]).{8,}$/;
+        if (!regex.test(input.value)){
+            input.style.border = "2px solid red";
+            mostrarError(input, "La contraseña debe tener 8 caracteres, incluyendo una mayuscula, una minuscula y un signo especial");
+        }
+        else {
+            input.style.border = "2px solid green";
+            eliminarError(input)
+        }
+        
+    }
+
     function validarCoincidencia(input1, input2) {
         if (input1.value !== input2.value || input1.value === "") {
             input2.style.border = "2px solid red";
@@ -73,6 +85,7 @@ window.onload = function () {
     email2.onblur = () => validarCoincidencia(email, email2);
 
     pass.onblur = () => validarVacio(pass);
+    pass.onblur = () => validarPass(pass);
     pass2.onblur = () => validarCoincidencia(pass, pass2);
 
 
@@ -89,6 +102,7 @@ window.onload = function () {
     pEmail2.onblur = () => validarCoincidencia(pEmail, pEmail2);
 
     pPass.onblur = () => validarVacio(pPass);
+    pPass.onblur = () => validarPass(pPass);
     pPass2.onblur = () => validarCoincidencia(pPass, pPass2);
 
     const formAdopt = document.getElementById("registro");
@@ -101,6 +115,7 @@ window.onload = function () {
         validarEmail(email);
         validarCoincidencia(email, email2);
         validarVacio(pass);
+        validarPass(pass);
         validarCoincidencia(pass, pass2);
 
         const errores = formAdopt.querySelectorAll("small");
