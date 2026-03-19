@@ -3,11 +3,11 @@
 --  Proyecto Final
 -- ============================================================
 
---DROP USER IF EXISTS 'MEDAC'@'localhost';
+-- DROP USER IF EXISTS 'MEDAC'@'localhost';
 
---CREATE USER 'MEDAC'@'localhost' IDENTIFIED BY 'MEDAC';
---GRANT ALL PRIVILEGES ON *.* TO 'MEDAC'@'localhost';
---FLUSH PRIVILEGES;
+-- CREATE USER 'MEDAC'@'localhost' IDENTIFIED BY 'MEDAC';
+-- GRANT ALL PRIVILEGES ON *.* TO 'MEDAC'@'localhost';
+-- FLUSH PRIVILEGES;
 
 
 DROP DATABASE IF EXISTS bd_protectora;
