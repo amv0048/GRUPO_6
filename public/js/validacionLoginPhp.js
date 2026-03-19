@@ -1,4 +1,3 @@
-
 window.addEventListener("load" , () =>{
     let params = new URLSearchParams(window.location.search);
     let error = params.get("error");
@@ -24,8 +23,11 @@ window.addEventListener("load" , () =>{
                 DescError = "#F54ASf927as10124GSAUI1"
                 break;
             */
-            case "db":
-                DescError = "Ese Email ya pertenece a una cuenta"
+            case "noexiste":
+                DescError = "Ese email no pertenece a ninguna cuenta"
+                break;
+            case "passNoCoincide":
+                DescError = "Usuario y Contraseña no coinciden"
                 break;
             default:
                 DescError = ""
@@ -37,6 +39,7 @@ window.addEventListener("load" , () =>{
             div.setAttribute("class" , "error")
             div.textContent = DescError;
             document.getElementById("estructura").prepend(div)
+            // HABRÁ QUE CAMBAR DONDE SE METE DEPENDIENDO DEL LOGIN
         }
         
 
