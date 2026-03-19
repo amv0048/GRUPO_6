@@ -3,9 +3,11 @@ window.addEventListener("load" , () =>{
     let params = new URLSearchParams(window.location.search);
     let error = params.get("error");
     let DescError = "";
-    alert("hola")
+    
+    
     if(error){
         switch (error) {
+            /*
             case "nombre":
                 DescError = "No te saltes el front"
                 break;
@@ -21,8 +23,9 @@ window.addEventListener("load" , () =>{
             case "pass":
                 DescError = "s"
                 break;
+            */
             case "db":
-                DescError = "Ha ocurrido un error, No se ha podido registrar el usuario en la bbdd"
+                DescError = "Ese Email ya pertenece a una cuenta"
                 break;
             default:
                 DescError = ""
