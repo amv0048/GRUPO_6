@@ -35,7 +35,8 @@ CREATE TABLE Protectora (
     ciudad            VARCHAR(100),
     localidad         VARCHAR(100),
     direccion         VARCHAR(255),
-    logo              VARCHAR(255)
+    logo              VARCHAR(255),
+    contrasena        VARCHAR(255)
 );
 
 -- Usuario

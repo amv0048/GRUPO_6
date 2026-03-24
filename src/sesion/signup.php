@@ -57,7 +57,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && $_POST["tipo"] == "usuario") {
     if (isset($nombre, $apellido, $email, $pass)) {
         $pass_cifrada = password_hash($pass, PASSWORD_DEFAULT);
         $consulta = $_conexion->prepare(
-            "INSERT INTO Usuario (nombre, apellido, email, contraseña, numero, fiabilidad, admin)
+            "INSERT INTO Usuario (nombre, apellido, email, contrasena, numero, fiabilidad, admin)
              VALUES (?, ?, ?, ?, NULL, 0, 0)"
         );
         $consulta->bind_param("ssss", $nombre, $apellido, $email, $pass_cifrada);

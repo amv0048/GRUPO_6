@@ -41,7 +41,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $info_usuario = $resultado->fetch_assoc();
         $consulta->close();
 
-        if (!password_verify($pass, $info_usuario["contraseña"])) {
+        if (!password_verify($pass, $info_usuario["contrasena"])) { // ESTO ????? Ñ?????
             header("Location: ../../public/login.html?error=passNoCoincide");
             exit();
         }
