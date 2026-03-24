@@ -27,32 +27,49 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // ── CONSULTA ─────────────────────────────────────────────
     if (isset($email, $pass)) {
 
-        $consulta = $_conexion->prepare("SELECT * FROM Usuario WHERE email = ?");
+    // Busca primero en Usuario
+    $consulta = $_conexion->prepare("SELECT * FROM Usuario WHERE email = ?");
+    $consulta->bind_param("s", $email);
+    $consulta->execute();
+    $resultado = $consulta->get_result();
+
+    // Si no está en Usuario busca en Protectora
+    if ($resultado->num_rows === 0) {
+        $consulta->close();
+        $consulta = $_conexion->prepare("SELECT * FROM Protectora WHERE email = ?");
         $consulta->bind_param("s", $email);
         $consulta->execute();
         $resultado = $consulta->get_result();
 
+        // Si tampoco está en Protectora, no existe
         if ($resultado->num_rows === 0) {
             $consulta->close();
             header("Location: ../../public/login.html?error=noexiste");
             exit();
         }
+    }
 
-        $info_usuario = $resultado->fetch_assoc();
-        $consulta->close();
+    $info_usuario = $resultado->fetch_assoc();
+    $consulta->close();
 
-        if (!password_verify($pass, $info_usuario["contrasena"])) { // ESTO ????? Ñ?????
-            header("Location: ../../public/login.html?error=passNoCoincide");
-            exit();
-        }
-
-        $_SESSION["id"]     = $info_usuario["id"];
-        $_SESSION["nombre"] = $info_usuario["nombre"];
-        $_SESSION["email"]  = $info_usuario["email"];
-        $_SESSION["admin"]  = $info_usuario["admin"];
-
-        header("Location: ../index.php"); // ESTO NO ESTÁ AQUI
+    if (!password_verify($pass, $info_usuario["contrasena"])) {
+        header("Location: ../../public/login.html?error=passNoCoincide");
         exit();
     }
+
+    if (isset($info_usuario["nombre_protectora"])) {
+        $_SESSION["id"]         = $info_usuario["id_protectora"];
+        $_SESSION["protectora"] = $info_usuario["nombre_protectora"];
+    } else {
+        $_SESSION["id"]    = $info_usuario["id"];
+        $_SESSION["nombre"] = $info_usuario["nombre"];
+        $_SESSION["admin"]  = $info_usuario["admin"];
+    }
+
+    $_SESSION["email"] = $info_usuario["email"];
+
+    header("Location: ../../public/index.php");
+    exit();
+}
 }
 ?>
