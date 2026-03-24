@@ -59,7 +59,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     if (isset($info_usuario["nombre_protectora"])) {
         $_SESSION["id"]         = $info_usuario["id_protectora"];
-        $_SESSION["protectora"] = $info_usuario["nombre_protectora"];
+        $_SESSION["nombre"] = $info_usuario["nombre_protectora"]; // puede que esto este mal...
     } else {
         $_SESSION["id"]    = $info_usuario["id_adoptante"];
         $_SESSION["nombre"] = $info_usuario["nombre"];

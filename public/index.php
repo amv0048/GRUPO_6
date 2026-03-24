@@ -1,3 +1,4 @@
+<?php session_start()?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -9,5 +10,12 @@
 
     <p>Tienes Cuenta ? <a href="login.html">Logearse</a></p>
     <p>No tienes Cuenta ? <a href="signup.html">Registrate</a></p>
+    <p><a href="perfil.php"> Modificar Perfil</a></p>
+    
+    <?php 
+    if(isset($_SESSION["id"])){
+        echo "<p> <a href='perfil.php'>Modificar Perfil</a></p>"; // lo mismo aqui renta mandar el name o algo perfil.php?name=""
+    }
+    ?>
 </body>
 </html>
