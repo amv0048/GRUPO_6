@@ -61,7 +61,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $_SESSION["id"]         = $info_usuario["id_protectora"];
         $_SESSION["protectora"] = $info_usuario["nombre_protectora"];
     } else {
-        $_SESSION["id"]    = $info_usuario["id"];
+        $_SESSION["id"]    = $info_usuario["id_adoptante"];
         $_SESSION["nombre"] = $info_usuario["nombre"];
         $_SESSION["admin"]  = $info_usuario["admin"];
     }
