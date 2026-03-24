@@ -18,10 +18,10 @@
     #error_reporting( E_ALL);
     #ini_set("display_errors", 1);
 
-    $_servidor = "localhost";
-    $_usuario = "root";
-    $_contrasena = "";
-    $_db = "bd_protectora";
+    $_servidor = "sql306.infinityfree.com";
+    $_usuario = "if0_41458160";
+    $_contrasena = "On5pI1MXYFxNMhY";
+    $_db = "if0_41458160_db";
 
     $_conexion = new mysqli($_servidor, $_usuario, $_contrasena, $_db);
 

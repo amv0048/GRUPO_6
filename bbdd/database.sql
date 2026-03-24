@@ -16,7 +16,6 @@ CREATE DATABASE IF NOT EXISTS bd_protectora
     COLLATE utf8mb4_general_ci;
 USE bd_protectora;
 
-
 -- ------------------------------------------------------------
 --  1. TABLAS INDEPENDIENTES (sin FKs)
 -- ------------------------------------------------------------
