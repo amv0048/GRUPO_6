@@ -1,58 +1,68 @@
-header{
+header {
+  width: 100%;
   display: flex;
-  align-items: center;
   justify-content: space-between;
-  background-color: #0D2D51;
-   padding-top: 20px;    
-  padding-bottom: 20px; 
-  font-family: 'roboto', sans-serif;
-}
-#header-izq{
- display: flex;
- align-items: center;
- padding-left: 20px;
- width: 50%;
- gap: 20%;
-}
-.hBoton {
-    box-sizing: border-box;
-    background-color: #1A3A5E;
-	color: #FFF;
-	transition: all 0.5s;
-	position: relative;
-    line-height: 200%;
-	text-align: center;
-	width: 30%;
-    border-radius: 5px;
-    text-decoration: none;
-    font-weight: 600;
-    border: 1px solid #032347;
-    box-shadow: 
-      0px 2px 0 #002044,       
-      2px 4px 6px rgba(0,32,68,0.4); 
-}
-.hBoton:hover {
-    background-color: #002044;
-    box-shadow: 2px 2px 2px rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(0, 0, 0, .05);
-     text-shadow: -1px -1px 0 #000F2D;
-}
-#boton-destacado{
-    background-color: #dc7530;
-    border: 1px solid #9c4e1a;
-}
-#boton-destacado:hover{
-    background-color: #d4590c;
-    text-shadow: -1px -1px 0 #542100;
+  align-items: center;
+  padding: 20px;
+  padding-right: 20px;;
+  background-color: #213c31;
+  
 }
 
-#hBotones{
-    padding-right: 20px;
-    width: 38%;
-    display: flex;
-    align-items: center;
-    justify-content:space-evenly;
+/* Logo */
+#header-izq img {
+  height: 40px;
+}
+
+a {
+    font-family: 'Inter', sans-serif;
+}
+
+/* Contenedor de navegación */
+.hBotones {
+  display: flex;
+  align-items: center;
+  gap: 25px;
+  padding: 15px;
+}
+
+/* Links normales */
+.hBoton {
+  text-decoration: none;
+  color: #ffffff;
+  font-weight: 500;
+  position: relative;
+  transition: 0.3s;
+}
+
+/* Subrayado moderno al hacer hover */
+.hBoton::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -5px;
+  width: 0%;
+  height: 2px;
+  background-color: #ff7a18;
+  transition: 0.3s;
+}
+
+.hBoton:hover::after {
+  width: 100%;
+}
+
+/* Botón destacado (login) */
+#boton-destacado {
     text-decoration: none;
-    border-radius: 5px;
-    gap: 1%;
+  padding: 8px 16px;
+  border-radius: 8px;
+  color: white;
+  font-weight: 600;
+  transition: 0.3s;
+  border: 1px solid #ff7a18;
+}
+
+/* Hover botón */
+#boton-destacado:hover {
+  background-color: #e56712;
 }
