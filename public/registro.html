@@ -42,7 +42,8 @@
     <!--Formulario de registro de adoptantes-->
 
     <div id="estructura">
-        <form action="../src/sesion/signup.php" id="registro">
+        <form action="../src/sesion/signup.php" method="POST" id="registro">
+        <input type="hidden" name="tipo" value="usuario">
         <div class="div-nombre">
             <input type="text" id="adopt-nombre" name="adopt-nombre" placeholder="Nombre" class="formu-diseno">
             
@@ -66,8 +67,8 @@
     </form>
 
     <!--Formulario de registro de protectoras-->
-    <form action="../src/sesion/signup.php" id="registro2">
-    
+    <form action="../src/sesion/signup.php" method="POST" id="registro2">
+        <input type="hidden" name="tipo" value="protectora">
         <input type="text" id="prote-nombre" name="prote-nombre" placeholder="Nombre de la protectora" class="formu-diseno">
         <br>
         
