@@ -234,6 +234,20 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 <?php if ($tipo == "usuario"){ ?>
     <div id="estructura">
+
+
+    <div id="foto-perfil-container">
+        <div id="foto-perfil">
+            <img src="<?=  isset($datos["foto_perfil"]) ? $datos["fotos_perfil"]  : '../img/profile/default/1.jpg' ?>" 
+                 alt="Foto de perfil" id="foto-img">
+        </div>
+        <label for="foto-input" id="foto-label">Cambiar foto</label>
+        <input type="file" name="foto" id="foto-input" accept="image/*" style="display:none">
+    </div>
+
+
+
+        
     <form action="perfil.php" method="POST" id="registro">
         <input type="text" name="nombre" class="formu-diseno"
             placeholder="<?= $datos['nombre'] ?>">
