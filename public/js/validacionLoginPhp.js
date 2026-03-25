@@ -41,9 +41,18 @@ window.addEventListener("load" , () =>{
             document.getElementById("estructura").prepend(div)
             // HABRÁ QUE CAMBAR DONDE SE METE DEPENDIENDO DEL LOGIN
         }
-        
 
     }
+        let bien = params.get("check");
+    console.log(bien);
+    
+        if(bien !== null){
+            let div = document.createElement("div")
+            div.setAttribute("class" , "error")
+            div.textContent = "Usuario creado perfectamente";
+            document.getElementById("estructura").prepend(div)
+            // HABRÁ QUE CAMBAR DONDE SE METE DEPENDIENDO DEL LOGIN
+        }
 
 
 

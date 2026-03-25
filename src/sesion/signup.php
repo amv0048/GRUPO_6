@@ -55,6 +55,20 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && $_POST["tipo"] == "usuario") {
     }
 
     if (isset($nombre, $apellido, $email, $pass)) {
+
+         $check = $_conexion->prepare("SELECT id_adoptante FROM Usuario WHERE email = ?");
+        $check->bind_param("s", $email);
+        $check->execute();
+        $check->store_result();
+
+        if ($check->num_rows > 0) {
+            $check->close();
+            header("Location: ../../public/registro.html?error=email_duplicado");
+            exit();
+        }
+        $check->close();
+
+
         $pass_cifrada = password_hash($pass, PASSWORD_DEFAULT);
         $consulta = $_conexion->prepare(
             "INSERT INTO Usuario (nombre, apellido, email, contrasena, numero, fiabilidad, admin, foto_perfil)
@@ -65,7 +79,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && $_POST["tipo"] == "usuario") {
         $consulta->bind_param("sssss", $nombre, $apellido, $email, $pass_cifrada , $ruta);
         if ($consulta->execute()) {
             $consulta->close();
-            header("Location: ../../public/login.html?check='nice'");
+            header("Location: ../../public/login.html?check=nice");
             exit();
         } else {
             $consulta->close();
@@ -148,7 +162,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && $_POST["tipo"] == "protectora") {
         $consulta->bind_param("ssssss", $nombre, $ciudad, $localidad, $direccion, $email, $pass_cifrada);
         if ($consulta->execute()) {
             $consulta->close();
-            header("Location: ../../public/login.html");
+            header("Location: ../../public/login.html?chek=nice");
             exit();
         } else {
             $consulta->close();

@@ -32,6 +32,7 @@
     </header>
     <br><br><br>
 
+    <div id="estructura">
     <p>Tienes Cuenta ? <a href="login.html">Logearse</a></p>
     <p>No tienes Cuenta ? <a href="registro.html">Registrate</a></p>
     
@@ -42,5 +43,6 @@
         echo "<p> <a href='perfil.php'>Modificar Perfil</a></p>"; // lo mismo aqui renta mandar el name o algo perfil.php?name=""
     }
     ?>
+    </div>
 </body>
 </html>
