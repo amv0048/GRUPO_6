@@ -6,14 +6,12 @@
     <title>Document</title>
     <script src="js/login.js"></script>
     <script src="js/validacionLoginPhp.js"></script>
-    <link rel="stylesheet" href="css/signUp.css">
+    <link rel="stylesheet" href="css/login.css">
     <link rel="stylesheet" href="css/header.css">
 
 
 </head>
 <body>
-
-    <!-- Login cutre para probar-->
 
     <header>
     <!--Logo que rederige al index-->
@@ -23,7 +21,7 @@
         </nav>
         <nav id="header-izq">
             <a href="index.html" target="_self">
-            <img src="" alt="logo" 
+            <img src="../img/profile/default/oficiales/logo.jpg" alt="logo" 
              width=""> <!--Todo esto está en blanco hasta que tengamos el logo listo y el index-->
         </a>
         </nav>
@@ -36,16 +34,22 @@
         </nav>
     </header>
 
-
+<div id="padre-nuestro">
     <div id="estructura">
-    <form action="../src/sesion/login.php" method="post" id="registro">
-        <input type="text" name="login-email" placeholder="email">
-        <input type="password" name="login-password" placeholder="pass">
-        <input type="submit" value="LOG">
+     <h3 id="titulo">BIENVENIDO</h3>   
+    <form action="../src/sesion/login.php" method="post" id="login">
+        <br><br>
+        <input type="text" name="login-email" placeholder="Correo electrónico" class="formu-diseno">
+        <br>
+        <input type="password" name="login-password" placeholder="Contraseña" class="formu-diseno">
+        <br>
+        <input type="submit" value="INICIA SESIÓN">
     </form>
-    </div>
+    <img src="../img/profile/default/oficiales/login-1.jpg" alt="" id="imagen">
     <br><br>
-    <a href="registro.html">Tienes cuenta? Registrate...</a>
+    <a href="registro.html" id="otros">Tienes cuenta? Registrate...</a>
+    </div>
     
+    </div>
 </body>
 </html>
