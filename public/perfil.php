@@ -238,7 +238,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     <div id="foto-perfil-container">
         <div id="foto-perfil">
-            <img src="<?=  isset($datos["foto_perfil"]) ? $datos["fotos_perfil"]  : '../img/profile/default/1.jpg' ?>" 
+            <img src="<?=  isset($datos["foto_perfil"]) ? $datos["foto_perfil"]  : '../img/profile/default/1.jpg' ?>" 
                  alt="Foto de perfil" id="foto-img">
         </div>
         <label for="foto-input" id="foto-label">Cambiar foto</label>

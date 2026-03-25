@@ -57,10 +57,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && $_POST["tipo"] == "usuario") {
     if (isset($nombre, $apellido, $email, $pass)) {
         $pass_cifrada = password_hash($pass, PASSWORD_DEFAULT);
         $consulta = $_conexion->prepare(
-            "INSERT INTO Usuario (nombre, apellido, email, contrasena, numero, fiabilidad, admin)
-             VALUES (?, ?, ?, ?, NULL, 0, 0)"
+            "INSERT INTO Usuario (nombre, apellido, email, contrasena, numero, fiabilidad, admin, foto_perfil)
+             VALUES (?, ?, ?, ?, NULL, 0, 0, ?)"
         );
-        $consulta->bind_param("ssss", $nombre, $apellido, $email, $pass_cifrada);
+        $img = rand(1,2); // CAMBIAR AQUI PARA IMG RANDOMS
+        $ruta = "../img/profile/default/".$img.".jpg";
+        $consulta->bind_param("sssss", $nombre, $apellido, $email, $pass_cifrada , $ruta);
         if ($consulta->execute()) {
             $consulta->close();
             header("Location: ../../public/login.html?check='nice'");
