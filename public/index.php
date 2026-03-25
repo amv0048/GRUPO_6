@@ -9,7 +9,7 @@
 <body>
 
     <p>Tienes Cuenta ? <a href="login.html">Logearse</a></p>
-    <p>No tienes Cuenta ? <a href="signup.html">Registrate</a></p>
+    <p>No tienes Cuenta ? <a href="registro.html">Registrate</a></p>
     <p><a href="perfil.php"> Modificar Perfil</a></p>
     
     <?php 
