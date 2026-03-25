@@ -214,17 +214,22 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <form action="perfil.php" method="POST">
         <input type="text" name="nombre" class="formu-diseno"
             placeholder="<?= $datos['nombre'] ?>">
+            <br>
         <input type="text" name="apellido" class="formu-diseno"
             placeholder="<?= $datos['apellido'] ?>">
+            <br>
         <input type="text" name="email" class="formu-diseno"
             placeholder="<?= $datos['email'] ?>">
+            <br>
         <input type="text" name="numero" class="formu-diseno"
-            placeholder="
-            <?php echo $datos['numero'] ? $datos['numero'] : 'Teléfono';?>">
+            placeholder="<?= $datos['numero'] ? $datos['numero'] : 'Teléfono';?>">
+            <br>
         <input type="password" name="pass_nueva" class="formu-diseno"
             placeholder="Nueva contraseña (vacío para no cambiar)">
+            <br>
         <input type="password" name="pass_nueva2" class="formu-diseno"
             placeholder="Repite la nueva contraseña">
+            <br>
         <input type="submit" value="GUARDAR CAMBIOS">
     </form>
 
@@ -232,21 +237,29 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     <form action="perfil.php" method="POST">
         <input type="text" name="nombre_protectora" class="formu-diseno"
-            placeholder="<?= htmlspecialchars($datos['nombre_protectora']) ?>">
+            placeholder="<?= $datos['nombre_protectora'] ?>">
+            <br>
         <input type="text" name="email" class="formu-diseno"
-            placeholder="<?= htmlspecialchars($datos['email']) ?>">
+            placeholder="<?= $datos['email'] ?>">
+            <br>
         <input type="text" name="telefono" class="formu-diseno"
-            placeholder="<?= $datos['telefono'] ? htmlspecialchars($datos['telefono']) : 'Teléfono' ?>">
+            placeholder="<?= $datos['telefono'] ? $datos['telefono'] : 'Teléfono' ?>">
+            <br>
         <input type="text" name="ciudad" class="formu-diseno"
-            placeholder="<?= htmlspecialchars($datos['ciudad']) ?>">
+            placeholder="<?= $datos['ciudad'] ?>">
+            <br>
         <input type="text" name="localidad" class="formu-diseno"
-            placeholder="<?= htmlspecialchars($datos['localidad']) ?>">
+            placeholder="<?= $datos['localidad'] ?>">
+            <br>
         <input type="text" name="direccion" class="formu-diseno"
-            placeholder="<?= htmlspecialchars($datos['direccion']) ?>">
+            placeholder="<?= $datos['direccion'] ?>">
+            <br>
         <input type="password" name="pass_nueva" class="formu-diseno"
             placeholder="Nueva contraseña (vacío para no cambiar)">
+            <br>
         <input type="password" name="pass_nueva2" class="formu-diseno"
             placeholder="Repite la nueva contraseña">
+            <br>
         <input type="submit" value="GUARDAR CAMBIOS">
     </form>
 
