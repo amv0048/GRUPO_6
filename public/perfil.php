@@ -196,22 +196,45 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mi Perfil</title>
     <link rel="stylesheet" href="css/header.css">
+    <link rel="stylesheet" href="css/registro.css">
 </head>
 <body>
 
-<?php if (isset($ok)): ?>
+<header>
+    <!--Logo que rederige al index-->
+        <nav class="hBotones">
+            <a class="hBoton" href="" target="_self">PROTECTORAS</a>
+            <a class="hBoton" href="" target="_self">COLABORADORES</a>
+        </nav>
+        <nav id="header-izq">
+            <a href="index.html" target="_self">
+            <img src="" alt="logo" 
+             width=""> <!--Todo esto está en blanco hasta que tengamos el logo listo y el index-->
+        </a>
+        </nav>
+        
+        <nav class="hBotones"> 
+            <a class="hBoton" href="" target="_self">URGENTE</a>
+            <a class="hBoton" href="registro.html" target="_self">REGISTRATE!</a>
+            <a  href="" target="_self" id="boton-destacado">INICIA SESIÓN</a>
+
+        </nav>
+    </header>
+    <br><br><br>
+
+<?php if (isset($ok)){ ?>
     <div class="error" style="background:#EAF3DE; border-color:#97C459; color:#173404"><?= $ok ?></div>
-<?php endif; ?>
-<?php if (isset($err_pass)): ?>
+<?php }; ?>
+<?php if (isset($err_pass)){ ?>
     <div class="error"><?= $err_pass ?></div>
-<?php endif; ?>
-<?php if (isset($err_db)): ?>
+<?php }; ?>
+<?php if (isset($err_db)){ ?>
     <div class="error"><?= $err_db ?></div>
-<?php endif; ?>
+<?php }; ?>
 
 <?php if ($tipo == "usuario"){ ?>
-
-    <form action="perfil.php" method="POST">
+    <div id="estructura">
+    <form action="perfil.php" method="POST" id="registro">
         <input type="text" name="nombre" class="formu-diseno"
             placeholder="<?= $datos['nombre'] ?>">
             <br>
@@ -235,7 +258,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 <?php }else{ ?>
 
-    <form action="perfil.php" method="POST">
+    <form action="perfil.php" method="POST" id="registro">
         <input type="text" name="nombre_protectora" class="formu-diseno"
             placeholder="<?= $datos['nombre_protectora'] ?>">
             <br>
@@ -262,8 +285,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <br>
         <input type="submit" value="GUARDAR CAMBIOS">
     </form>
-
+    </div>
 <?php } ?>
+
+
+<a href="index.php">Volver al Index</a>
 
 </body>
 </html>
