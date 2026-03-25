@@ -18,8 +18,8 @@ if (isset($_SESSION["user"])) {
     $datos = $consulta->get_result()->fetch_assoc();
     $consulta->close();
     $tipo = "usuario";
-    var_dump($datos);
-    echo "gola";
+    //var_dump($datos);
+    //echo "gola";
 } else {
     $consulta = $_conexion->prepare("SELECT * FROM Protectora WHERE id_protectora = ?");
     $consulta->bind_param("i", $_SESSION["id"]);
