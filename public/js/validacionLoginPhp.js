@@ -44,7 +44,7 @@ window.addEventListener("load" , () =>{
 
     }
         let bien = params.get("check");
-    console.log(bien);
+        console.log(bien);
     
         if(bien !== null){
             let div = document.createElement("div")
