@@ -18,7 +18,7 @@
         </nav>
         <nav id="header-izq">
             <a href="index.html" target="_self">
-            <img src="" alt="logo" 
+            <img src="../img/profile/default/oficiales/logo.jpg" alt="logo" 
              width=""> <!--Todo esto está en blanco hasta que tengamos el logo listo y el index-->
         </a>
         </nav>

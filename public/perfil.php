@@ -197,6 +197,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <title>Mi Perfil</title>
     <link rel="stylesheet" href="css/header.css">
     <link rel="stylesheet" href="css/registro.css">
+    <link rel="stylesheet" href="css/perfil.css">
 </head>
 <body>
 
@@ -208,7 +209,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         </nav>
         <nav id="header-izq">
             <a href="index.html" target="_self">
-            <img src="" alt="logo" 
+            <img src="../img/profile/default/oficiales/logo.jpg" alt="logo" 
              width=""> <!--Todo esto está en blanco hasta que tengamos el logo listo y el index-->
         </a>
         </nav>
@@ -223,7 +224,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <br><br><br>
 
 <?php if (isset($ok)){ ?>
-    <div class="error" style="background:#EAF3DE; border-color:#97C459; color:#173404"><?= $ok ?></div>
+    <div class="" style="background-color:#EAF3DE; color:#2d5a27; border-left: 4px solid #dc7530; padding: 12px 20px; 
+    font-size: 14px; font-family: 'Inter', sans-serif; margin: 0 auto 16px auto; 
+    border-radius: 4px; width: 25%;"><?= $ok ?></div>
 <?php }; ?>
 <?php if (isset($err_pass)){ ?>
     <div class="error"><?= $err_pass ?></div>
@@ -233,41 +236,62 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <?php }; ?>
 
 <?php if ($tipo == "usuario"){ ?>
-    <div id="estructura">
+    
+
+    <div id="perfil-wrapper">
 
 
-    <div id="foto-perfil-container">
+    <div id="perfil-header">
         <div id="foto-perfil">
             <img src="<?=  isset($datos["foto_perfil"]) ? $datos["foto_perfil"]  : '../img/profile/default/1.jpg' ?>" 
-                 alt="Foto de perfil" id="foto-img">
+                 alt="Foto de perfil" id="perfil-foto">
         </div>
         <label for="foto-input" id="foto-label">Cambiar foto</label>
         <input type="file" name="foto" id="foto-input" accept="image/*" style="display:none">
+    <!-- HAY QUE HACER QUE LA FOTO QUE SUBA EL QUE SEA SE META EN SU CARPETA Y QUE LA RUTA SE ACTUALIZE
+        Habra que cambiar la ruta con bbdd y respetar el nombre supongo... 
+    -->
     </div>
 
 
 
         
-    <form action="perfil.php" method="POST" id="registro">
-        <input type="text" name="nombre" class="formu-diseno"
+    <form action="perfil.php" method="POST" id="perfil-form">
+        <div class="perfil-fila">
+        <input type="text" name="nombre" 
             placeholder="<?= $datos['nombre'] ?>">
-            <br>
+            
+            </div>
+            <div class="perfil-fila">
         <input type="text" name="apellido" class="formu-diseno"
             placeholder="<?= $datos['apellido'] ?>">
-            <br>
+            
+            </div>
+            <div class="perfil-fila">
         <input type="text" name="email" class="formu-diseno"
             placeholder="<?= $datos['email'] ?>">
-            <br>
+            
+            </div>
+            <div class="perfil-fila">
         <input type="text" name="numero" class="formu-diseno"
             placeholder="<?= $datos['numero'] ? $datos['numero'] : 'Teléfono';?>">
-            <br>
+            
+            </div>
+            <div class="perfil-fila">
         <input type="password" name="pass_nueva" class="formu-diseno"
             placeholder="Nueva contraseña (vacío para no cambiar)">
-            <br>
+            
+            </div>
+            <div class="perfil-fila">
         <input type="password" name="pass_nueva2" class="formu-diseno"
             placeholder="Repite la nueva contraseña">
-            <br>
+            
+
+</div>
+<div class="perfil-fila">
         <input type="submit" value="GUARDAR CAMBIOS">
+</div>
+<br>
     </form>
 
 <?php }else{ ?>
@@ -303,7 +327,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <?php } ?>
 
 
-<a href="index.php">Volver al Index</a>
+<a href="index.php" >Volver al Index</a>
 
 </body>
 </html>
