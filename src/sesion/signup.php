@@ -1,8 +1,9 @@
 <?php
 
-require '../PHPMailer/PHPMailer.php';
-require '../PHPMailer/SMTP.php';
-require '../PHPMailer/Exception.php';
+require '../PHPMailer.php';
+require '../SMTP.php';
+require '../Exception.php';
+require '../config.php';
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\SMTP;
 use PHPMailer\PHPMailer\Exception;
@@ -92,8 +93,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && $_POST["tipo"] == "usuario") {
             $mail->isSMTP();
             $mail->Host       = 'smtp.gmail.com';
             $mail->SMTPAuth   = true;
-            $mail->Username   = 'salvaqv8@gmail.com';
-            $mail->Password   = 'qzrl mmqr odhr zeql';
+            $mail->Username   = MAIL_USER;
+            $mail->Password   = MAIL_PASS;
             $mail->SMTPSecure = 'tls';
             $mail->Port       = 587;
 
