@@ -3,7 +3,7 @@
 require '../PHPMailer.php';
 require '../SMTP.php';
 require '../Exception.php';
-require '../config.php';
+require '../config1.php';
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\SMTP;
 use PHPMailer\PHPMailer\Exception;
