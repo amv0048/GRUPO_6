@@ -1,4 +1,11 @@
 <?php
+
+require '../PHPMailer/PHPMailer.php';
+require '../PHPMailer/SMTP.php';
+require '../PHPMailer/Exception.php';
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\SMTP;
+use PHPMailer\PHPMailer\Exception;
 require "conexion.php";
 error_reporting(E_ALL);
 ini_set("display_errors", 1);
@@ -79,6 +86,25 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && $_POST["tipo"] == "usuario") {
         $consulta->bind_param("sssss", $nombre, $apellido, $email, $pass_cifrada , $ruta);
         if ($consulta->execute()) {
             $consulta->close();
+            // CODIGO EMAIL
+
+            $mail = new PHPMailer(true);
+            $mail->isSMTP();
+            $mail->Host       = 'smtp.gmail.com';
+            $mail->SMTPAuth   = true;
+            $mail->Username   = 'salvaqv8@gmail.com';
+            $mail->Password   = 'qzrl mmqr odhr zeql';
+            $mail->SMTPSecure = 'tls';
+            $mail->Port       = 587;
+
+            $mail->setFrom('salvaqv8@gmail.com', 'Go Catch');
+            $mail->addAddress($email);
+            $mail->Subject = '¡Bienvenido a Go Catch!';
+            $mail->Body    = "Hola $nombre, tu registro ha sido exitoso. ¡Bienvenido!";
+
+            $mail->send();
+
+
             header("Location: ../../public/login.html?check=nice");
             exit();
         } else {
