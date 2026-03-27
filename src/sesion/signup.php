@@ -189,6 +189,24 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && $_POST["tipo"] == "protectora") {
         $consulta->bind_param("ssssss", $nombre, $ciudad, $localidad, $direccion, $email, $pass_cifrada);
         if ($consulta->execute()) {
             $consulta->close();
+
+            $mail = new PHPMailer(true);
+            $mail->isSMTP();
+            $mail->Host       = 'smtp.gmail.com';
+            $mail->SMTPAuth   = true;
+            $mail->Username   = MAIL_USER;
+            $mail->Password   = MAIL_PASS;
+            $mail->SMTPSecure = 'tls';
+            $mail->Port       = 587;
+
+            $mail->setFrom(MAIL_USER, 'Go Catch');
+            $mail->addAddress($email);
+            $mail->Subject = '¡Bienvenido a Go Catch!';
+            $mail->Body    = "Hola $nombre, tu registro ha sido exitoso. ¡Bienvenido!, gracias por contar con nosotros para 
+            la gestion !!! ";
+
+            $mail->send();
+
             header("Location: ../../public/login.html?chek=nice");
             exit();
         } else {
