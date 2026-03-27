@@ -98,7 +98,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && $_POST["tipo"] == "usuario") {
             $mail->SMTPSecure = 'tls';
             $mail->Port       = 587;
 
-            $mail->setFrom('salvaqv8@gmail.com', 'Go Catch');
+            $mail->setFrom(MAIL_USER, 'Go Catch');
             $mail->addAddress($email);
             $mail->Subject = '¡Bienvenido a Go Catch!';
             $mail->Body    = "Hola $nombre, tu registro ha sido exitoso. ¡Bienvenido!";
