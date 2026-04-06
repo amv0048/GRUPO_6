@@ -26,7 +26,7 @@
         <nav class="hBotones"> 
             <a class="hBoton" href="" target="_self">URGENTE</a>
             <a class="hBoton" href="registro.html" target="_self">REGISTRATE!</a>
-            <a  href="" target="_self" id="boton-destacado">INICIA SESIÓN</a>
+            <a  href="login.html" target="_self" id="boton-destacado">INICIA SESIÓN</a>
 
         </nav>
     </header>
