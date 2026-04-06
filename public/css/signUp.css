@@ -1,0 +1,166 @@
+#padre-nuestro{
+    width:100%;
+    font-family: 'roboto', sans-serif;
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    grid-template-rows: repeat(6, 1fr);
+    grid-template-areas: ". e . . ." ". f f f ." ". f f f ." ". f f f ." ". f f f ." ". . . . .";
+}
+.vAdoptante #registro2{
+    display:none;
+}
+.vProtectora #registro{
+    display:none;
+}
+.vAdoptante{
+    background-color: #FDE7DA;
+}
+.vProtectora{
+    background-color: #CBD6E6;
+}
+#elegir-registro{
+    grid-area:e;
+    display: flex;
+    height: 25%;
+    justify-self: start;
+    align-self: end;
+}
+#elegir-registro button{
+    border: none;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    font-weight: bold;
+}
+
+.vAdoptante #elegir-registro #protectora, .vProtectora #elegir-registro #adoptantes{
+    background-color: rgb(237, 236, 236);
+    box-shadow: inset 0 -3px 5px rgba(0,0,0,0.2);
+}
+.vAdoptante #elegir-registro #adoptantes{
+    background-color: #dc7530;
+    color: white;
+}
+
+.vProtectora #elegir-registro #protectora{
+    background-color: #0D2D51;
+    color: white;
+}
+
+#estructura{
+    grid-area: f;
+    background-color: rgb(245, 242, 242);
+    padding: 5%;
+    border-radius: 0px 10px 10px 10px;
+    box-shadow: 3px 4px 10px rgba(0,0,0,0.5);
+}
+#registro2{
+    display: flex;
+    flex-direction: column;
+    align-items: center;  
+}
+input[type="text"], input[type="password"]{
+    height: 30px;
+    width: 350px;
+    border-radius: 5px;
+    background-color: white;
+    box-shadow: 1px 1px 3px rgba(0,0,0,0.2);
+    border: 1.5px solid #c4c4c3;
+}
+/*Modificaciones versión adoptante*/
+
+#registro{
+    display: flex;
+    flex-direction: column;
+    align-items: center; 
+}
+
+.vAdoptante #registro input:focus::placeholder{
+    color: #dc7530;
+}
+
+#registro input:focus{
+    outline: none;
+    border: 1.5px solid #dc7530;
+}
+#registro input[type="submit"]{
+    width: 120px;
+    height: 35px;
+    background-color: #dc7530;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    box-shadow: 2px 2px 5px rgba(0,0,0,0.3);
+    transition: all 0.3s ease;
+}
+#registro input[type="submit"]:hover{
+    background-color: #d4590c;
+    box-shadow: 4px 4px 10px rgba(0,0,0,0.5);
+    cursor: pointer;
+}
+/*Modificaciones versión protectora*/
+
+#prote-ciudad{
+    height: 33px;
+    width: 80px;
+    border-radius: 5px;
+    background-color: white;
+    box-shadow: 1px 1px 3px rgba(0,0,0,0.2);
+    border: 1.5px solid #c4c4c3;
+     color: #808080;
+}
+#prote-ciudad:focus{
+    outline: none;
+    border: 1.5px solid #0D2D51;
+    color:#0D2D51
+}
+#prote-localidad{
+    width: 270px;
+}
+.vProtectora #registro2 input:focus::placeholder{
+    color: #0D2D51;
+}
+#registro2 input:focus{
+    outline: none;
+    border: 1.5px solid #0D2D51;
+}
+
+#grupo1{
+    display: flex;
+}
+#grupo1 div{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+#registro2 input[type="submit"]{
+    width: 120px;
+    height: 35px;
+    background-color: #0D2D51;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    box-shadow: 2px 2px 5px rgba(0,0,0,0.3);
+    transition: all 0.3s ease;
+}
+#registro2 input[type="submit"]:hover{
+    background-color: #000F2D;
+    box-shadow: 4px 4px 10px rgba(0,0,0,0.5);
+    cursor: pointer;
+}
+
+/*
+Creado por mi, para ver errores?
+*/
+.error{
+    display: block;
+    color: #8B0000;
+    background-color: #FCEBEB;
+    border: 1px solid #F09595;
+    border-radius: 4px;
+    padding: 10px 14px;
+    margin: 8px 0;
+    font-size: 14px;
+    text-align: center;
+}

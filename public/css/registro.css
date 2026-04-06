@@ -1,0 +1,307 @@
+/* ===== RESET BASE ===== */
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+body {
+    font-family: 'Poppins', sans-serif;
+    color: #333;
+    font-size: 13px;
+    margin: 0;
+}
+img { max-width: 100%; }
+p, h1, h2, h3, h4, h5, h6 { margin: 0; }
+a:hover { text-decoration: none; }
+input, textarea, select, button {
+    font-family: 'Poppins', sans-serif;
+    color: #333;
+    font-size: 13px;
+}
+select {
+    -moz-appearance: none;
+    -webkit-appearance: none;
+    cursor: pointer;
+}
+
+/* ===== FONDO PÁGINA ===== */
+#padre-nuestro {
+    min-height: calc(100vh - 85px);
+    background: #0D2D51;
+    display: flex;
+    align-items: center;
+    padding: 40px 20px;
+}
+
+/* ===== TARJETA PRINCIPAL ===== */
+#estructura {
+    max-width: 920px;
+    width: 100%;
+    min-height: 660px;     /* altura fija: siempre la del formulario más largo */
+    margin: auto;
+    background: #fff;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: stretch;  /* ambas columnas siempre a la misma altura */
+    border-radius: 6px;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+}
+
+/* Error insertado por JS al inicio de #estructura */
+#estructura > .error {
+    width: 100%;
+    padding: 12px 20px;
+    background-color: #FCEBEB;
+    border-bottom: 1px solid #F09595;
+    color: #8B0000;
+    font-size: 13px;
+    text-align: center;
+}
+
+/* ===== IMAGEN IZQUIERDA ===== */
+.image-holder {
+    width: 45%;
+    min-height: 660px;     /* mismo mínimo que la tarjeta */
+}
+#imagen {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center top;
+    display: block;
+}
+
+/* ===== ÁREA DEL FORMULARIO ===== */
+.form-area {
+    width: 55%;
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+}
+
+/* ===== TABS (SELECTOR ADOPTANTE / PROTECTORA) ===== */
+.tab-switcher {
+    display: flex;
+    border-bottom: 2px solid #f0f0f0;
+}
+.tab-btn {
+    flex: 1;
+    padding: 14px 10px;
+    border: none;
+    background: #f7f7f7;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background 0.25s, color 0.25s;
+    color: #999;
+    border-bottom: 3px solid transparent;
+    margin-bottom: -2px;
+    font-family: 'Poppins', sans-serif;
+}
+
+/* Tab activo: Adoptante */
+.vAdoptante #adoptantes {
+    background: #fff;
+    color: #CA7842;
+    border-bottom-color: #CA7842;
+}
+/* Tab activo: Protectora */
+.vProtectora #protectora {
+    background: #fff;
+    color: #0D2D51;
+    border-bottom-color: #0D2D51;
+}
+.tab-btn:hover {
+    background: #fff;
+    color: #333;
+}
+
+/* ===== VISIBILIDAD DE FORMULARIOS ===== */
+.vAdoptante #registro2 {
+    display: none;
+}
+.vProtectora #registro {
+    display: none;
+}
+
+/* ===== FORMULARIOS ===== */
+#registro,
+#registro2 {
+    padding: 24px 40px 16px;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    justify-content: center;
+}
+.form-title {
+    text-transform: uppercase;
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    color: #0D2D51;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+/* ===== INPUTS ===== */
+.form-group {
+    display: flex;
+    gap: 16px;
+}
+.form-wrapper {
+    position: relative;
+    margin-bottom: 18px;
+}
+.form-group .form-wrapper {
+    flex: 1;
+}
+.form-wrapper i {
+    position: absolute;
+    bottom: 7px;
+    right: 0;
+    color: #CA7842;
+    font-size: 15px;
+    pointer-events: none;
+}
+.form-control {
+    border: none;
+    border-bottom: 1px solid #ccc;
+    display: block;
+    width: 100%;
+    height: 32px;
+    padding: 0 20px 0 0;
+    font-size: 13px;
+    color: #333;
+    background: transparent;
+    transition: border-color 0.3s;
+}
+.form-control:focus {
+    outline: none;
+}
+.form-control::placeholder {
+    color: #aaa;
+    font-family: 'Poppins', sans-serif;
+}
+
+/* Foco en modo adoptante */
+.vAdoptante .form-control:focus {
+    border-bottom-color: #CA7842;
+}
+/* Foco en modo protectora */
+.vProtectora .form-control:focus {
+    border-bottom-color: #0D2D51;
+}
+.vProtectora .form-wrapper i {
+    color: #0D2D51;
+}
+
+/* ===== SELECT (CIUDAD) ===== */
+#grupo1 {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 2px;
+}
+.ciudad-w {
+    flex: 0 0 110px;
+}
+.localidad-w {
+    flex: 1;
+}
+#prote-ciudad {
+    background: transparent;
+    border-bottom-color: #ccc;
+    padding-left: 0;
+}
+#prote-ciudad:focus {
+    border-bottom-color: #0D2D51;
+}
+
+/* ===== BOTONES SUBMIT ===== */
+#registro button[type="submit"],
+#registro2 button[type="submit"] {
+    border: none;
+    width: 100%;
+    height: 48px;
+    margin-top: 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    color: #fff;
+    border-radius: 4px;
+    transition: background 0.3s, transform 0.15s;
+    font-family: 'Poppins', sans-serif;
+}
+/* Botón adoptante */
+#registro button[type="submit"] {
+    background: #CA7842;
+}
+#registro button[type="submit"]:hover {
+    background: #b56a32;
+    transform: translateY(-1px);
+}
+/* Botón protectora */
+#registro2 button[type="submit"] {
+    background: #0D2D51;
+}
+#registro2 button[type="submit"]:hover {
+    background: #124076;
+    transform: translateY(-1px);
+}
+/* Animación flecha */
+#registro button[type="submit"] i,
+#registro2 button[type="submit"] i {
+    transition: transform 0.3s;
+}
+#registro button[type="submit"]:hover i,
+#registro2 button[type="submit"]:hover i {
+    animation: arrow-slide 0.4s ease;
+}
+@keyframes arrow-slide {
+    0%   { transform: translateX(0); }
+    40%  { transform: translateX(7px); }
+    70%  { transform: translateX(-3px); }
+    100% { transform: translateX(0); }
+}
+
+/* ===== ENLACE LOGIN (otros) ===== */
+#otros {
+    padding: 14px 40px 20px;
+    text-align: center;
+}
+#otros a {
+    font-size: 12px;
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.2s;
+}
+.vAdoptante #otros a {
+    color: #CA7842;
+}
+.vAdoptante #otros a:hover {
+    color: #0D2D51;
+}
+.vProtectora #otros a {
+    color: #0D2D51;
+}
+.vProtectora #otros a:hover {
+    color: #CA7842;
+}
+
+/* ===== MENSAJES DE ERROR ===== */
+.error {
+    display: block;
+    color: #8B0000;
+    background-color: #FCEBEB;
+    border: 1px solid #F09595;
+    border-radius: 4px;
+    padding: 10px 14px;
+    margin: 6px 0;
+    font-size: 12px;
+    text-align: center;
+}

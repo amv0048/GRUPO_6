@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Go Catch — Inicia sesión</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/material-design-iconic-font/dist/css/material-design-iconic-font.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/header.css">
+    <link rel="stylesheet" href="css/login.css">
+    <script src="js/login.js" defer></script>
+    <script src="js/validacionLoginPhp.js" defer></script>
+</head>
+<body>
+
+    <header>
+        <nav class="hBotones">
+            <a class="hBoton" href="" target="_self">PROTECTORAS</a>
+            <a class="hBoton" href="" target="_self">COLABORADORES</a>
+        </nav>
+        <nav id="header-izq">
+            <a href="index.php" target="_self">
+                <img src="../img/profile/default/oficiales/logo.svg" alt="Go Catch" height="50">
+            </a>
+        </nav>
+        <nav class="hBotones">
+            <a class="hBoton" href="" target="_self">URGENTE</a>
+            <a class="hBoton" href="registro.html" target="_self">REGÍSTRATE</a>
+            <a href="" target="_self" id="boton-destacado">INICIA SESIÓN</a>
+        </nav>
+    </header>
+
+    <div id="padre-nuestro">
+        <div id="estructura">
+
+            <div class="image-holder">
+                <img src="../img/profile/default/oficiales/login-1.jpg" alt="mascota" id="imagen">
+            </div>
+
+            <div class="form-area">
+                <form action="../src/sesion/login.php" method="post" id="login">
+                    <h3 id="titulo">Bienvenido</h3>
+                    <div class="form-wrapper">
+                        <input type="text" name="login-email" placeholder="Correo electrónico" class="form-control">
+                        <i class="zmdi zmdi-email"></i>
+                    </div>
+                    <div class="form-wrapper">
+                        <input type="password" name="login-password" placeholder="Contraseña" class="form-control">
+                        <i class="zmdi zmdi-lock"></i>
+                    </div>
+                    <button type="submit">INICIA SESIÓN <i class="zmdi zmdi-arrow-right"></i></button>
+                </form>
+                <a href="registro.html" id="otros">¿No tienes cuenta? Regístrate aquí</a>
+            </div>
+
+        </div>
+    </div>
+
+</body>
+</html>
