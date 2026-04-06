@@ -1,209 +1,307 @@
+/* ===== RESET BASE ===== */
+*, *::before, *::after {
+    box-sizing: border-box;
+}
 body {
-  font-family: 'Inter', sans-serif;
-  width: 100%;
+    font-family: 'Poppins', sans-serif;
+    color: #333;
+    font-size: 13px;
+    margin: 0;
 }
-#padre-nuestro{
-    width:100%;
-    /*background-color: #f4f6f9;*/
-    background-color: #213c31;
-    padding: 20px;
+img { max-width: 100%; }
+p, h1, h2, h3, h4, h5, h6 { margin: 0; }
+a:hover { text-decoration: none; }
+input, textarea, select, button {
+    font-family: 'Poppins', sans-serif;
+    color: #333;
+    font-size: 13px;
+}
+select {
+    -moz-appearance: none;
+    -webkit-appearance: none;
+    cursor: pointer;
 }
 
-.vAdoptante #registro2,  .vAdoptante #adoptantes{
-    display:none;
-}
-.vProtectora #registro, .vProtectora #protectora{
-    display:none;
-}
-
-.div-nombre{
-    width: 350px;
+/* ===== FONDO PÁGINA ===== */
+#padre-nuestro {
+    min-height: calc(100vh - 85px);
+    background: #0D2D51;
     display: flex;
-    gap: 20px;
+    align-items: center;
+    padding: 40px 20px;
 }
-.div-nombre input[type="text"]{
-    width: 50%;
-}
-/*
-#elegir-registro{
-    grid-area:e;
+
+/* ===== TARJETA PRINCIPAL ===== */
+#estructura {
+    max-width: 920px;
+    width: 100%;
+    min-height: 660px;     /* altura fija: siempre la del formulario más largo */
+    margin: auto;
+    background: #fff;
     display: flex;
-    height: 25%;
-    justify-self: start;
-    align-self: end;
-}
-#elegir-registro button{
-    border: none;
-    border-top-left-radius: 10px;
-    border-top-right-radius: 10px;
-    font-weight: bold;
+    flex-wrap: wrap;
+    align-items: stretch;  /* ambas columnas siempre a la misma altura */
+    border-radius: 6px;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
 }
 
-.vAdoptante #elegir-registro #protectora, .vProtectora #elegir-registro #adoptantes{
-    background-color: rgb(237, 236, 236);
-    box-shadow: inset 0 -3px 5px rgba(0,0,0,0.2);
-}
-.vAdoptante #elegir-registro #adoptantes{
-    background-color: #dc7530;
-    color: white;
+/* Error insertado por JS al inicio de #estructura */
+#estructura > .error {
+    width: 100%;
+    padding: 12px 20px;
+    background-color: #FCEBEB;
+    border-bottom: 1px solid #F09595;
+    color: #8B0000;
+    font-size: 13px;
+    text-align: center;
 }
 
-.vProtectora #elegir-registro #protectora{
-    background-color: #0D2D51;
-    color: white;
-} */
-
-#estructura{
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    grid-template-rows: 90% 10%;
-    grid-template-areas:  "f p" "o p";
-    background-color: rgb(239, 238, 238);
-    padding: 3%;
-    border-radius: 10px;
-    box-shadow: 3px 4px 10px rgba(0,0,0,0.5);
-    width: 60%;
-    justify-self: center;
-    align-self: center;
+/* ===== IMAGEN IZQUIERDA ===== */
+.image-holder {
+    width: 45%;
+    min-height: 660px;     /* mismo mínimo que la tarjeta */
 }
-#registro2{
-    grid-area: f;
+#imagen {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center top;
+    display: block;
+}
+
+/* ===== ÁREA DEL FORMULARIO ===== */
+.form-area {
+    width: 55%;
     display: flex;
     flex-direction: column;
-    align-items: center;  
+    padding: 0;
+}
+
+/* ===== TABS (SELECTOR ADOPTANTE / PROTECTORA) ===== */
+.tab-switcher {
+    display: flex;
+    border-bottom: 2px solid #f0f0f0;
+}
+.tab-btn {
+    flex: 1;
+    padding: 14px 10px;
+    border: none;
+    background: #f7f7f7;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background 0.25s, color 0.25s;
+    color: #999;
+    border-bottom: 3px solid transparent;
+    margin-bottom: -2px;
+    font-family: 'Poppins', sans-serif;
+}
+
+/* Tab activo: Adoptante */
+.vAdoptante #adoptantes {
+    background: #fff;
+    color: #CA7842;
+    border-bottom-color: #CA7842;
+}
+/* Tab activo: Protectora */
+.vProtectora #protectora {
+    background: #fff;
+    color: #0D2D51;
+    border-bottom-color: #0D2D51;
+}
+.tab-btn:hover {
+    background: #fff;
+    color: #333;
+}
+
+/* ===== VISIBILIDAD DE FORMULARIOS ===== */
+.vAdoptante #registro2 {
+    display: none;
+}
+.vProtectora #registro {
+    display: none;
+}
+
+/* ===== FORMULARIOS ===== */
+#registro,
+#registro2 {
+    padding: 24px 40px 16px;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
     justify-content: center;
 }
-#imagen{
-    justify-self: center;
-    align-self: center;
-    grid-area: p;
-    height: 90%;
+.form-title {
+    text-transform: uppercase;
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    color: #0D2D51;
+    margin-bottom: 20px;
+    text-align: center;
 }
-#otros{
+
+/* ===== INPUTS ===== */
+.form-group {
     display: flex;
-    flex-direction: column;
-    justify-items: space-around;
-    align-items: center;
-    justify-self: center;
-    grid-area: o;
+    gap: 16px;
 }
-#otros a{
-    font-size: 80%;
+.form-wrapper {
+    position: relative;
+    margin-bottom: 18px;
+}
+.form-group .form-wrapper {
+    flex: 1;
+}
+.form-wrapper i {
+    position: absolute;
+    bottom: 7px;
+    right: 0;
+    color: #CA7842;
+    font-size: 15px;
+    pointer-events: none;
+}
+.form-control {
+    border: none;
+    border-bottom: 1px solid #ccc;
+    display: block;
+    width: 100%;
+    height: 32px;
+    padding: 0 20px 0 0;
+    font-size: 13px;
+    color: #333;
+    background: transparent;
+    transition: border-color 0.3s;
+}
+.form-control:focus {
+    outline: none;
+}
+.form-control::placeholder {
+    color: #aaa;
+    font-family: 'Poppins', sans-serif;
+}
+
+/* Foco en modo adoptante */
+.vAdoptante .form-control:focus {
+    border-bottom-color: #CA7842;
+}
+/* Foco en modo protectora */
+.vProtectora .form-control:focus {
+    border-bottom-color: #0D2D51;
+}
+.vProtectora .form-wrapper i {
+    color: #0D2D51;
+}
+
+/* ===== SELECT (CIUDAD) ===== */
+#grupo1 {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 2px;
+}
+.ciudad-w {
+    flex: 0 0 110px;
+}
+.localidad-w {
+    flex: 1;
+}
+#prote-ciudad {
+    background: transparent;
+    border-bottom-color: #ccc;
+    padding-left: 0;
+}
+#prote-ciudad:focus {
+    border-bottom-color: #0D2D51;
+}
+
+/* ===== BOTONES SUBMIT ===== */
+#registro button[type="submit"],
+#registro2 button[type="submit"] {
+    border: none;
+    width: 100%;
+    height: 48px;
+    margin-top: 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    color: #fff;
+    border-radius: 4px;
+    transition: background 0.3s, transform 0.15s;
+    font-family: 'Poppins', sans-serif;
+}
+/* Botón adoptante */
+#registro button[type="submit"] {
+    background: #CA7842;
+}
+#registro button[type="submit"]:hover {
+    background: #b56a32;
+    transform: translateY(-1px);
+}
+/* Botón protectora */
+#registro2 button[type="submit"] {
+    background: #0D2D51;
+}
+#registro2 button[type="submit"]:hover {
+    background: #124076;
+    transform: translateY(-1px);
+}
+/* Animación flecha */
+#registro button[type="submit"] i,
+#registro2 button[type="submit"] i {
+    transition: transform 0.3s;
+}
+#registro button[type="submit"]:hover i,
+#registro2 button[type="submit"]:hover i {
+    animation: arrow-slide 0.4s ease;
+}
+@keyframes arrow-slide {
+    0%   { transform: translateX(0); }
+    40%  { transform: translateX(7px); }
+    70%  { transform: translateX(-3px); }
+    100% { transform: translateX(0); }
+}
+
+/* ===== ENLACE LOGIN (otros) ===== */
+#otros {
+    padding: 14px 40px 20px;
+    text-align: center;
+}
+#otros a {
+    font-size: 12px;
     text-decoration: none;
+    font-weight: 500;
+    transition: color 0.2s;
 }
-.vAdoptante #otros a{
-    color: #dc7530;
+.vAdoptante #otros a {
+    color: #CA7842;
 }
-
-.vProtectora #otros a{
-    color: #213c31;
+.vAdoptante #otros a:hover {
+    color: #0D2D51;
 }
-input[type="text"], input[type="password"]{
-    height: 40px;
-    width: 350px;
-    font-size: 90%;
-    background-color: rgb(239, 238, 238);
-    border: 1.5px solid #808080;
-     border-top: none;
-  border-right: none;
-  border-left: none;
+.vProtectora #otros a {
+    color: #0D2D51;
 }
-/*Modificaciones versión adoptante*/
-
-#registro{
-    grid-area: f;
-    display: flex;
-    flex-direction: column;
-    align-items: center; 
-    justify-self: center;
-    align-self: center;
+.vProtectora #otros a:hover {
+    color: #CA7842;
 }
 
-.vAdoptante #registro input:focus::placeholder{
-    color: #dc7530;
-}
-
-#registro input:focus{
-    outline: none;
-    border: 1.5px solid #dc7530;
-    border-top: none;
-  border-right: none;
-  border-left: none;
-}
-#registro input[type="submit"]{
-    width: 120px;
-    height: 35px;
-    background-color: #dc7530;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    font-weight: 600;
-    box-shadow: 2px 2px 5px rgba(0,0,0,0.3);
-    transition: all 0.3s ease;
-}
-#registro input[type="submit"]:hover{
-    background-color: #d4590c;
-    box-shadow: 4px 4px 10px rgba(0,0,0,0.5);
-    cursor: pointer;
-}
-/*Modificaciones versión protectora*/
-
-#prote-ciudad{
-    height: 33px;
-    width: 80px;
-    border-radius: 5px;
-    background-color: white;
-    box-shadow: 1px 1px 3px rgba(0,0,0,0.2);
-    border: 1.5px solid #c4c4c3;
-     color: #808080;
-}
-#prote-ciudad:focus{
-    outline: none;
-    border: 1.5px solid #213c31;
-    color:#213c31
-}
-#prote-localidad{
-    width: 270px;
-}
-.vProtectora #estructura{
-    height: 40rem;
-}
-.vProtectora #registro2 input:focus::placeholder{
-    color: #213c31;
-}
-#registro2 input:focus{
-    outline: none;
-    border: 1.5px solid #213c31;
-    border-top: none;
-  border-right: none;
-  border-left: none;
-}
-
-#grupo1{
-    display: flex;
-}
-#grupo1 div{
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-#registro2 input[type="submit"]{
-    width: 120px;
-    height: 35px;
-    background-color: #213c31;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    font-weight: 600;
-    box-shadow: 2px 2px 5px rgba(0,0,0,0.3);
-    transition: all 0.3s ease;
-}
-#registro2 input[type="submit"]:hover{
-    background-color: #000F2D;
-    box-shadow: 4px 4px 10px rgba(0,0,0,0.5);
-    cursor: pointer;
-}
-
-input, button, select, a {
-  font-family: 'Inter', sans-serif;
+/* ===== MENSAJES DE ERROR ===== */
+.error {
+    display: block;
+    color: #8B0000;
+    background-color: #FCEBEB;
+    border: 1px solid #F09595;
+    border-radius: 4px;
+    padding: 10px 14px;
+    margin: 6px 0;
+    font-size: 12px;
+    text-align: center;
 }

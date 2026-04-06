@@ -1,99 +1,186 @@
-/**/
+
+*, *::before, *::after {
+    box-sizing: border-box;
+}
 body {
-  font-family: 'Inter', sans-serif;
-  width: 100%;
+    font-family: 'Poppins', sans-serif;
+    color: #333;
+    font-size: 13px;
+    margin: 0;
 }
-#padre-nuestro{
-    width:100%;
-    /*background-color: #f4f6f9;*/
-    background-color: #213c31;
-    padding: 20px;
+img { max-width: 100%; }
+p, h1, h2, h3, h4, h5, h6 { margin: 0; }
+a:hover { text-decoration: none; }
+input, textarea, select, button {
+    font-family: 'Poppins', sans-serif;
+    color: #333;
+    font-size: 13px;
 }
-#estructura{
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    grid-template-rows: 30%  50% 20%;
-    grid-template-areas:  "p t" "p f""p o";
-    background-color: rgb(239, 238, 238);
-    padding: 3%;
-    border-radius: 10px;
-    box-shadow: 3px 4px 10px rgba(0,0,0,0.5);
-    width: 60%;
-    justify-self: center;
-    align-self: center;
+
+/*FONDO PÁGINA*/
+#padre-nuestro {
+    min-height: calc(100vh - 85px);
+    background: #0D2D51;
+    display: flex;
+    align-items: center;
+    padding: 40px 20px;
 }
-#titulo{
-    grid-area: t;
-    display:flex;
-    justify-self: center;
-    align-self: flex-end;
-    font-size: 180%;
-    font-weight: bolder;
-    color: #dc7530;
+
+/*TARJETA PRINCIPAL */
+#estructura {
+    max-width: 850px;
+    width: 100%;
+    margin: auto;
+    background: #fff;
+    display: flex;
+    flex-wrap: wrap;       /* permite que .error ocupe el ancho completo */
+    border-radius: 6px;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
 }
-#imagen{
-    justify-self: center;
-    align-self: center;
-    grid-area: p;
-    height: 90%;
+
+/* Error insertado por JS al inicio de #estructura */
+#estructura > .error {
+    width: 100%;
+    padding: 12px 20px;
+    background-color: #FCEBEB;
+    border-bottom: 1px solid #F09595;
+    border-bottom: 1px solid #8B0000;
+    color: #8B0000;
+    font-size: 13px;
+    text-align: center;
 }
-#otros{
+
+/*IMAGEN IZQUIERDA */
+.image-holder {
+    width: 50%;
+}
+#imagen {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+/* ÁREA DEL FORMULARIO */
+.form-area {
+    width: 50%;
+    padding: 40px 45px 36px;
     display: flex;
     flex-direction: column;
-    align-self: flex-start;
-    justify-self: center;
-    grid-area: o;
-    font-size: 80%;
-    text-decoration: none;
-    color: #dc7530;
 }
-input[type="text"], input[type="password"]{
-    height: 40px;
-    width: 350px;
-    font-size: 90%;
-    background-color: rgb(239, 238, 238);
-    border: 1.5px solid #808080;
-     border-top: none;
-  border-right: none;
-  border-left: none;
+
+/*  TÍTULO */
+#titulo {
+    text-transform: uppercase;
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-align: center;
+    color: #0D2D51;
+    margin-bottom: 28px;
 }
-#login{
-    grid-area: f;
-    display: flex;
-    flex-direction: column;
-    align-items: center; 
-    justify-self: center;
-    align-self: flex-start;
+
+/*  INPUTS  */
+.form-wrapper {
+    position: relative;
+    margin-bottom: 22px;
 }
-#login input:focus::placeholder{
-    color: #dc7530;
+.form-wrapper i {
+    position: absolute;
+    bottom: 7px;
+    right: 0;
+    color: #CA7842;
+    font-size: 15px;
+    pointer-events: none;
 }
-#login input:focus{
-    outline: none;
-    border: 1.5px solid #dc7530;
-    border-top: none;
-  border-right: none;
-  border-left: none;
-}
-#login input[type="submit"]{
-    width: 120px;
-    height: 35px;
-    background-color: #dc7530;
-    color: white;
+.form-control {
     border: none;
-    border-radius: 8px;
-    font-weight: 600;
-    box-shadow: 2px 2px 5px rgba(0,0,0,0.3);
-    transition: all 0.3s ease;
+    border-bottom: 1px solid #ccc;
+    display: block;
+    width: 100%;
+    height: 32px;
+    padding: 0 20px 0 0;
+    font-size: 13px;
+    color: #333;
+    background: transparent;
+    transition: border-color 0.3s;
 }
-#login input[type="submit"]:hover{
-    background-color: #d4590c;
-    box-shadow: 4px 4px 10px rgba(0,0,0,0.5);
+.form-control:focus {
+    outline: none;
+    border-bottom-color: #CA7842;
+}
+.form-control::placeholder {
+    color: #aaa;
+    font-family: 'Poppins', sans-serif;
+}
+
+/*  FORMULARIO LOGIN  */
+#login {
+    flex: 1;
+}
+
+/*  BOTÓN SUBMIT  */
+#login button[type="submit"] {
+    border: none;
+    width: 100%;
+    height: 50px;
+    margin-top: 30px;
     cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    background: #0D2D51;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    color: #fff;
+    border-radius: 4px;
+    transition: background 0.3s, transform 0.15s;
+    font-family: 'Poppins', sans-serif;
 }
-input, button, select, a{
-  font-family: 'Inter', sans-serif;
+#login button[type="submit"]:hover {
+    background: #CA7842;
+    transform: translateY(-1px);
 }
-h3{
-    font-family: 'Space Grotesk', sans-serif;
+#login button[type="submit"] i {
+    transition: transform 0.3s;
+}
+#login button[type="submit"]:hover i {
+    animation: arrow-slide 0.4s ease;
+}
+@keyframes arrow-slide {
+    0%   { transform: translateX(0); }
+    40%  { transform: translateX(7px); }
+    70%  { transform: translateX(-3px); }
+    100% { transform: translateX(0); }
+}
+
+/*  ENLACE "¿NO TIENES CUENTA?"  */
+#otros {
+    display: block;
+    margin-top: 18px;
+    text-align: center;
+    font-size: 12px;
+    text-decoration: none;
+    color: #CA7842;
+    font-weight: 500;
+    transition: color 0.2s;
+}
+#otros:hover {
+    color: #0D2D51;
+}
+
+/* ===== MENSAJES DE ERROR (clase .error creada por JS) ===== */
+.error {
+    display: block;
+    color: #8B0000;
+    background-color: #FCEBEB;
+    border-bottom: 1px solid #F09595;
+    border-radius: 4px;
+    padding: 10px 14px;
+    margin: 8px 0;
+    font-size: 13px;
+    text-align: center;
 }
