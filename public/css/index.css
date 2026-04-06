@@ -1,0 +1,480 @@
+/* ================================================================
+   INDEX.CSS  —  Go Catch
+   Paleta compartida con login.css / registro.css / perfil.css:
+     Navy oscuro  : #0D2D51
+     Navy medio   : #124076
+     Terracota    : #CA7842
+     Terracota suave: #EDA677
+     Crema        : #F7EEE8
+     Texto oscuro : #333
+     Texto claro  : #aaa
+   ================================================================ */
+
+/* ===== RESET BASE (idéntico al del resto de páginas) ===== */
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+    font-family: 'Poppins', sans-serif;
+    margin: 0;
+    background: #0D2D51;
+    color: #fff;
+    font-size: 13px;
+}
+
+a { text-decoration: none; }
+img { max-width: 100%; display: block; }
+p, h1, h2, h3, h4, h5, h6 { margin: 0; }
+input, select, button { font-family: 'Poppins', sans-serif; }
+
+
+/* ================================================================
+   HERO
+   ================================================================ */
+#hero {
+    padding: 80px 60px 64px;
+    min-height: 300px;
+    display: flex;
+    align-items: center;
+}
+
+#hero-content { max-width: 580px; }
+
+#hero-content h1 {
+    font-size: clamp(2rem, 5vw, 3.2rem);
+    font-weight: 800;
+    line-height: 1.15;
+    letter-spacing: -0.5px;
+    color: #fff;
+    margin-bottom: 14px;
+}
+#hero-content h1 span { color: #CA7842; }
+
+#hero-content > p {
+    font-size: 0.95rem;
+    color: #a8b8cc;
+    margin-bottom: 32px;
+    font-weight: 400;
+    line-height: 1.6;
+}
+
+/* Botones CTA — mismas medidas y transición que los botones de registro */
+#hero-cta { display: flex; gap: 14px; flex-wrap: wrap; }
+
+.cta-btn {
+    display: inline-block;
+    padding: 12px 28px;
+    border-radius: 4px;          /* igual que el resto de botones del proyecto */
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    transition: background 0.3s, transform 0.15s, border-color 0.3s, color 0.3s;
+}
+.cta-primary {
+    background: #CA7842;
+    color: #fff;
+    border: 2px solid #CA7842;
+}
+.cta-primary:hover  { background: #b56a32; border-color: #b56a32; transform: translateY(-1px); }
+
+.cta-secondary {
+    background: transparent;
+    color: #fff;
+    border: 2px solid rgba(255, 255, 255, 0.35);
+}
+.cta-secondary:hover { border-color: #CA7842; color: #CA7842; }
+
+
+/* ================================================================
+   OBJETIVOS
+   ================================================================ */
+#objetivos { padding: 0 60px 72px; }
+
+/* Etiqueta de sección — misma que en perfil.css (.seccion-label) */
+.seccion-etiqueta {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: #CA7842;
+    margin-bottom: 16px;
+}
+.seccion-titulo {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 10px;
+}
+.seccion-subtitulo {
+    font-size: 0.82rem;
+    color: #a8b8cc;
+    margin-bottom: 40px;
+    line-height: 1.6;
+}
+
+#objetivos-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+}
+
+/* Tarjetas de objetivo — terracota, mismo border-radius que tarjetas del proyecto */
+.objetivo-card {
+    background: #CA7842;
+    border-radius: 8px;
+    padding: 36px 24px 32px;
+    text-align: center;
+    transition: transform 0.25s, background 0.25s;
+}
+.objetivo-card:hover { transform: translateY(-4px); background: #b56a32; }
+
+.objetivo-card i {
+    font-size: 2.2rem;
+    color: #fff;
+    margin-bottom: 14px;
+    display: block;
+}
+.objetivo-card p {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #fff;
+    line-height: 1.4;
+}
+
+
+/* ================================================================
+   FILTRO
+   ================================================================ */
+#filtro { padding: 0 60px 0; }
+
+#filtro-form {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    background: rgba(255, 255, 255, 0.07);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 6px;          /* igual que border-radius de tarjetas */
+    padding: 16px 22px;
+    flex-wrap: wrap;
+}
+
+/* Campos — mismo estilo bottom-border que .form-wrapper del resto de páginas */
+.filtro-campo {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 1;
+    min-width: 160px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.25);
+    padding-bottom: 4px;
+    transition: border-color 0.3s;
+}
+.filtro-campo:focus-within { border-bottom-color: #CA7842; }
+
+.filtro-campo i {
+    color: #CA7842;              /* mismo color de icono que en login/registro */
+    font-size: 15px;
+    flex-shrink: 0;
+    pointer-events: none;
+}
+
+.filtro-select {
+    background: transparent;
+    border: none;
+    color: #fff;
+    font-family: 'Poppins', sans-serif;
+    font-size: 13px;
+    width: 100%;
+    cursor: pointer;
+    outline: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+}
+.filtro-select option { background: #0D2D51; color: #fff; }
+.filtro-select::placeholder { color: #aaa; }
+
+/* Botón buscar — mismo estilo que botones submit del proyecto */
+#filtro-btn {
+    background: #CA7842;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    padding: 10px 24px;
+    height: 40px;
+    font-family: 'Poppins', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: background 0.3s, transform 0.15s;
+    white-space: nowrap;
+}
+#filtro-btn:hover { background: #b56a32; transform: translateY(-1px); }
+
+#filtro-reset {
+    font-size: 12px;
+    color: #a8b8cc;
+    font-weight: 500;
+    transition: color 0.2s;
+    white-space: nowrap;
+    cursor: pointer;
+}
+#filtro-reset:hover { color: #EDA677; }
+
+
+/* ================================================================
+   MAPA
+   — Misma lógica de layout dividido que login.css (imagen + formulario)
+   ================================================================ */
+#mapa-section {
+    display: flex;
+    align-items: stretch;
+    min-height: 440px;
+    margin-top: 40px;
+}
+
+#mapa-wrapper { flex: 0 0 62%; position: relative; }
+
+#mapa { width: 100%; height: 100%; min-height: 440px; }
+
+/* Sobrescribir z-index de Leaflet para no interferir con el header */
+.leaflet-pane  { z-index: 1; }
+.leaflet-top,
+.leaflet-bottom { z-index: 2; }
+
+.paw-marker { background: none !important; border: none !important; }
+
+/* Popup Leaflet con tipografía del proyecto */
+.map-popup {
+    font-family: 'Poppins', sans-serif;
+    font-size: 12px;
+    line-height: 1.6;
+    color: #333;
+}
+.map-popup strong { color: #0D2D51; font-weight: 700; }
+
+/* Panel derecho del mapa — mismo fondo navy-medio que cabecera de perfil */
+#mapa-label {
+    flex: 1;
+    background: #124076;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 48px 40px;
+}
+#mapa-label-content { text-align: center; max-width: 280px; }
+
+#mapa-label-content > i {
+    font-size: 2.4rem;
+    color: #CA7842;
+    margin-bottom: 16px;
+    display: block;
+}
+#mapa-label-content h2 {
+    font-size: clamp(1.6rem, 3vw, 2.4rem);
+    font-weight: 800;
+    color: #fff;
+    line-height: 1.2;
+    margin-bottom: 14px;
+}
+#mapa-label-content p {
+    font-size: 0.82rem;
+    color: #a8b8cc;
+    margin-bottom: 24px;
+    line-height: 1.6;
+}
+
+/* Botón localizar — mismo estilo que .cta-secondary */
+#btn-localizar {
+    background: transparent;
+    border: 2px solid #CA7842;
+    color: #CA7842;
+    border-radius: 4px;
+    padding: 10px 22px;
+    font-family: 'Poppins', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: background 0.3s, color 0.3s, transform 0.15s;
+}
+#btn-localizar:hover { background: #CA7842; color: #fff; transform: translateY(-1px); }
+
+
+/* ================================================================
+   CARRUSEL DE ANIMALES
+   ================================================================ */
+#animales {
+    padding: 48px 0 64px;
+    position: relative;
+    overflow: hidden;   /* recorta los cards fuera de pantalla sin afectar los bordes de los visibles */
+}
+
+#carousel-wrapper {
+    display: flex;
+    align-items: center;
+}
+
+/* Botones prev/next — misma paleta que el resto */
+.carousel-btn {
+    flex-shrink: 0;
+    width: 42px;
+    height: 42px;
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    border-radius: 50%;
+    color: #fff;
+    font-size: 1.4rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.25s, transform 0.15s;
+    margin: 0 10px;
+}
+.carousel-btn:hover { background: #CA7842; transform: scale(1.05); }
+
+#carousel-track-container {
+    flex: 1;
+    overflow: visible;  /* el clip lo hace #animales; aquí dejamos respirar el border-radius */
+    padding: 8px 0;
+}
+
+#carousel-track {
+    display: flex;
+    gap: 12px;
+    transition: transform 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Tarjetas de animal */
+.animal-card {
+    flex: 0 0 calc(20% - 10px);   /* 5 visibles descontando el gap */
+    position: relative;
+    overflow: hidden;
+    display: block;
+    aspect-ratio: 3 / 4;
+    background: #124076;
+    border-radius: 10px;
+    transition: transform 0.3s;
+    cursor: pointer;
+}
+.animal-card:hover { transform: scale(1.02); z-index: 2; }
+
+.animal-foto { width: 100%; height: 100%; }
+
+.animal-foto img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center top;
+    display: block;
+    transition: transform 0.4s;
+}
+.animal-card:hover .animal-foto img { transform: scale(1.06); }
+
+/* Placeholder sin foto — misma huella SVG que en el HTML */
+.animal-foto-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(255, 255, 255, 0.15);
+}
+.animal-foto-placeholder svg { width: 56px; height: 56px; }
+
+/* Info sobre la imagen — gradiente igual que en tarjetas de adopción típicas */
+.animal-info {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 36px 14px 14px;
+    background: linear-gradient(to top, rgba(13, 45, 81, 0.92) 0%, transparent 100%);
+    transition: transform 0.3s;
+}
+.animal-card:hover .animal-info { transform: translateY(-2px); }
+
+.animal-nombre {
+    font-size: 12px;
+    font-weight: 700;
+    color: #fff;
+    text-transform: capitalize;
+    margin-bottom: 3px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.animal-detalle {
+    font-size: 11px;
+    color: #EDA677;              /* mismo color que links activos del proyecto */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Estado vacío */
+#sin-animales {
+    text-align: center;
+    padding: 60px 40px;
+    color: #a8b8cc;
+}
+#sin-animales svg {
+    width: 56px;
+    height: 56px;
+    opacity: 0.25;
+    margin: 0 auto 16px;
+}
+#sin-animales p { font-size: 0.9rem; margin-bottom: 20px; }
+#sin-animales a {
+    color: #CA7842;
+    font-weight: 600;
+    border-bottom: 1px solid #CA7842;
+    padding-bottom: 2px;
+    transition: color 0.2s, border-color 0.2s;
+}
+#sin-animales a:hover { color: #EDA677; border-color: #EDA677; }
+
+
+/* ================================================================
+   SECCIÓN PROTECTORAS
+   — Footer suave de la página
+   ================================================================ */
+#protectoras {
+    padding: 60px 60px;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    text-align: center;
+}
+
+
+/* ================================================================
+   RESPONSIVE
+   ================================================================ */
+@media (max-width: 960px) {
+    #hero      { padding: 56px 32px 48px; }
+    #objetivos { padding: 0 32px 56px; }
+    #filtro    { padding: 0 32px; }
+    #protectoras { padding: 48px 32px; }
+
+    #mapa-section { flex-direction: column; }
+    #mapa-wrapper { flex: none; }
+    #mapa { min-height: 320px; }
+    #mapa-label { padding: 36px 32px; }
+
+    .animal-card { flex: 0 0 calc(33.333% - 9px); }   /* 3 visibles en tablet */
+}
+
+@media (max-width: 640px) {
+    #hero-content h1 { font-size: 1.9rem; }
+    #objetivos-grid { grid-template-columns: 1fr; }
+
+    #filtro-form { flex-direction: column; align-items: stretch; }
+    .filtro-campo { min-width: 100%; }
+
+    .animal-card { flex: 0 0 calc(50% - 7px); }   /* 2 visibles en móvil */
+}
