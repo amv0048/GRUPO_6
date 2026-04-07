@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="css/header.css">
     <link rel="stylesheet" href="css/registro.css">
 </head>
+
 <body>
 
     <header>
