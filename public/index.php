@@ -12,6 +12,8 @@ $res_prot = $_conexion->query(
     "SELECT id_protectora, nombre_protectora, ciudad, localidad, direccion, telefono
      FROM Protectora ORDER BY nombre_protectora"
 );
+
+
 if ($res_prot) {
     while ($row = $res_prot->fetch_assoc()) {
         $protectoras_arr[] = $row;
