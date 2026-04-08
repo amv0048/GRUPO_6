@@ -44,7 +44,7 @@ if ($ciudad_filtro !== '') {
 }
 $sql .= " ORDER BY a.fecha_entrada DESC LIMIT 10";
 
-$animales_arr = [];
+$animales_arr = []; // FLAG PROBAR ANIMALES 
 if ($params) {
     $stmt = $_conexion->prepare($sql);
     $stmt->bind_param($types, ...$params);
@@ -117,7 +117,7 @@ elseif (isset($_SESSION['protectora'])) $nombre_sesion = $_SESSION['protectora']
         <?php if (isset($_SESSION['id'])): ?>
             <a class="hBoton" href="perfil.php">
                 <i class="zmdi zmdi-account"></i>
-                <?= htmlspecialchars($nombre_sesion) //TODO NOMBRE?>
+                <?= htmlspecialchars($_SESSION["nombre"]) //TODO NOMBRE?>
             </a>
             <a href="../src/sesion/logout.php" id="boton-destacado">CERRAR SESIÓN</a>
         <?php else: ?>

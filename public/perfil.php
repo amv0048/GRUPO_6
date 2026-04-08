@@ -86,6 +86,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $consulta = $_conexion->prepare($sql);
             $consulta->bind_param($tipos, ...$valores);
             if ($consulta->execute()) {
+                $_SESSION["nombre"] = $nombre;
                 if ($nombre != "") $_SESSION["user"] = $nombre;
                 if ($email != "")  $_SESSION["email"] = $email;
                 $ok = "Perfil actualizado correctamente";
