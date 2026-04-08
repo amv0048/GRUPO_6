@@ -11,7 +11,14 @@ require "conexion.php";
 error_reporting(E_ALL);
 ini_set("display_errors", 1);
 
-if ($_SERVER["REQUEST_METHOD"] == "POST" and $_POST["tipo"] == "usuario" and $_POST["adopt-nombre"] != "") {
+/*
+if(isset($_POST["tipo"])){
+    var_dump($_POST);
+    exit();
+}
+*/
+
+if ($_SERVER["REQUEST_METHOD"] == "POST" and $_POST["tipo"] == "usuario") {
 
     $tmp_nombre = htmlspecialchars(trim($_POST["adopt-nombre"]));
     if ($tmp_nombre == "") {
@@ -183,7 +190,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" and $_POST["tipo"] == "protectora") {
     if (isset($nombre, $ciudad, $localidad, $direccion, $email, $pass)) {
         $pass_cifrada = password_hash($pass, PASSWORD_DEFAULT);
         $consulta = $_conexion->prepare(
-            "INSERT INTO Protectora (nombre_protectora, ciudad, localidad, direccion, email, contraseña, telefono, logo)
+            "INSERT INTO Protectora (nombre_protectora, ciudad, localidad, direccion, email, contrasena, telefono, logo)
              VALUES (?, ?, ?, ?, ?, ?, NULL, NULL)"
         );
         $consulta->bind_param("ssssss", $nombre, $ciudad, $localidad, $direccion, $email, $pass_cifrada);
@@ -207,7 +214,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" and $_POST["tipo"] == "protectora") {
 
             $mail->send();
 
-            header("Location: ../../public/login.html?chek=nice");
+            header("Location: ../../public/login.html?check=nice");
             exit();
         } else {
             $consulta->close();
