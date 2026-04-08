@@ -11,7 +11,7 @@ require "conexion.php";
 error_reporting(E_ALL);
 ini_set("display_errors", 1);
 
-/*
+/* HERRAMIENTA DEBUG
 if(isset($_POST["tipo"])){
     var_dump($_POST);
     exit();

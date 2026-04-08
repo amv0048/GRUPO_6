@@ -104,6 +104,12 @@ elseif (isset($_SESSION['protectora'])) $nombre_sesion = $_SESSION['protectora']
     <nav class="hBotones">
         <a class="hBoton" href="#protectoras">PROTECTORAS</a>
         <a class="hBoton" href="">COLABORADORES</a>
+        <!--FUMADA MIA -->
+        <?php  
+        if(!isset($_SESSION["user"]) and isset($_SESSION["nombre"])){
+            echo "<a class='hBoton' href='listaAnimal.php'>LISTA ANIMAL</a>";
+        }
+        ?>
     </nav>
 
     <nav id="header-izq">
@@ -111,6 +117,9 @@ elseif (isset($_SESSION['protectora'])) $nombre_sesion = $_SESSION['protectora']
             <img src="../img/profile/default/oficiales/logo.svg" alt="Go Catch" height="40">
         </a>
     </nav>
+
+
+
 
     <nav class="hBotones">
         <a class="hBoton" href="#animales">URGENTE</a>
