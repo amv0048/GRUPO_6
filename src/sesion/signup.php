@@ -11,7 +11,7 @@ require "conexion.php";
 error_reporting(E_ALL);
 ini_set("display_errors", 1);
 
-if ($_SERVER["REQUEST_METHOD"] == "POST" && $_POST["tipo"] == "usuario") {
+if ($_SERVER["REQUEST_METHOD"] == "POST" and $_POST["tipo"] == "usuario" and $_POST["adopt-nombre"] != "") {
 
     $tmp_nombre = htmlspecialchars(trim($_POST["adopt-nombre"]));
     if ($tmp_nombre == "") {
@@ -116,7 +116,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && $_POST["tipo"] == "usuario") {
     }
 }
 
-if ($_SERVER["REQUEST_METHOD"] == "POST" && $_POST["tipo"] == "protectora") {
+if ($_SERVER["REQUEST_METHOD"] == "POST" and $_POST["tipo"] == "protectora") {
 
     $tmp_nombre = htmlspecialchars(trim($_POST["prote-nombre"]));
     if ($tmp_nombre == "" || strlen($tmp_nombre) < 2) {
