@@ -65,6 +65,7 @@ CREATE TABLE Colaborador (
 CREATE TABLE Animales (
     id_animal              INT AUTO_INCREMENT PRIMARY KEY,
     id_protectora          INT,
+    nombre                 VARCHAR(100) NOT NULL,
     id_estado              INT,
     especie                VARCHAR(50),
     raza                   VARCHAR(50),

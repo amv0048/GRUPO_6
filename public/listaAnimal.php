@@ -44,7 +44,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["action"]) && $_POST["
 
 // ── CARGA DE ANIMALES ────────────────────────────────────────
 $consulta = $_conexion->prepare(
-    "SELECT a.id_animal, a.especie, a.raza, a.sexo, a.color, a.peso, a.edad,
+    "SELECT a.id_animal, a.nombre, a.especie, a.raza, a.sexo, a.color, a.peso, a.edad,
             a.fecha_entrada, a.descripcion,
             a.compatibilidad_perros, a.compatibilidad_gatos, a.compatibilidad_ninos,
             e.nombre AS estado
@@ -329,6 +329,7 @@ $consulta->close();
                     <thead>
                         <tr>
                             <th>#</th>
+                            <th>Nombre</th>
                             <th>Especie</th>
                             <th>Raza</th>
                             <th>Sexo</th>
@@ -345,6 +346,7 @@ $consulta->close();
                         <?php foreach ($animales as $a): ?>
                         <tr>
                             <td><?= $a['id_animal'] ?></td>
+                            <td><?= htmlspecialchars($a['nombre'] ?? '—') ?></td>
                             <td><?= htmlspecialchars($a['especie'] ?? '—') ?></td>
                             <td><?= htmlspecialchars($a['raza']    ?? '—') ?></td>
                             <td>

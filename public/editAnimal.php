@@ -45,6 +45,7 @@ if (!$animal) {
 // ── PROCESAR ACTUALIZACIÓN ───────────────────────────────────
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
+    $nombre      = htmlspecialchars(trim($_POST["nombre"]));
     $especie     = htmlspecialchars(trim($_POST["especie"]));
     $raza        = htmlspecialchars(trim($_POST["raza"]));
     $sexo        = in_array($_POST["sexo"], ["M", "H"]) ? $_POST["sexo"] : null;
@@ -60,19 +61,19 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $compat_ninos  = isset($_POST["compat_ninos"])  ? 1 : 0;
 
     $sql = "UPDATE Animales SET
-                id_estado = ?, especie = ?, raza = ?, sexo = ?, color = ?,
+                id_estado = ?, nombre = ?, especie = ?, raza = ?, sexo = ?, color = ?,
                 peso = ?, edad = ?, fecha_entrada = ?, descripcion = ?,
                 compatibilidad_perros = ?, compatibilidad_gatos = ?, compatibilidad_ninos = ?
             WHERE id_animal = ? AND id_protectora = ?";
 
     $stmt = $_conexion->prepare($sql);
-    // 14 parámetros: id_estado(i), especie(s), raza(s), sexo(s), color(s),
-    //                peso(d), edad(i), fecha_entrada(s), descripcion(s),
-    //                compat_perros(i), compat_gatos(i), compat_ninos(i),
-    //                id_animal(i), id_protectora(i)
+    // 15 params: id_estado(i), nombre(s), especie(s), raza(s), sexo(s), color(s),
+    //            peso(d), edad(i), fecha(s), descripcion(s),
+    //            compat_perros(i), compat_gatos(i), compat_ninos(i),
+    //            id_animal(i), id_protectora(i)
     $stmt->bind_param(
-        "issssdissiiiii",
-        $id_estado, $especie, $raza, $sexo, $color,
+        "isssssdissiiiii",
+        $id_estado, $nombre, $especie, $raza, $sexo, $color,
         $peso, $edad, $fecha, $descripcion,
         $compat_perros, $compat_gatos, $compat_ninos,
         $id_animal, $id_protectora
@@ -213,12 +214,21 @@ $estados = $_conexion->query("SELECT * FROM EstadoAnimal ORDER BY id_estado")->f
 
                 <p class="form-section-title">Datos básicos</p>
 
+                <div class="form-wrapper">
+                    <input type="text" name="nombre" class="form-control"
+                           placeholder="Nombre del animal"
+                           value="<?= htmlspecialchars($animal['nombre'] ?? '') ?>" required>
+                    <i class="zmdi zmdi-account"></i>
+                </div>
+
                 <div class="form-grid">
                     <div class="form-wrapper">
-                        <input type="text" name="especie" class="form-control"
-                               placeholder="Especie"
-                               value="<?= htmlspecialchars($animal['especie'] ?? '') ?>">
-                        <i class="zmdi zmdi-paw"></i>
+                        <select name="especie" class="form-control" required>
+                            <option value="" disabled <?= !$animal['especie'] ? 'selected' : '' ?>>Especie</option>
+                            <option value="Perro" <?= ($animal['especie'] === 'Perro') ? 'selected' : '' ?>>Perro</option>
+                            <option value="Gato"  <?= ($animal['especie'] === 'Gato')  ? 'selected' : '' ?>>Gato</option>
+                        </select>
+                        <i class="zmdi zmdi-caret-down"></i>
                     </div>
                     <div class="form-wrapper">
                         <input type="text" name="raza" class="form-control"

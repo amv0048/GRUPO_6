@@ -20,6 +20,7 @@ $id_protectora = $_SESSION["id"];
 // ── PROCESAR FORMULARIO ──────────────────────────────────────
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
+    $nombre      = htmlspecialchars(trim($_POST["nombre"]));
     $especie     = htmlspecialchars(trim($_POST["especie"]));
     $raza        = htmlspecialchars(trim($_POST["raza"]));
     $sexo        = in_array($_POST["sexo"], ["M", "H"]) ? $_POST["sexo"] : null;
@@ -35,18 +36,18 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $compat_ninos  = isset($_POST["compat_ninos"])  ? 1 : 0;
 
     $sql = "INSERT INTO Animales
-                (id_protectora, id_estado, especie, raza, sexo, color, peso, edad,
+                (id_protectora, id_estado, nombre, especie, raza, sexo, color, peso, edad,
                  fecha_entrada, descripcion,
                  compatibilidad_perros, compatibilidad_gatos, compatibilidad_ninos)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
     $stmt = $_conexion->prepare($sql);
-    // 13 parámetros: id_protectora(i), id_estado(i), especie(s), raza(s), sexo(s),
-    //                color(s), peso(d), edad(i), fecha_entrada(s), descripcion(s),
-    //                compat_perros(i), compat_gatos(i), compat_ninos(i)
+    // 14 params: id_protectora(i), id_estado(i), nombre(s), especie(s), raza(s), sexo(s),
+    //            color(s), peso(d), edad(i), fecha(s), descripcion(s),
+    //            compat_perros(i), compat_gatos(i), compat_ninos(i)
     $stmt->bind_param(
-        "iissssdissiii",
-        $id_protectora, $id_estado, $especie, $raza, $sexo,
+        "iisssssdissiii",
+        $id_protectora, $id_estado, $nombre, $especie, $raza, $sexo,
         $color, $peso, $edad, $fecha, $descripcion,
         $compat_perros, $compat_gatos, $compat_ninos
     );
@@ -181,10 +182,19 @@ $estados = $_conexion->query("SELECT * FROM EstadoAnimal ORDER BY id_estado")->f
 
                 <p class="form-section-title">Datos básicos</p>
 
+                <div class="form-wrapper">
+                    <input type="text" name="nombre" class="form-control" placeholder="Nombre del animal" required>
+                    <i class="zmdi zmdi-account"></i>
+                </div>
+
                 <div class="form-grid">
                     <div class="form-wrapper">
-                        <input type="text" name="especie" class="form-control" placeholder="Especie (perro, gato…)" required>
-                        <i class="zmdi zmdi-paw"></i>
+                        <select name="especie" class="form-control" required>
+                            <option value="" disabled selected hidden>Especie</option>
+                            <option value="Perro">Perro</option>
+                            <option value="Gato">Gato</option>
+                        </select>
+                        <i class="zmdi zmdi-caret-down"></i>
                     </div>
                     <div class="form-wrapper">
                         <input type="text" name="raza" class="form-control" placeholder="Raza">
