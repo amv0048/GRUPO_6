@@ -193,6 +193,7 @@ $estados = $_conexion->query("SELECT * FROM EstadoAnimal ORDER BY id_estado")->f
                             <option value="" disabled selected hidden>Especie</option>
                             <option value="Perro">Perro</option>
                             <option value="Gato">Gato</option>
+                            <option value="Otro">Otro</option>
                         </select>
                         <i class="zmdi zmdi-caret-down"></i>
                     </div>

@@ -227,6 +227,7 @@ $estados = $_conexion->query("SELECT * FROM EstadoAnimal ORDER BY id_estado")->f
                             <option value="" disabled <?= !$animal['especie'] ? 'selected' : '' ?>>Especie</option>
                             <option value="Perro" <?= ($animal['especie'] === 'Perro') ? 'selected' : '' ?>>Perro</option>
                             <option value="Gato"  <?= ($animal['especie'] === 'Gato')  ? 'selected' : '' ?>>Gato</option>
+                            <option value="Otro"  <?= ($animal['especie'] === 'Otro')  ? 'selected' : '' ?>>Otro</option>
                         </select>
                         <i class="zmdi zmdi-caret-down"></i>
                     </div>
