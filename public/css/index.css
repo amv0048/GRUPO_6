@@ -388,6 +388,30 @@ input, select, button { font-family: 'Poppins', sans-serif; }
 }
 .animal-foto-placeholder svg { width: 56px; height: 56px; }
 
+/* Botón like (corazón) */
+.btn-like {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 3;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(0, 0, 0, 0.45);
+    color: #fff;
+    font-size: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.15s, color 0.2s;
+    flex-shrink: 0;
+}
+.btn-like:hover               { background: rgba(0, 0, 0, 0.65); transform: scale(1.15); }
+.btn-like.liked               { color: #e74c3c; }
+.btn-like.liked:hover         { background: rgba(231, 76, 60, 0.35); }
+
 /* Info sobre la imagen — gradiente igual que en tarjetas de adopción típicas */
 .animal-info {
     position: absolute;

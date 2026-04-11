@@ -118,8 +118,48 @@ CREATE TABLE Adopciones (
 --  3. DATOS INICIALES
 -- ------------------------------------------------------------
 
+-- Likes (depende de Usuario y Animales)
+CREATE TABLE Likes (
+    id_adoptante INT,
+    id_animal    INT,
+    fecha        TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (id_adoptante, id_animal),
+    CONSTRAINT fk_like_adoptante FOREIGN KEY (id_adoptante)
+        REFERENCES Usuario(id_adoptante) ON DELETE CASCADE,
+    CONSTRAINT fk_like_animal FOREIGN KEY (id_animal)
+        REFERENCES Animales(id_animal) ON DELETE CASCADE
+);
+
+
+-- ------------------------------------------------------------
+--  3. DATOS INICIALES
+-- ------------------------------------------------------------
+
 INSERT INTO EstadoAnimal (nombre) VALUES
     ('DISPONIBLE'),
     ('ADOPTADO'),
     ('RESERVADO'),
     ('EN_ACOGIDA');
+
+-- Contraseñas: sustituir 'HASH_AQUI' por el resultado de password_hash('tu_pass', PASSWORD_BCRYPT)
+INSERT INTO Protectora (nombre_protectora, email, contrasena, telefono, ciudad, localidad, direccion) VALUES
+    ('Protectora Patitas Felices', 'patitas@gocatch.es', '$2y$10$uiStNAmfcJY5USoD/x.HQ.gnIaWJuaJYasFAdvS1/U5ZwYEwsogQ.', '600111222', 'Madrid',    'Vallecas',  'Calle Mayor 12'),
+    ('Refugio Huellas del Sur',   'huellas@gocatch.es', '$2y$10$uiStNAmfcJY5USoD/x.HQ.gnIaWJuaJYasFAdvS1/U5ZwYEwsogQ.', '600333444', 'Sevilla',   'Triana',    'Avenida del Río 7');
+
+INSERT INTO Usuario (nombre, apellido, contrasena, email, admin) VALUES
+    ('Admin', 'Go Catch', '$2y$10$uiStNAmfcJY5USoD/x.HQ.gnIaWJuaJYasFAdvS1/U5ZwYEwsogQ.', 'admin@gocatch.es', TRUE);
+
+-- Animales de prueba
+-- id_estado: 1=DISPONIBLE 2=ADOPTADO 3=RESERVADO 4=EN_ACOGIDA
+-- id_protectora: 1=Patitas Felices  2=Huellas del Sur
+INSERT INTO Animales
+    (id_protectora, id_estado, nombre, especie, raza, sexo, color, peso, edad,
+     fecha_entrada, descripcion,
+     compatibilidad_perros, compatibilidad_gatos, compatibilidad_ninos)
+VALUES
+    (1, 1, 'Luna',    'Perro', 'Labrador',        'H', 'Dorado',  28.5, 3, '2024-11-10', 'Muy cariñosa y activa. Le encanta jugar al aire libre.',                  1, 0, 1),
+    (1, 1, 'Milo',    'Gato',  'Europeo',         'M', 'Naranja',  4.2, 2, '2024-12-01', 'Tranquilo y hogareño. Se lleva bien con otros gatos.',                    0, 1, 1),
+    (1, 1, 'Rocky',   'Perro', 'Pastor Alemán',   'M', 'Negro',   32.0, 5, '2025-01-15', 'Leal y protector. Necesita espacio y ejercicio diario.',                  1, 0, 0),
+    (2, 1, 'Nala',    'Gato',  'Siamés',          'H', 'Crema',    3.8, 1, '2025-02-20', 'Juguetona y curiosa. Se adapta bien a cualquier hogar.',                  0, 1, 1),
+    (2, 1, 'Bruno',   'Perro', 'Bulldog Francés', 'M', 'Atigrado',11.0, 4, '2025-03-05', 'Tranquilo y muy sociable. Ideal para pisos pequeños.',                   1, 1, 1),
+    (2, 1, 'Cleo',    'Perro', 'Mestizo',         'H', 'Marrón',  15.5, 2, '2025-03-18', 'Rescatada de la calle. Cariñosa y agradecida con quien la cuida.',       1, 0, 1);

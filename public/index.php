@@ -59,6 +59,18 @@ if ($res_anim) {
     }
 }
 
+// ── LIKES DEL USUARIO ─────────────────────────────────────────
+$liked_ids = [];
+if (isset($_SESSION['id']) && isset($_SESSION['user'])) {
+    $uid = (int)$_SESSION['id'];
+    $res_likes = $_conexion->query(
+        "SELECT id_animal FROM Likes WHERE id_adoptante = $uid"
+    );
+    if ($res_likes) {
+        while ($r = $res_likes->fetch_assoc()) $liked_ids[] = (int)$r['id_animal'];
+    }
+}
+
 // ── OPCIONES DE FILTRO ─────────────────────────────────────────
 $especies = [];
 $res_esp = $_conexion->query(
@@ -275,6 +287,16 @@ elseif (isset($_SESSION['protectora'])) $nombre_sesion = $_SESSION['protectora']
                                 </svg>
                             </div>
                         <?php endif; ?>
+
+                        <?php
+                        $es_liked = in_array((int)$anim['id_animal'], $liked_ids);
+                        ?>
+                        <button class="btn-like<?= $es_liked ? ' liked' : '' ?>"
+                                data-id="<?= (int)$anim['id_animal'] ?>"
+                                type="button"
+                                aria-label="Me gusta">
+                            <i class="zmdi zmdi-favorite<?= $es_liked ? '' : '-outline' ?>"></i>
+                        </button>
                     </div>
 
                     <div class="animal-info">
@@ -460,6 +482,41 @@ document.getElementById('btn-localizar').addEventListener('click', () => {
         },
         () => alert('No se pudo obtener tu ubicación.')
     );
+});
+
+/* ─── LIKES ─────────────────────────────────────────────────── */
+document.addEventListener('click', function(e) {
+    const btn = e.target.closest('.btn-like');
+    if (!btn) return;
+    e.preventDefault();
+    e.stopPropagation();
+
+    const id = btn.dataset.id;
+
+    fetch('like.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: 'id_animal=' + encodeURIComponent(id)
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.error === 'not_logged_in') {
+            window.location.href = 'login.html';
+            return;
+        }
+        // Actualiza original y clones con el mismo data-id
+        document.querySelectorAll(`.btn-like[data-id="${id}"]`).forEach(b => {
+            const icon = b.querySelector('i');
+            if (data.liked) {
+                b.classList.add('liked');
+                icon.className = 'zmdi zmdi-favorite';
+            } else {
+                b.classList.remove('liked');
+                icon.className = 'zmdi zmdi-favorite-outline';
+            }
+        });
+    })
+    .catch(() => {});
 });
 
 /* ─── CARRUSEL ──────────────────────────────────────────────── */
