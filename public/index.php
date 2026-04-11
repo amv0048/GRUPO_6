@@ -9,7 +9,7 @@ $ciudad_filtro  = isset($_GET['ciudad'])  ? trim($_GET['ciudad'])  : '';
 // ── PROTECTORAS PARA EL MAPA ───────────────────────────────────
 $protectoras_arr = [];
 $res_prot = $_conexion->query(
-    "SELECT id_protectora, nombre_protectora, ciudad, localidad, direccion, telefono
+    "SELECT id_protectora, nombre_protectora, ciudad, localidad, direccion, telefono, logo
      FROM Protectora ORDER BY nombre_protectora"
 );
 
@@ -319,7 +319,54 @@ elseif (isset($_SESSION['protectora'])) $nombre_sesion = $_SESSION['protectora']
     <p class="seccion-subtitulo">
         Trabajamos con protectoras de toda España para encontrar hogar a cada animal
     </p>
-    <!-- Grid de protectoras — se puede ampliar en el futuro -->
+
+    <?php if (!empty($protectoras_arr)): ?>
+    <div id="protectoras-grid">
+        <?php foreach ($protectoras_arr as $p): ?>
+        <a class="protectora-card"
+           href="perfilProtectora.php?id=<?= (int)$p['id_protectora'] ?>">
+
+            <div class="protectora-logo">
+                <?php if (!empty($p['logo'])): ?>
+                    <img src="<?= htmlspecialchars($p['logo']) ?>"
+                         alt="<?= htmlspecialchars($p['nombre_protectora']) ?>">
+                <?php endif; ?>
+            </div>
+
+            <div class="protectora-info">
+                <p class="protectora-nombre"><?= htmlspecialchars($p['nombre_protectora']) ?></p>
+
+                <?php if ($p['ciudad'] || $p['localidad']): ?>
+                <p class="protectora-dato">
+                    <i class="zmdi zmdi-pin"></i>
+                    <?= htmlspecialchars(
+                        implode(', ', array_filter([$p['localidad'], $p['ciudad']]))
+                    ) ?>
+                </p>
+                <?php endif; ?>
+
+                <?php if ($p['direccion']): ?>
+                <p class="protectora-dato">
+                    <i class="zmdi zmdi-home"></i>
+                    <?= htmlspecialchars($p['direccion']) ?>
+                </p>
+                <?php endif; ?>
+
+                <?php if ($p['telefono']): ?>
+                <p class="protectora-dato">
+                    <i class="zmdi zmdi-phone"></i>
+                    <?= htmlspecialchars($p['telefono']) ?>
+                </p>
+                <?php endif; ?>
+            </div>
+
+        </a>
+        <?php endforeach; ?>
+    </div>
+    <?php else: ?>
+    <p class="protectoras-vacio">Aún no hay protectoras registradas.</p>
+    <?php endif; ?>
+
 </section>
 
 

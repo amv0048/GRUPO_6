@@ -443,12 +443,93 @@ input, select, button { font-family: 'Poppins', sans-serif; }
 
 /* ================================================================
    SECCIÓN PROTECTORAS
-   — Footer suave de la página
    ================================================================ */
 #protectoras {
-    padding: 60px 60px;
-    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 60px 60px 80px;
+    border-top: 1px solid rgba(165, 11, 11, 0.08);
     text-align: center;
+}
+
+#protectoras-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    margin-top: 32px;
+    text-align: left;
+}
+
+.protectora-card {
+    flex: 0 0 calc(25% - 15px);   /* 4 por fila descontando gaps */
+    background: #839ebd;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    padding: 24px 20px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    text-decoration: none;
+    color: #fff;
+    transition: transform 0.25s, background 0.25s, box-shadow 0.25s;
+    box-sizing: border-box;
+}
+.protectora-card:hover {
+    transform: translateY(-4px);
+    background: #ffffff;
+    box-shadow: 0 8px 28px rgba(0, 0, 0, 0.35);
+    text-decoration: underline;
+}
+.protectora-card:hover .protectora-nombre { color: #0D2D51; }
+.protectora-card:hover .protectora-dato   { color: #4a6480; }
+.protectora-card:hover .protectora-dato i { color: #b56a32; }
+
+/* Logo */
+.protectora-logo {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background: rgba(202, 120, 66, 0.18);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+.protectora-logo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Textos */
+.protectora-info { display: flex; flex-direction: column; gap: 8px; text-decoration: none; }
+
+.protectora-nombre {
+    font-size: 13px;
+    font-weight: 700;
+    color: #fff;
+    line-height: 1.35;
+}
+
+.protectora-dato {
+    font-size: 11px;
+    color: #a8b8cc;
+    text-decoration: none;
+    display: flex;
+    align-items: flex-start;
+    gap: 6px;
+    line-height: 1.5;
+}
+.protectora-dato i {
+    color: #CA7842;
+    font-size: 13px;
+    flex-shrink: 0;
+    margin-top: 1px;
+}
+
+.protectoras-vacio {
+    font-size: 0.85rem;
+    color: #a8b8cc;
+    margin-top: 24px;
 }
 
 
@@ -467,6 +548,8 @@ input, select, button { font-family: 'Poppins', sans-serif; }
     #mapa-label { padding: 36px 32px; }
 
     .animal-card { flex: 0 0 calc(33.333% - 9px); }   /* 3 visibles en tablet */
+
+    .protectora-card { flex: 0 0 calc(50% - 10px); }   /* 2 por fila en tablet */
 }
 
 @media (max-width: 640px) {
@@ -477,4 +560,6 @@ input, select, button { font-family: 'Poppins', sans-serif; }
     .filtro-campo { min-width: 100%; }
 
     .animal-card { flex: 0 0 calc(50% - 7px); }   /* 2 visibles en móvil */
+
+    .protectora-card { flex: 0 0 100%; }   /* 1 por fila en móvil */
 }
