@@ -81,6 +81,44 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     if ($stmt->execute()) {
         $stmt->close();
+
+        // ── SUBIR / REEMPLAZAR FOTO PRINCIPAL ───────────────────
+        if (!empty($_FILES['foto']['name']) && $_FILES['foto']['error'] === UPLOAD_ERR_OK) {
+            $ext_ok  = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+            $ext     = strtolower(pathinfo($_FILES['foto']['name'], PATHINFO_EXTENSION));
+            if (in_array($ext, $ext_ok)) {
+                $dir     = realpath(__DIR__ . '/../img/animales') . '/';
+                $archivo = 'animal_' . $id_animal . '_' . time() . '.' . $ext;
+                if (move_uploaded_file($_FILES['foto']['tmp_name'], $dir . $archivo)) {
+                    $ruta = '../img/animales/' . $archivo;
+
+                    // Borrar archivo antiguo si existe
+                    if (!empty($foto_actual['ruta'])) {
+                        $ruta_fisica = realpath(__DIR__ . '/' . $foto_actual['ruta']);
+                        if ($ruta_fisica && is_file($ruta_fisica)) {
+                            unlink($ruta_fisica);
+                        }
+                    }
+
+                    if (!empty($foto_actual['id_foto'])) {
+                        $upd = $_conexion->prepare(
+                            "UPDATE Galeria SET ruta = ? WHERE id_foto = ?"
+                        );
+                        $upd->bind_param("si", $ruta, $foto_actual['id_foto']);
+                        $upd->execute();
+                        $upd->close();
+                    } else {
+                        $ins = $_conexion->prepare(
+                            "INSERT INTO Galeria (id_animal, ruta, es_principal) VALUES (?, ?, 1)"
+                        );
+                        $ins->bind_param("is", $id_animal, $ruta);
+                        $ins->execute();
+                        $ins->close();
+                    }
+                }
+            }
+        }
+
         header("Location: listaAnimal.php?edited=1");
         exit();
     } else {
@@ -88,6 +126,15 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     }
     $stmt->close();
 }
+
+// ── CARGAR FOTO ACTUAL ───────────────────────────────────────
+$q_foto = $_conexion->prepare(
+    "SELECT id_foto, ruta FROM Galeria WHERE id_animal = ? AND es_principal = 1 LIMIT 1"
+);
+$q_foto->bind_param("i", $id_animal);
+$q_foto->execute();
+$foto_actual = $q_foto->get_result()->fetch_assoc();
+$q_foto->close();
 
 // ── CARGAR ESTADOS ───────────────────────────────────────────
 $estados = $_conexion->query("SELECT * FROM EstadoAnimal ORDER BY id_estado")->fetch_all(MYSQLI_ASSOC);
@@ -210,7 +257,7 @@ $estados = $_conexion->query("SELECT * FROM EstadoAnimal ORDER BY id_estado")->f
 
         <!-- FORMULARIO -->
         <div id="perfil-form-area">
-            <form action="editAnimal.php?id=<?= $id_animal ?>" method="POST" id="registro">
+            <form action="editAnimal.php?id=<?= $id_animal ?>" method="POST" id="registro" enctype="multipart/form-data">
 
                 <p class="form-section-title">Datos básicos</p>
 
@@ -318,6 +365,25 @@ $estados = $_conexion->query("SELECT * FROM EstadoAnimal ORDER BY id_estado")->f
                                <?= $animal['compatibilidad_gatos']  ? 'checked' : '' ?>>
                         <i class="zmdi zmdi-toys"></i> Gatos
                     </label>
+                </div>
+
+                <p class="form-section-title">Foto principal</p>
+
+                <?php if (!empty($foto_actual['ruta'])): ?>
+                    <div style="margin-bottom:14px">
+                        <img src="<?= htmlspecialchars($foto_actual['ruta']) ?>"
+                             alt="Foto actual"
+                             style="max-height:140px;border-radius:8px;object-fit:cover;">
+                        <p style="font-size:11px;color:#999;margin-top:6px">
+                            Foto actual · sube una nueva para reemplazarla
+                        </p>
+                    </div>
+                <?php endif; ?>
+
+                <div class="form-wrapper">
+                    <input type="file" name="foto" class="form-control"
+                           accept="image/jpeg,image/png,image/gif,image/webp">
+                    <i class="zmdi zmdi-camera"></i>
                 </div>
 
                 <button type="submit">GUARDAR CAMBIOS <i class="zmdi zmdi-check"></i></button>

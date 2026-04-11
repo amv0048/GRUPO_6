@@ -53,7 +53,28 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     );
 
     if ($stmt->execute()) {
+        $id_nuevo = $_conexion->insert_id;
         $stmt->close();
+
+        // ── SUBIR FOTO PRINCIPAL ────────────────────────────────
+        if (!empty($_FILES['foto']['name']) && $_FILES['foto']['error'] === UPLOAD_ERR_OK) {
+            $ext_ok  = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+            $ext     = strtolower(pathinfo($_FILES['foto']['name'], PATHINFO_EXTENSION));
+            if (in_array($ext, $ext_ok)) {
+                $dir     = realpath(__DIR__ . '/../img/animales') . '/';
+                $archivo = 'animal_' . $id_nuevo . '_' . time() . '.' . $ext;
+                if (move_uploaded_file($_FILES['foto']['tmp_name'], $dir . $archivo)) {
+                    $ruta = '../img/animales/' . $archivo;
+                    $ins  = $_conexion->prepare(
+                        "INSERT INTO Galeria (id_animal, ruta, es_principal) VALUES (?, ?, 1)"
+                    );
+                    $ins->bind_param("is", $id_nuevo, $ruta);
+                    $ins->execute();
+                    $ins->close();
+                }
+            }
+        }
+
         header("Location: listaAnimal.php?added=1");
         exit();
     } else {
@@ -178,7 +199,7 @@ $estados = $_conexion->query("SELECT * FROM EstadoAnimal ORDER BY id_estado")->f
 
         <!-- FORMULARIO -->
         <div id="perfil-form-area">
-            <form action="addAnimal.php" method="POST" id="registro">
+            <form action="addAnimal.php" method="POST" id="registro" enctype="multipart/form-data">
 
                 <p class="form-section-title">Datos básicos</p>
 
@@ -268,6 +289,14 @@ $estados = $_conexion->query("SELECT * FROM EstadoAnimal ORDER BY id_estado")->f
                         <input type="checkbox" name="compat_gatos">
                         <i class="zmdi zmdi-toys"></i> Gatos
                     </label>
+                </div>
+
+                <p class="form-section-title">Foto principal</p>
+
+                <div class="form-wrapper">
+                    <input type="file" name="foto" class="form-control"
+                           accept="image/jpeg,image/png,image/gif,image/webp">
+                    <i class="zmdi zmdi-camera"></i>
                 </div>
 
                 <button type="submit">AÑADIR ANIMAL <i class="zmdi zmdi-check"></i></button>

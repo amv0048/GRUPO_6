@@ -21,7 +21,7 @@ if ($res_prot) {
 }
 
 // ── ANIMALES DISPONIBLES ───────────────────────────────────────
-$sql = "SELECT a.id_animal, a.especie, a.raza, a.edad, a.sexo,
+$sql = "SELECT a.id_animal, a.nombre, a.especie, a.raza, a.edad, a.sexo,
                g.ruta AS foto,
                p.nombre_protectora, p.ciudad
         FROM Animales a
@@ -279,17 +279,18 @@ elseif (isset($_SESSION['protectora'])) $nombre_sesion = $_SESSION['protectora']
 
                     <div class="animal-info">
                         <p class="animal-nombre">
-                            <?= htmlspecialchars(
-                                ucfirst($anim['especie']) .
-                                ($anim['raza'] ? ' · ' . $anim['raza'] : '')
-                            ) ?>
+                            <?= htmlspecialchars($anim['nombre']) ?>
                         </p>
                         <p class="animal-detalle">
                             <?php
+                            $detalle = ucfirst($anim['especie'] ?? '');
+                            if ($anim['raza']) $detalle .= ' · ' . $anim['raza'];
                             $edad_txt = $anim['edad']
                                 ? $anim['edad'] . ' año' . ($anim['edad'] != 1 ? 's' : '')
                                 : 'Edad desconocida';
-                            echo htmlspecialchars($edad_txt . ' · ' . $anim['ciudad']);
+                            $detalle .= ' · ' . $edad_txt;
+                            if ($anim['ciudad']) $detalle .= ' · ' . $anim['ciudad'];
+                            echo htmlspecialchars($detalle);
                             ?>
                         </p>
                     </div>

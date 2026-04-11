@@ -207,7 +207,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <a class="hBoton" href="" target="_self">COLABORADORES</a>
     </nav>
     <nav id="header-izq">
-        <a href="index.html" target="_self">
+        <a href="index.php" target="_self">
             <img src="../img/profile/default/oficiales/logo.svg" alt="Go Catch" height="40">
         </a>
     </nav>
