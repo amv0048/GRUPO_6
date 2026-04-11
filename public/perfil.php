@@ -27,6 +27,21 @@ if (isset($_SESSION["user"])) {
     $tipo = "protectora";
 }
 
+// ── ELIMINAR PERFIL ──────────────────────────────────────────
+if ($_SERVER["REQUEST_METHOD"] === "POST" && ($_POST['action'] ?? '') === 'eliminar') {
+    if ($tipo === 'usuario') {
+        $del = $_conexion->prepare("DELETE FROM Usuario WHERE id_adoptante = ?");
+    } else {
+        $del = $_conexion->prepare("DELETE FROM Protectora WHERE id_protectora = ?");
+    }
+    $del->bind_param("i", $_SESSION["id"]);
+    $del->execute();
+    $del->close();
+    session_destroy();
+    header("Location: index.php");
+    exit();
+}
+
 // ── LÓGICA DE ACTUALIZACIÓN ──────────────────────────────────
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
@@ -363,8 +378,125 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <a href="index.php">← Volver al inicio</a>
         </div>
 
+        <!-- ELIMINAR PERFIL -->
+        <div id="perfil-eliminar">
+            <button type="button" id="btn-eliminar-perfil">
+                <i class="zmdi zmdi-delete"></i> Eliminar perfil
+            </button>
+        </div>
+
     </div>
 </div>
+
+<!-- MODAL CONFIRMACIÓN -->
+<div id="modal-eliminar" class="modal-overlay">
+    <div class="modal-box">
+        <i class="zmdi zmdi-alert-circle modal-icono"></i>
+        <p class="modal-titulo">¿Eliminar perfil?</p>
+        <p class="modal-msg">Esta acción es irreversible. Desaparecerán todos tus datos.</p>
+        <div class="modal-acciones">
+            <button type="button" id="modal-cancelar" class="modal-btn modal-btn-cancelar">Cancelar</button>
+            <form method="POST" style="margin:0">
+                <input type="hidden" name="action" value="eliminar">
+                <button type="submit" class="modal-btn modal-btn-confirmar">Sí, eliminar</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+#perfil-eliminar {
+    text-align: center;
+    padding: 8px 40px 32px;
+}
+#btn-eliminar-perfil {
+    background: none;
+    border: none;
+    color: #e74c3c;
+    font-family: 'Poppins', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    letter-spacing: 0.5px;
+    opacity: 0.75;
+    transition: opacity 0.2s;
+}
+#btn-eliminar-perfil:hover { opacity: 1; text-decoration: underline; }
+
+.modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.55);
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+.modal-overlay.activo { display: flex; }
+.modal-box {
+    background: #fff;
+    border-radius: 12px;
+    padding: 40px 36px 32px;
+    max-width: 380px;
+    width: 90%;
+    text-align: center;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+}
+.modal-icono {
+    font-size: 2.4rem;
+    color: #e74c3c;
+    margin-bottom: 12px;
+    display: block;
+}
+.modal-titulo {
+    font-size: 16px;
+    font-weight: 700;
+    color: #0D2D51;
+    margin-bottom: 8px;
+}
+.modal-msg {
+    font-size: 13px;
+    color: #666;
+    line-height: 1.6;
+    margin-bottom: 0;
+}
+.modal-acciones {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    margin-top: 28px;
+}
+.modal-btn {
+    padding: 10px 26px;
+    border-radius: 4px;
+    font-family: 'Poppins', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    letter-spacing: 0.5px;
+    transition: background 0.2s, transform 0.15s;
+}
+.modal-btn-cancelar { background: #f0f0f0; color: #555; }
+.modal-btn-cancelar:hover { background: #e0e0e0; }
+.modal-btn-confirmar { background: #e74c3c; color: #fff; }
+.modal-btn-confirmar:hover { background: #c0392b; transform: scale(1.02); }
+</style>
+
+<script>
+document.getElementById('btn-eliminar-perfil').addEventListener('click', function () {
+    document.getElementById('modal-eliminar').classList.add('activo');
+});
+document.getElementById('modal-cancelar').addEventListener('click', function () {
+    document.getElementById('modal-eliminar').classList.remove('activo');
+});
+document.getElementById('modal-eliminar').addEventListener('click', function (e) {
+    if (e.target === this) this.classList.remove('activo');
+});
+</script>
 
 </body>
 </html>
