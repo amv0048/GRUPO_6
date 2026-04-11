@@ -20,12 +20,12 @@
 
 
     // PRODUCCION
-    /* $_servidor = "sql306.infinityfree.com";
-    $_usuario = "if0_41458160";
-    $_contrasena = "On5pI1MXYFxNMhY";
-    $_db = "if0_41458160_db"; */
+    // $_servidor = "sql306.infinityfree.com";
+    // $_usuario = "if0_41458160";
+    // $_contrasena = "On5pI1MXYFxNMhY";
+    // $_db = "if0_41458160_db"; 
 
-    // DESARROLLO (local)
+    //DESARROLLO (local)
     $_servidor = "localhost";
     $_usuario = "root";
     $_contrasena = "";
