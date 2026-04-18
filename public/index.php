@@ -160,6 +160,7 @@ elseif (isset($_SESSION['protectora'])) $nombre_sesion = $_SESSION['protectora']
         <div id="hero-cta">
             <a href="#animales" class="cta-btn cta-primary">Ver animales</a>
             <a href="registro.html" class="cta-btn cta-secondary">Únete a nosotros</a>
+            <a class="cta-btn cta-primary" href="pdf/BOE-204_Codigo_de_Proteccion_y_Bienestar_Animal.pdf" target="_blank">Ver ley de bienestar animal</a>
         </div>
     </div>
 </section>

@@ -37,7 +37,7 @@ input, select, button { font-family: 'Poppins', sans-serif; }
     align-items: center;
 }
 
-#hero-content { max-width: 580px; }
+#hero-content { max-width: 880px; }
 
 #hero-content h1 {
     font-size: clamp(2rem, 5vw, 3.2rem);
