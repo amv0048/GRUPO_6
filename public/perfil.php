@@ -223,7 +223,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $consulta = $_conexion->prepare($sql);
             $consulta->bind_param($tipos, ...$valores);
             if ($consulta->execute()) {
-                if ($nombre_protectora != "") $_SESSION["protectora"] = $nombre_protectora;
+                if ($nombre_protectora != ""){
+                    $_SESSION["protectora"] = $nombre_protectora;
+                    $_SESSION["nombre"] = $nombre_protectora;
+                } 
                 if ($email != "")            $_SESSION["email"] = $email;
                 $ok = "Perfil actualizado correctamente";
                 $consulta2 = $_conexion->prepare("SELECT * FROM Protectora WHERE id_protectora = ?");
