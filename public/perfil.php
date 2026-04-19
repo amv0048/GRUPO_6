@@ -94,6 +94,26 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             }
         }
 
+        // ── FOTO DE PERFIL USUARIO ───────────────────────────────
+        if (!empty($_FILES['foto']['name']) && $_FILES['foto']['error'] === UPLOAD_ERR_OK) {
+            $ext_ok = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+            $ext    = strtolower(pathinfo($_FILES['foto']['name'], PATHINFO_EXTENSION));
+            if (in_array($ext, $ext_ok)) {
+                $carpeta = realpath(__DIR__ . '/../img/userPerfil') . '/user_' . $_SESSION["id"];
+                if (!is_dir($carpeta)) {
+                    mkdir($carpeta, 0755, true);
+                }
+                $archivo = 'perfil_' . time() . '.' . $ext;
+                if (move_uploaded_file($_FILES['foto']['tmp_name'], $carpeta . '/' . $archivo)) {
+                    $ruta_foto = '../img/userPerfil/user_' . $_SESSION["id"] . '/' . $archivo;
+                    $campos[]  = "foto_perfil = ?";
+                    $valores[] = $ruta_foto;
+                    $tipos    .= "s";
+                }
+            }
+        }
+        // ────────────────────────────────────────────────────────
+
         if (!isset($err_pass) && !empty($campos)) {
             $valores[] = $_SESSION["id"];
             $tipos .= "i";
@@ -101,7 +121,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $consulta = $_conexion->prepare($sql);
             $consulta->bind_param($tipos, ...$valores);
             if ($consulta->execute()) {
-                $_SESSION["nombre"] = $nombre;
                 if ($nombre != "") $_SESSION["user"] = $nombre;
                 if ($email != "")  $_SESSION["email"] = $email;
                 $ok = "Perfil actualizado correctamente";
@@ -177,6 +196,26 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             }
         }
 
+        // ── FOTO DE PERFIL PROTECTORA ────────────────────────────
+        if (!empty($_FILES['foto']['name']) && $_FILES['foto']['error'] === UPLOAD_ERR_OK) {
+            $ext_ok = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+            $ext    = strtolower(pathinfo($_FILES['foto']['name'], PATHINFO_EXTENSION));
+            if (in_array($ext, $ext_ok)) {
+                $carpeta = realpath(__DIR__ . '/../img/protectoras') . '/protectora_' . $_SESSION["id"] . '/foto_perfil';
+                if (!is_dir($carpeta)) {
+                    mkdir($carpeta, 0755, true);
+                }
+                $archivo = 'perfil_' . time() . '.' . $ext;
+                if (move_uploaded_file($_FILES['foto']['tmp_name'], $carpeta . '/' . $archivo)) {
+                    $ruta_foto = '../img/protectoras/protectora_' . $_SESSION["id"] . '/foto_perfil/' . $archivo;
+                    $campos[]  = "logo = ?";
+                    $valores[] = $ruta_foto;
+                    $tipos    .= "s";
+                }
+            }
+        }
+        // ────────────────────────────────────────────────────────
+
         if (!isset($err_pass) && !empty($campos)) {
             $valores[] = $_SESSION["id"];
             $tipos .= "i";
@@ -184,7 +223,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $consulta = $_conexion->prepare($sql);
             $consulta->bind_param($tipos, ...$valores);
             if ($consulta->execute()) {
-                $_SESSION["nombre"] = $nombre_protectora;
                 if ($nombre_protectora != "") $_SESSION["protectora"] = $nombre_protectora;
                 if ($email != "")            $_SESSION["email"] = $email;
                 $ok = "Perfil actualizado correctamente";
@@ -240,13 +278,18 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <div id="perfil-header">
             <div id="foto-perfil-container">
                 <div id="foto-perfil">
-                    <img src="<?= isset($datos["foto_perfil"]) ? $datos["foto_perfil"] : '../img/profile/default/1.jpg' ?>"
-                         alt="Foto de perfil" id="foto-img">
+                <img src="<?php
+                    if ($tipo == 'usuario') {
+                        echo isset($datos["foto_perfil"]) && $datos["foto_perfil"] ? htmlspecialchars($datos["foto_perfil"]) : '../img/profile/default/1.jpg';
+                    } else {
+                        echo isset($datos["logo"]) && $datos["logo"] ? htmlspecialchars($datos["logo"]) : '../img/profile/default/1.jpg';
+                    }
+                ?>" alt="Foto de perfil" id="foto-img">
                 </div>
                 <label for="foto-input" id="foto-label">
                     <i class="zmdi zmdi-camera"></i>
                 </label>
-                <input type="file" name="foto" id="foto-input" accept="image/*" style="display:none">
+                <input type="file" name="foto" id="foto-input" accept="image/*" style="display:none" form="registro">
             </div>
 
             <?php if ($tipo == "usuario"): ?>
@@ -273,7 +316,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <div id="perfil-form-area">
 
             <?php if ($tipo == "usuario"): ?>
-            <form action="perfil.php" method="POST" id="registro">
+            <form action="perfil.php" method="POST" id="registro" enctype="multipart/form-data">
 
                 <div class="form-grid">
                     <div class="form-wrapper">
@@ -317,7 +360,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             </form>
 
             <?php else: ?>
-            <form action="perfil.php" method="POST" id="registro">
+            <form action="perfil.php" method="POST" id="registro" enctype="multipart/form-data">
 
                 <div class="form-wrapper">
                     <input type="text" name="nombre_protectora" class="form-control"
@@ -495,6 +538,21 @@ document.getElementById('modal-cancelar').addEventListener('click', function () 
 });
 document.getElementById('modal-eliminar').addEventListener('click', function (e) {
     if (e.target === this) this.classList.remove('activo');
+});
+</script>
+
+<script>
+document.getElementById('foto-input').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    // Previsualizar
+    const reader = new FileReader();
+    reader.onload = function(ev) {
+        document.getElementById('foto-img').src = ev.target.result;
+    };
+    reader.readAsDataURL(file);
+    // Submit directo — el archivo ya está en el input, no hace falta esperar al reader
+    document.getElementById('registro').submit();
 });
 </script>
 
