@@ -3,7 +3,7 @@
 require '../PHPMailer.php';
 require '../SMTP.php';
 require '../Exception.php';
-require '../config1.php';
+//require '../config1.php';
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\SMTP;
 use PHPMailer\PHPMailer\Exception;
@@ -11,7 +11,14 @@ require "conexion.php";
 error_reporting(E_ALL);
 ini_set("display_errors", 1);
 
-if ($_SERVER["REQUEST_METHOD"] == "POST" && $_POST["tipo"] == "usuario") {
+/* HERRAMIENTA DEBUG
+if(isset($_POST["tipo"])){
+    var_dump($_POST);
+    exit();
+}
+*/
+
+if ($_SERVER["REQUEST_METHOD"] == "POST" and $_POST["tipo"] == "usuario") {
 
     $tmp_nombre = htmlspecialchars(trim($_POST["adopt-nombre"]));
     if ($tmp_nombre == "") {
@@ -116,7 +123,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && $_POST["tipo"] == "usuario") {
     }
 }
 
-if ($_SERVER["REQUEST_METHOD"] == "POST" && $_POST["tipo"] == "protectora") {
+if ($_SERVER["REQUEST_METHOD"] == "POST" and $_POST["tipo"] == "protectora") {
 
     $tmp_nombre = htmlspecialchars(trim($_POST["prote-nombre"]));
     if ($tmp_nombre == "" || strlen($tmp_nombre) < 2) {
@@ -183,12 +190,20 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && $_POST["tipo"] == "protectora") {
     if (isset($nombre, $ciudad, $localidad, $direccion, $email, $pass)) {
         $pass_cifrada = password_hash($pass, PASSWORD_DEFAULT);
         $consulta = $_conexion->prepare(
-            "INSERT INTO Protectora (nombre_protectora, ciudad, localidad, direccion, email, contraseña, telefono, logo)
+            "INSERT INTO Protectora (nombre_protectora, ciudad, localidad, direccion, email, contrasena, telefono, logo)
              VALUES (?, ?, ?, ?, ?, ?, NULL, NULL)"
         );
         $consulta->bind_param("ssssss", $nombre, $ciudad, $localidad, $direccion, $email, $pass_cifrada);
         if ($consulta->execute()) {
+            $id_nueva_protectora = $_conexion->insert_id;
             $consulta->close();
+
+            // ── CREAR CARPETA DE LA PROTECTORA ──────────────────────
+            $carpeta_protectora = realpath(__DIR__ . '/../../public/../img') . '/protectoras/protectora_' . $id_nueva_protectora;
+            if (!is_dir($carpeta_protectora)) {
+                mkdir($carpeta_protectora, 0755, true);
+            }
+            // ────────────────────────────────────────────────────────
 
             $mail = new PHPMailer(true);
             $mail->isSMTP();
@@ -207,7 +222,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && $_POST["tipo"] == "protectora") {
 
             $mail->send();
 
-            header("Location: ../../public/login.html?chek=nice");
+            header("Location: ../../public/login.html?check=nice");
             exit();
         } else {
             $consulta->close();

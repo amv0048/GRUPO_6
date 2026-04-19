@@ -3,6 +3,20 @@ window.onload = function () {
     const padreNuestro = document.querySelector('#padre-nuestro');
     const proteBtn = document.querySelector('#protectora');
     const adoptBtn = document.querySelector('#adoptantes');
+   
+    /*
+    proteBtn.addEventListener('click', () => {
+    padreNuestro.classList = "vProtectora";
+    document.querySelector('input[name="tipo"]').value = "protectora";
+});
+
+adoptBtn.addEventListener('click', () => {
+    padreNuestro.classList = "vAdoptante";
+    document.querySelector('input[name="tipo"]').value = "usuario";
+});
+*/
+
+
     
     proteBtn.addEventListener('click', () => {
         padreNuestro.classList = "vProtectora";
@@ -11,7 +25,7 @@ window.onload = function () {
     adoptBtn.addEventListener('click', () => {
         padreNuestro.classList = "vAdoptante";
     });
-
+    
     function mostrarError(input, mensaje) {
         eliminarError(input);
         const error = document.createElement("small");
@@ -129,8 +143,8 @@ window.onload = function () {
         validarVacio(pEmail2);
         validarVacio(pPass);
         validarVacio(pPass2);
-        const errores = formAdopt.querySelectorAll("small");
-        if (errores.length == 0) formAdopt.submit();
+        const errores = formProte.querySelectorAll("small");
+        if (errores.length == 0) formProte.submit();
     });
 
 };

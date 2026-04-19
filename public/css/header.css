@@ -73,6 +73,6 @@ a {
 /* Hover botón */
 #boton-destacado:hover {
   background-color: #EDA677;
+  color: #fff;
   transform: translateY(-1px);
-  box-shadow: 0 4px 14px rgba(202, 120, 66, 0.5);
 }

@@ -27,6 +27,21 @@ if (isset($_SESSION["user"])) {
     $tipo = "protectora";
 }
 
+// ── ELIMINAR PERFIL ──────────────────────────────────────────
+if ($_SERVER["REQUEST_METHOD"] === "POST" && ($_POST['action'] ?? '') === 'eliminar') {
+    if ($tipo === 'usuario') {
+        $del = $_conexion->prepare("DELETE FROM Usuario WHERE id_adoptante = ?");
+    } else {
+        $del = $_conexion->prepare("DELETE FROM Protectora WHERE id_protectora = ?");
+    }
+    $del->bind_param("i", $_SESSION["id"]);
+    $del->execute();
+    $del->close();
+    session_destroy();
+    header("Location: index.php");
+    exit();
+}
+
 // ── LÓGICA DE ACTUALIZACIÓN ──────────────────────────────────
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
@@ -78,6 +93,26 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $tipos .= "s";
             }
         }
+
+        // ── FOTO DE PERFIL USUARIO ───────────────────────────────
+        if (!empty($_FILES['foto']['name']) && $_FILES['foto']['error'] === UPLOAD_ERR_OK) {
+            $ext_ok = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+            $ext    = strtolower(pathinfo($_FILES['foto']['name'], PATHINFO_EXTENSION));
+            if (in_array($ext, $ext_ok)) {
+                $carpeta = realpath(__DIR__ . '/../img/userPerfil') . '/user_' . $_SESSION["id"];
+                if (!is_dir($carpeta)) {
+                    mkdir($carpeta, 0755, true);
+                }
+                $archivo = 'perfil_' . time() . '.' . $ext;
+                if (move_uploaded_file($_FILES['foto']['tmp_name'], $carpeta . '/' . $archivo)) {
+                    $ruta_foto = '../img/userPerfil/user_' . $_SESSION["id"] . '/' . $archivo;
+                    $campos[]  = "foto_perfil = ?";
+                    $valores[] = $ruta_foto;
+                    $tipos    .= "s";
+                }
+            }
+        }
+        // ────────────────────────────────────────────────────────
 
         if (!isset($err_pass) && !empty($campos)) {
             $valores[] = $_SESSION["id"];
@@ -161,6 +196,26 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             }
         }
 
+        // ── FOTO DE PERFIL PROTECTORA ────────────────────────────
+        if (!empty($_FILES['foto']['name']) && $_FILES['foto']['error'] === UPLOAD_ERR_OK) {
+            $ext_ok = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+            $ext    = strtolower(pathinfo($_FILES['foto']['name'], PATHINFO_EXTENSION));
+            if (in_array($ext, $ext_ok)) {
+                $carpeta = realpath(__DIR__ . '/../img/protectoras') . '/protectora_' . $_SESSION["id"] . '/foto_perfil';
+                if (!is_dir($carpeta)) {
+                    mkdir($carpeta, 0755, true);
+                }
+                $archivo = 'perfil_' . time() . '.' . $ext;
+                if (move_uploaded_file($_FILES['foto']['tmp_name'], $carpeta . '/' . $archivo)) {
+                    $ruta_foto = '../img/protectoras/protectora_' . $_SESSION["id"] . '/foto_perfil/' . $archivo;
+                    $campos[]  = "logo = ?";
+                    $valores[] = $ruta_foto;
+                    $tipos    .= "s";
+                }
+            }
+        }
+        // ────────────────────────────────────────────────────────
+
         if (!isset($err_pass) && !empty($campos)) {
             $valores[] = $_SESSION["id"];
             $tipos .= "i";
@@ -168,7 +223,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $consulta = $_conexion->prepare($sql);
             $consulta->bind_param($tipos, ...$valores);
             if ($consulta->execute()) {
-                if ($nombre_protectora != "") $_SESSION["protectora"] = $nombre_protectora;
+                if ($nombre_protectora != ""){
+                    $_SESSION["protectora"] = $nombre_protectora;
+                    $_SESSION["nombre"] = $nombre_protectora;
+                } 
                 if ($email != "")            $_SESSION["email"] = $email;
                 $ok = "Perfil actualizado correctamente";
                 $consulta2 = $_conexion->prepare("SELECT * FROM Protectora WHERE id_protectora = ?");
@@ -205,7 +263,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <a class="hBoton" href="" target="_self">COLABORADORES</a>
     </nav>
     <nav id="header-izq">
-        <a href="index.html" target="_self">
+        <a href="index.php" target="_self">
             <img src="../img/profile/default/oficiales/logo.svg" alt="Go Catch" height="40">
         </a>
     </nav>
@@ -223,13 +281,18 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <div id="perfil-header">
             <div id="foto-perfil-container">
                 <div id="foto-perfil">
-                    <img src="<?= isset($datos["foto_perfil"]) ? $datos["foto_perfil"] : '../img/profile/default/1.jpg' ?>"
-                         alt="Foto de perfil" id="foto-img">
+                <img src="<?php
+                    if ($tipo == 'usuario') {
+                        echo isset($datos["foto_perfil"]) && $datos["foto_perfil"] ? htmlspecialchars($datos["foto_perfil"]) : '../img/profile/default/1.jpg';
+                    } else {
+                        echo isset($datos["logo"]) && $datos["logo"] ? htmlspecialchars($datos["logo"]) : '../img/profile/default/1.jpg';
+                    }
+                ?>" alt="Foto de perfil" id="foto-img">
                 </div>
                 <label for="foto-input" id="foto-label">
                     <i class="zmdi zmdi-camera"></i>
                 </label>
-                <input type="file" name="foto" id="foto-input" accept="image/*" style="display:none">
+                <input type="file" name="foto" id="foto-input" accept="image/*" style="display:none" form="registro">
             </div>
 
             <?php if ($tipo == "usuario"): ?>
@@ -256,7 +319,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <div id="perfil-form-area">
 
             <?php if ($tipo == "usuario"): ?>
-            <form action="perfil.php" method="POST" id="registro">
+            <form action="perfil.php" method="POST" id="registro" enctype="multipart/form-data">
 
                 <div class="form-grid">
                     <div class="form-wrapper">
@@ -300,7 +363,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             </form>
 
             <?php else: ?>
-            <form action="perfil.php" method="POST" id="registro">
+            <form action="perfil.php" method="POST" id="registro" enctype="multipart/form-data">
 
                 <div class="form-wrapper">
                     <input type="text" name="nombre_protectora" class="form-control"
@@ -361,8 +424,140 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <a href="index.php">← Volver al inicio</a>
         </div>
 
+        <!-- ELIMINAR PERFIL -->
+        <div id="perfil-eliminar">
+            <button type="button" id="btn-eliminar-perfil">
+                <i class="zmdi zmdi-delete"></i> Eliminar perfil
+            </button>
+        </div>
+
     </div>
 </div>
+
+<!-- MODAL CONFIRMACIÓN -->
+<div id="modal-eliminar" class="modal-overlay">
+    <div class="modal-box">
+        <i class="zmdi zmdi-alert-circle modal-icono"></i>
+        <p class="modal-titulo">¿Eliminar perfil?</p>
+        <p class="modal-msg">Esta acción es irreversible. Desaparecerán todos tus datos.</p>
+        <div class="modal-acciones">
+            <button type="button" id="modal-cancelar" class="modal-btn modal-btn-cancelar">Cancelar</button>
+            <form method="POST" style="margin:0">
+                <input type="hidden" name="action" value="eliminar">
+                <button type="submit" class="modal-btn modal-btn-confirmar">Sí, eliminar</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+#perfil-eliminar {
+    text-align: center;
+    padding: 8px 40px 32px;
+}
+#btn-eliminar-perfil {
+    background: none;
+    border: none;
+    color: #e74c3c;
+    font-family: 'Poppins', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    letter-spacing: 0.5px;
+    opacity: 0.75;
+    transition: opacity 0.2s;
+}
+#btn-eliminar-perfil:hover { opacity: 1; text-decoration: underline; }
+
+.modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.55);
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+.modal-overlay.activo { display: flex; }
+.modal-box {
+    background: #fff;
+    border-radius: 12px;
+    padding: 40px 36px 32px;
+    max-width: 380px;
+    width: 90%;
+    text-align: center;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+}
+.modal-icono {
+    font-size: 2.4rem;
+    color: #e74c3c;
+    margin-bottom: 12px;
+    display: block;
+}
+.modal-titulo {
+    font-size: 16px;
+    font-weight: 700;
+    color: #0D2D51;
+    margin-bottom: 8px;
+}
+.modal-msg {
+    font-size: 13px;
+    color: #666;
+    line-height: 1.6;
+    margin-bottom: 0;
+}
+.modal-acciones {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    margin-top: 28px;
+}
+.modal-btn {
+    padding: 10px 26px;
+    border-radius: 4px;
+    font-family: 'Poppins', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    letter-spacing: 0.5px;
+    transition: background 0.2s, transform 0.15s;
+}
+.modal-btn-cancelar { background: #f0f0f0; color: #555; }
+.modal-btn-cancelar:hover { background: #e0e0e0; }
+.modal-btn-confirmar { background: #e74c3c; color: #fff; }
+.modal-btn-confirmar:hover { background: #c0392b; transform: scale(1.02); }
+</style>
+
+<script>
+document.getElementById('btn-eliminar-perfil').addEventListener('click', function () {
+    document.getElementById('modal-eliminar').classList.add('activo');
+});
+document.getElementById('modal-cancelar').addEventListener('click', function () {
+    document.getElementById('modal-eliminar').classList.remove('activo');
+});
+document.getElementById('modal-eliminar').addEventListener('click', function (e) {
+    if (e.target === this) this.classList.remove('activo');
+});
+</script>
+
+<script>
+document.getElementById('foto-input').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    // Previsualizar
+    const reader = new FileReader();
+    reader.onload = function(ev) {
+        document.getElementById('foto-img').src = ev.target.result;
+    };
+    reader.readAsDataURL(file);
+    // Submit directo — el archivo ya está en el input, no hace falta esperar al reader
+    document.getElementById('registro').submit();
+});
+</script>
 
 </body>
 </html>
