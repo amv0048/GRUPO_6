@@ -142,12 +142,15 @@ INSERT INTO EstadoAnimal (nombre) VALUES
     ('EN_ACOGIDA');
 
 -- Contraseñas: sustituir 'HASH_AQUI' por el resultado de password_hash('tu_pass', PASSWORD_BCRYPT)
+-- Contraseña: A12345%
 INSERT INTO Protectora (nombre_protectora, email, contrasena, telefono, ciudad, localidad, direccion) VALUES
-    ('Protectora Patitas Felices', 'patitas@gocatch.es', '$2y$10$uiStNAmfcJY5USoD/x.HQ.gnIaWJuaJYasFAdvS1/U5ZwYEwsogQ.', '600111222', 'Madrid',    'Vallecas',  'Calle Mayor 12'),
-    ('Refugio Huellas del Sur',   'huellas@gocatch.es', '$2y$10$uiStNAmfcJY5USoD/x.HQ.gnIaWJuaJYasFAdvS1/U5ZwYEwsogQ.', '600333444', 'Sevilla',   'Triana',    'Avenida del Río 7');
+    ('Protectora Patitas Felices', 'patitas@gocatch.es', '$2y$10$qLN1KwouQRfabjOqpXlgkui3Xoi7zYMauDH7cSvBrA7LUJu5P8bjO', '600111222', 'Madrid',    'Vallecas',  'Calle Mayor 12'),
+    ('Refugio Huellas del Sur',   'huellas@gocatch.es', '$2y$10$qLN1KwouQRfabjOqpXlgkui3Xoi7zYMauDH7cSvBrA7LUJu5P8bjO', '600333444', 'Sevilla',   'Triana',    'Avenida del Río 7');
+
+-- Contraseña: A12345%
 
 INSERT INTO Usuario (nombre, apellido, contrasena, email, admin) VALUES
-    ('Admin', 'Go Catch', '$2y$10$uiStNAmfcJY5USoD/x.HQ.gnIaWJuaJYasFAdvS1/U5ZwYEwsogQ.', 'admin@gocatch.es', TRUE);
+    ('Admin', 'Go Catch', '$2y$10$qLN1KwouQRfabjOqpXlgkui3Xoi7zYMauDH7cSvBrA7LUJu5P8bjO', 'admin@gocatch.es', TRUE);
 
 -- Animales de prueba
 -- id_estado: 1=DISPONIBLE 2=ADOPTADO 3=RESERVADO 4=EN_ACOGIDA
