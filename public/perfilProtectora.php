@@ -1,5 +1,3 @@
-<!-- DE MOMENTO EN DESUSO  -->
-
 <?php
 session_start();
 require "../src/sesion/conexion.php";
@@ -7,32 +5,41 @@ require "../src/sesion/conexion.php";
 error_reporting(E_ALL);
 ini_set("display_errors", 1);
 
-// Solo protectoras pueden acceder a esta página
-if (!isset($_SESSION["id"])) {
-    header("Location: login.html");
-    exit();
+// ── DETERMINAR MODO: edición propia vs vista pública ─────────
+// Si llega ?id=X cualquiera puede ver; solo edita la protectora dueña.
+// Sin ?id solo entra la protectora logueada.
+if (isset($_GET['id']) && is_numeric($_GET['id'])) {
+    $id_ver    = (int)$_GET['id'];
+    $solo_vista = !isset($_SESSION['id'])
+               || isset($_SESSION['user'])
+               || (int)$_SESSION['id'] !== $id_ver;
+} else {
+    if (!isset($_SESSION['id'])) {
+        header("Location: login.html");
+        exit();
+    }
+    if (isset($_SESSION['user'])) {
+        header("Location: perfil.php");
+        exit();
+    }
+    $id_ver     = (int)$_SESSION['id'];
+    $solo_vista = false;
 }
 
-if (isset($_SESSION["user"])) {
-    // Es un usuario adoptante, redirigir a su perfil
-    header("Location: perfil.php");
-    exit();
-}
-
-// ── SELECT INICIAL PARA PLACEHOLDERS ────────────────────────
+// ── CARGAR DATOS ─────────────────────────────────────────────
 $consulta = $_conexion->prepare("SELECT * FROM Protectora WHERE id_protectora = ?");
-$consulta->bind_param("i", $_SESSION["id"]);
+$consulta->bind_param("i", $id_ver);
 $consulta->execute();
 $datos = $consulta->get_result()->fetch_assoc();
 $consulta->close();
 
 if (!$datos) {
-    header("Location: login.html");
+    header("Location: index.php");
     exit();
 }
 
-// ── ELIMINAR PERFIL ──────────────────────────────────────────
-if ($_SERVER["REQUEST_METHOD"] === "POST" && ($_POST['action'] ?? '') === 'eliminar') {
+// ── ELIMINAR PERFIL (solo propietaria) ───────────────────────
+if (!$solo_vista && $_SERVER["REQUEST_METHOD"] === "POST" && ($_POST['action'] ?? '') === 'eliminar') {
     $del = $_conexion->prepare("DELETE FROM Protectora WHERE id_protectora = ?");
     $del->bind_param("i", $_SESSION["id"]);
     $del->execute();
@@ -42,8 +49,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && ($_POST['action'] ?? '') === 'elimi
     exit();
 }
 
-// ── LÓGICA DE ACTUALIZACIÓN ──────────────────────────────────
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
+// ── LÓGICA DE ACTUALIZACIÓN (solo propietaria) ───────────────
+if (!$solo_vista && $_SERVER["REQUEST_METHOD"] == "POST") {
 
     $nombre_protectora = htmlspecialchars(trim($_POST["nombre_protectora"]));
     $email             = htmlspecialchars(trim($_POST["email"]));
@@ -152,6 +159,27 @@ $ciudades = [
     <link rel="stylesheet" href="css/header.css">
     <link rel="stylesheet" href="css/perfil.css">
     <style>
+        /* ── Vista solo lectura ── */
+        .info-publica {
+            padding: 8px 40px 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+        .info-fila {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 13px;
+            color: #ccc;
+        }
+        .info-fila i {
+            color: #CA7842;
+            font-size: 16px;
+            width: 20px;
+            flex-shrink: 0;
+        }
+
         /* ── Select ciudad con mismo estilo que inputs ── */
         select.form-control {
             appearance: none;
@@ -191,10 +219,12 @@ $ciudades = [
                     <img src="<?= isset($datos["logo"]) && $datos["logo"] ? htmlspecialchars($datos["logo"]) : '../img/profile/default/oficiales/1.jpg' ?>"
                          alt="Logo de la protectora" id="foto-img">
                 </div>
+                <?php if (!$solo_vista): ?>
                 <label for="foto-input" id="foto-label">
                     <i class="zmdi zmdi-camera"></i>
                 </label>
                 <input type="file" name="foto" id="foto-input" accept="image/*" style="display:none">
+                <?php endif; ?>
             </div>
 
             <h2 id="perfil-nombre"><?= htmlspecialchars($datos['nombre_protectora']) ?></h2>
@@ -212,32 +242,59 @@ $ciudades = [
             <div class="msg-error"><?= $err_db ?></div>
         <?php endif; ?>
 
-        <!-- FORMULARIO PROTECTORA -->
+        <!-- CONTENIDO: edición o vista según rol -->
         <div id="perfil-form-area">
-            <form action="perfilprotectora.php" method="POST" id="registro">
+        <?php if ($solo_vista): ?>
 
-                <!-- Nombre de la protectora -->
+            <!-- ── VISTA PÚBLICA (solo lectura) ── -->
+            <div class="info-publica">
+                <?php if ($datos['email']): ?>
+                <div class="info-fila">
+                    <i class="zmdi zmdi-email"></i>
+                    <span><?= htmlspecialchars($datos['email']) ?></span>
+                </div>
+                <?php endif; ?>
+                <?php if ($datos['telefono']): ?>
+                <div class="info-fila">
+                    <i class="zmdi zmdi-phone"></i>
+                    <span><?= htmlspecialchars($datos['telefono']) ?></span>
+                </div>
+                <?php endif; ?>
+                <?php if ($datos['ciudad'] || $datos['localidad']): ?>
+                <div class="info-fila">
+                    <i class="zmdi zmdi-pin"></i>
+                    <span><?= htmlspecialchars(implode(', ', array_filter([$datos['localidad'], $datos['ciudad']]))) ?></span>
+                </div>
+                <?php endif; ?>
+                <?php if ($datos['direccion']): ?>
+                <div class="info-fila">
+                    <i class="zmdi zmdi-home"></i>
+                    <span><?= htmlspecialchars($datos['direccion']) ?></span>
+                </div>
+                <?php endif; ?>
+            </div>
+
+        <?php else: ?>
+
+            <!-- ── FORMULARIO EDICIÓN (propietaria) ── -->
+            <form action="perfilProtectora.php" method="POST" id="registro">
+
                 <div class="form-wrapper">
                     <input type="text" name="nombre_protectora" class="form-control"
                            placeholder="<?= htmlspecialchars($datos['nombre_protectora']) ?>">
                     <i class="zmdi zmdi-shield-check"></i>
                 </div>
-
-                <!-- Email -->
                 <div class="form-wrapper">
                     <input type="text" name="email" class="form-control"
                            placeholder="<?= htmlspecialchars($datos['email']) ?>">
                     <i class="zmdi zmdi-email"></i>
                 </div>
-
-                <!-- Teléfono -->
                 <div class="form-wrapper">
                     <input type="text" name="telefono" class="form-control"
                            placeholder="<?= $datos['telefono'] ? htmlspecialchars($datos['telefono']) : 'Teléfono' ?>">
                     <i class="zmdi zmdi-phone"></i>
                 </div>
 
-                <!-- Ciudad + Localidad -->
                 <div class="form-grid">
                     <div class="form-wrapper">
                         <select name="ciudad" class="form-control">
@@ -260,14 +317,12 @@ $ciudades = [
                     </div>
                 </div>
 
-                <!-- Dirección -->
                 <div class="form-wrapper">
                     <input type="text" name="direccion" class="form-control"
                            placeholder="<?= $datos['direccion'] ? htmlspecialchars($datos['direccion']) : 'Dirección' ?>">
                     <i class="zmdi zmdi-home"></i>
                 </div>
 
-                <!-- Sección contraseña -->
                 <p class="seccion-label">Cambiar contraseña</p>
 
                 <div class="form-wrapper">
@@ -283,6 +338,8 @@ $ciudades = [
 
                 <button type="submit">GUARDAR CAMBIOS <i class="zmdi zmdi-check"></i></button>
             </form>
+
+        <?php endif; ?>
         </div>
 
         <!-- VOLVER -->
@@ -290,16 +347,19 @@ $ciudades = [
             <a href="index.php">← Volver al inicio</a>
         </div>
 
+        <?php if (!$solo_vista): ?>
         <!-- ELIMINAR PERFIL -->
         <div id="perfil-eliminar">
             <button type="button" id="btn-eliminar-perfil">
                 <i class="zmdi zmdi-delete"></i> Eliminar perfil
             </button>
         </div>
+        <?php endif; ?>
 
     </div>
 </div>
 
+<?php if (!$solo_vista): ?>
 <!-- MODAL CONFIRMACIÓN -->
 <div id="modal-eliminar" class="modal-overlay">
     <div class="modal-box">
@@ -409,6 +469,7 @@ document.getElementById('modal-eliminar').addEventListener('click', function (e)
     if (e.target === this) this.classList.remove('activo');
 });
 </script>
+<?php endif; ?>
 
 </body>
 </html>
