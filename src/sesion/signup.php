@@ -195,7 +195,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" and $_POST["tipo"] == "protectora") {
         );
         $consulta->bind_param("ssssss", $nombre, $ciudad, $localidad, $direccion, $email, $pass_cifrada);
         if ($consulta->execute()) {
+            $id_nueva_protectora = $_conexion->insert_id;
             $consulta->close();
+
+            // ── CREAR CARPETA DE LA PROTECTORA ──────────────────────
+            $carpeta_protectora = realpath(__DIR__ . '/../../public/../img') . '/protectoras/protectora_' . $id_nueva_protectora;
+            if (!is_dir($carpeta_protectora)) {
+                mkdir($carpeta_protectora, 0755, true);
+            }
+            // ────────────────────────────────────────────────────────
 
             $mail = new PHPMailer(true);
             $mail->isSMTP();
