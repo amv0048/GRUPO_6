@@ -5,6 +5,16 @@ require "../src/sesion/conexion.php";
 // ── FILTROS (GET) ──────────────────────────────────────────────
 $especie_filtro = isset($_GET['especie']) ? trim($_GET['especie']) : '';
 $ciudad_filtro  = isset($_GET['ciudad'])  ? trim($_GET['ciudad'])  : '';
+$raza_filtro    = isset($_GET['raza'])    ? trim($_GET['raza'])    : '';
+$sexo_filtro    = isset($_GET['sexo'])    ? trim($_GET['sexo'])    : '';
+$color_filtro   = isset($_GET['color'])   ? trim($_GET['color'])   : '';
+$edad_min       = (isset($_GET['edad_min']) && $_GET['edad_min'] !== '') ? (int)$_GET['edad_min'] : '';
+$edad_max       = (isset($_GET['edad_max']) && $_GET['edad_max'] !== '') ? (int)$_GET['edad_max'] : '';
+$peso_min       = (isset($_GET['peso_min']) && $_GET['peso_min'] !== '') ? (float)$_GET['peso_min'] : '';
+$peso_max       = (isset($_GET['peso_max']) && $_GET['peso_max'] !== '') ? (float)$_GET['peso_max'] : '';
+$compat_perros  = !empty($_GET['compat_perros']);
+$compat_gatos   = !empty($_GET['compat_gatos']);
+$compat_ninos   = !empty($_GET['compat_ninos']);
 
 // ── PROTECTORAS PARA EL MAPA ───────────────────────────────────
 $protectoras_arr = [];
@@ -42,6 +52,44 @@ if ($ciudad_filtro !== '') {
     $params[] = $ciudad_filtro;
     $types   .= 's';
 }
+if ($raza_filtro !== '') {
+    $sql .= " AND a.raza = ?";
+    $params[] = $raza_filtro;
+    $types   .= 's';
+}
+if ($sexo_filtro !== '') {
+    $sql .= " AND a.sexo = ?";
+    $params[] = $sexo_filtro;
+    $types   .= 's';
+}
+if ($color_filtro !== '') {
+    $sql .= " AND a.color = ?";
+    $params[] = $color_filtro;
+    $types   .= 's';
+}
+if ($edad_min !== '') {
+    $sql .= " AND a.edad >= ?";
+    $params[] = $edad_min;
+    $types   .= 'i';
+}
+if ($edad_max !== '') {
+    $sql .= " AND a.edad <= ?";
+    $params[] = $edad_max;
+    $types   .= 'i';
+}
+if ($peso_min !== '') {
+    $sql .= " AND a.peso >= ?";
+    $params[] = $peso_min;
+    $types   .= 'd';
+}
+if ($peso_max !== '') {
+    $sql .= " AND a.peso <= ?";
+    $params[] = $peso_max;
+    $types   .= 'd';
+}
+if ($compat_perros) $sql .= " AND a.compatibilidad_perros = 1";
+if ($compat_gatos)  $sql .= " AND a.compatibilidad_gatos = 1";
+if ($compat_ninos)  $sql .= " AND a.compatibilidad_ninos = 1";
 $sql .= " ORDER BY a.fecha_entrada DESC LIMIT 10";
 
 $animales_arr = []; // FLAG PROBAR ANIMALES 
@@ -87,6 +135,22 @@ $res_ciu = $_conexion->query(
 );
 if ($res_ciu) {
     while ($row = $res_ciu->fetch_assoc()) $ciudades[] = $row['ciudad'];
+}
+
+$razas = [];
+$res_raza = $_conexion->query(
+    "SELECT DISTINCT raza FROM Animales WHERE raza IS NOT NULL AND raza != '' ORDER BY raza"
+);
+if ($res_raza) {
+    while ($row = $res_raza->fetch_assoc()) $razas[] = $row['raza'];
+}
+
+$colores = [];
+$res_col = $_conexion->query(
+    "SELECT DISTINCT color FROM Animales WHERE color IS NOT NULL AND color != '' ORDER BY color"
+);
+if ($res_col) {
+    while ($row = $res_col->fetch_assoc()) $colores[] = $row['color'];
 }
 
 // ── NOMBRE DE SESIÓN ───────────────────────────────────────────
@@ -194,39 +258,131 @@ elseif (isset($_SESSION['protectora'])) $nombre_sesion = $_SESSION['protectora']
 <section id="filtro">
     <form method="GET" action="index.php" id="filtro-form">
 
-        <div class="filtro-campo">
-            <i class="zmdi zmdi-assignment"></i>
-            <select name="especie" class="filtro-select">
-                <option value="">Todos los animales</option>
-                <?php foreach ($especies as $esp): ?>
-                    <option value="<?= htmlspecialchars($esp) ?>"
-                        <?= $especie_filtro === $esp ? 'selected' : '' ?>>
-                        <?= htmlspecialchars(ucfirst($esp)) ?>
-                    </option>
-                <?php endforeach; ?>
-            </select>
+        <!-- Fila 1: selects -->
+        <div class="filtro-fila">
+
+            <div class="filtro-campo">
+                <i class="zmdi zmdi-assignment"></i>
+                <select name="especie" class="filtro-select">
+                    <option value="">Todas las especies</option>
+                    <?php foreach ($especies as $esp): ?>
+                        <option value="<?= htmlspecialchars($esp) ?>"
+                            <?= $especie_filtro === $esp ? 'selected' : '' ?>>
+                            <?= htmlspecialchars(ucfirst($esp)) ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+
+            <div class="filtro-campo">
+                <i class="zmdi zmdi-label"></i>
+                <select name="raza" class="filtro-select">
+                    <option value="">Todas las razas</option>
+                    <?php foreach ($razas as $r): ?>
+                        <option value="<?= htmlspecialchars($r) ?>"
+                            <?= $raza_filtro === $r ? 'selected' : '' ?>>
+                            <?= htmlspecialchars($r) ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+
+            <div class="filtro-campo">
+                <i class="zmdi zmdi-male-female"></i>
+                <select name="sexo" class="filtro-select">
+                    <option value="">Cualquier sexo</option>
+                    <option value="M" <?= $sexo_filtro === 'M' ? 'selected' : '' ?>>Macho</option>
+                    <option value="H" <?= $sexo_filtro === 'H' ? 'selected' : '' ?>>Hembra</option>
+                </select>
+            </div>
+
+            <div class="filtro-campo">
+                <i class="zmdi zmdi-palette"></i>
+                <select name="color" class="filtro-select">
+                    <option value="">Cualquier color</option>
+                    <?php foreach ($colores as $col): ?>
+                        <option value="<?= htmlspecialchars($col) ?>"
+                            <?= $color_filtro === $col ? 'selected' : '' ?>>
+                            <?= htmlspecialchars(ucfirst($col)) ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+
+            <div class="filtro-campo">
+                <i class="zmdi zmdi-pin"></i>
+                <select name="ciudad" class="filtro-select">
+                    <option value="">Cualquier ciudad</option>
+                    <?php foreach ($ciudades as $c): ?>
+                        <option value="<?= htmlspecialchars($c) ?>"
+                            <?= $ciudad_filtro === $c ? 'selected' : '' ?>>
+                            <?= htmlspecialchars($c) ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+
         </div>
 
-        <div class="filtro-campo">
-            <i class="zmdi zmdi-pin"></i>
-            <select name="ciudad" class="filtro-select">
-                <option value="">Cualquier ciudad</option>
-                <?php foreach ($ciudades as $c): ?>
-                    <option value="<?= htmlspecialchars($c) ?>"
-                        <?= $ciudad_filtro === $c ? 'selected' : '' ?>>
-                        <?= htmlspecialchars($c) ?>
-                    </option>
-                <?php endforeach; ?>
-            </select>
+        <!-- Fila 2: rangos + compatibilidades + acciones -->
+        <div class="filtro-fila">
+
+            <div class="filtro-rango">
+                <span class="filtro-rango-label">
+                    <i class="zmdi zmdi-time"></i> Edad
+                </span>
+                <input type="number" name="edad_min" class="filtro-input"
+                       placeholder="Mín" min="0" max="30"
+                       value="<?= htmlspecialchars($edad_min) ?>">
+                <span class="filtro-sep">—</span>
+                <input type="number" name="edad_max" class="filtro-input"
+                       placeholder="Máx" min="0" max="30"
+                       value="<?= htmlspecialchars($edad_max) ?>">
+                <span class="filtro-rango-unit">años</span>
+            </div>
+
+            <div class="filtro-rango">
+                <span class="filtro-rango-label">
+                    <i class="zmdi zmdi-balance"></i> Peso
+                </span>
+                <input type="number" name="peso_min" class="filtro-input"
+                       placeholder="Mín" min="0" max="200" step="0.1"
+                       value="<?= htmlspecialchars($peso_min) ?>">
+                <span class="filtro-sep">—</span>
+                <input type="number" name="peso_max" class="filtro-input"
+                       placeholder="Máx" min="0" max="200" step="0.1"
+                       value="<?= htmlspecialchars($peso_max) ?>">
+                <span class="filtro-rango-unit">kg</span>
+            </div>
+
+            <div class="filtro-compat">
+                <span class="filtro-rango-label">
+                    <i class="zmdi zmdi-mood"></i> Compatible con
+                </span>
+                <label class="filtro-check">
+                    <input type="checkbox" name="compat_perros" value="1"
+                           <?= $compat_perros ? 'checked' : '' ?>> Perros
+                </label>
+                <label class="filtro-check">
+                    <input type="checkbox" name="compat_gatos" value="1"
+                           <?= $compat_gatos ? 'checked' : '' ?>> Gatos
+                </label>
+                <label class="filtro-check">
+                    <input type="checkbox" name="compat_ninos" value="1"
+                           <?= $compat_ninos ? 'checked' : '' ?>> Niños
+                </label>
+            </div>
+
+            <div class="filtro-acciones">
+                <button type="submit" id="filtro-btn">
+                    <i class="zmdi zmdi-search"></i> Buscar
+                </button>
+                <?php if ($especie_filtro || $ciudad_filtro || $raza_filtro || $sexo_filtro || $color_filtro || $edad_min !== '' || $edad_max !== '' || $peso_min !== '' || $peso_max !== '' || $compat_perros || $compat_gatos || $compat_ninos): ?>
+                    <a href="index.php" id="filtro-reset">✕ Limpiar</a>
+                <?php endif; ?>
+            </div>
+
         </div>
-
-        <button type="submit" id="filtro-btn">
-            <i class="zmdi zmdi-search"></i> Buscar
-        </button>
-
-        <?php if ($especie_filtro || $ciudad_filtro): ?>
-            <a href="index.php" id="filtro-reset">✕ Limpiar filtros</a>
-        <?php endif; ?>
 
     </form>
 </section>
