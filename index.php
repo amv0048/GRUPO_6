@@ -4,7 +4,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Index</title>
-    <?php header("Location: public/index.php"); exit(); ?>
+    
+    <?php 
+    session_start();
+    #require "src/sesion/conexion.php";
+    
+    if(!isset($_SESSION["user"])){
+        header("Location: public/indexProtectora.php"); exit();
+    }else{
+        header("Location: public/index.php"); exit(); 
+    }
+    
+    
+    ?>
+
 </head>
 <body>
 
