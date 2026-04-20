@@ -186,7 +186,12 @@ elseif (isset($_SESSION['protectora'])) $nombre_sesion = $_SESSION['protectora']
         if(!isset($_SESSION["user"]) and isset($_SESSION["nombre"])){
             echo "<a class='hBoton' href='listaAnimal.php'>LISTA ANIMAL</a>";
         }
-        ?>
+        if (isset($_SESSION['admin']) && $_SESSION['admin'] == 1): ?>
+            <a class="hBoton" href="moderacion.php">
+                <i class="zmdi zmdi-shield-security"></i> MODERACIÓN
+            </a>
+        <?php endif; ?>
+
     </nav>
 
     <nav id="header-izq">

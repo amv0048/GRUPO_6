@@ -42,8 +42,26 @@ CREATE TABLE Usuario (
     fiabilidad    INT DEFAULT 0 CHECK (fiabilidad BETWEEN 0 AND 10),
     admin         BOOLEAN DEFAULT FALSE,
     contrasena    VARCHAR(255) NOT NULL,
-    email         VARCHAR(100) NOT NULL UNIQUE
+    email         VARCHAR(100) NOT NULL UNIQUE,
+    /*AQUI METER BOOLEAN DE BANEADp*/
+    baneado       BOOLEAN NOT NULL DEFAULT FALSE
 );
+
+-- Tabla de registro de baneos (historial)
+CREATE TABLE IF NOT EXISTS Baneos (
+                                      id_baneo       INT AUTO_INCREMENT PRIMARY KEY,
+                                      id_adoptante   INT NOT NULL,
+                                      motivo_tipo    VARCHAR(100) NOT NULL,
+    motivo_detalle TEXT,
+    fecha_baneo    TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    id_admin       INT NOT NULL,
+
+    CONSTRAINT fk_baneo_usuario FOREIGN KEY (id_adoptante)
+    REFERENCES Usuario(id_adoptante) ON DELETE CASCADE,
+    CONSTRAINT fk_baneo_admin FOREIGN KEY (id_admin)
+    REFERENCES Usuario(id_adoptante) ON DELETE CASCADE
+    );
+
 
 -- Colaborador
 CREATE TABLE Colaborador (
