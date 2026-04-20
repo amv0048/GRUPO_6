@@ -47,9 +47,11 @@ $consulta = $_conexion->prepare(
     "SELECT a.id_animal, a.nombre, a.especie, a.raza, a.sexo, a.color, a.peso, a.edad,
             a.fecha_entrada, a.descripcion,
             a.compatibilidad_perros, a.compatibilidad_gatos, a.compatibilidad_ninos,
-            e.nombre AS estado
+            e.nombre AS estado,
+            g.ruta AS foto
      FROM Animales a
      LEFT JOIN EstadoAnimal e ON a.id_estado = e.id_estado
+     LEFT JOIN Galeria g ON a.id_animal = g.id_animal AND g.es_principal = 1
      WHERE a.id_protectora = ?
      ORDER BY a.id_animal DESC"
 );
@@ -170,7 +172,6 @@ $consulta->close();
         table {
             width: 100%;
             border-collapse: collapse;
-            min-width: 860px;
         }
         thead tr {
             background: #0D2D51;
@@ -223,9 +224,13 @@ $consulta->close();
         .compat-icons i.activo { color: #CA7842; }
 
         /* ── BOTONES ACCIÓN ── */
-        .acciones { display: flex; gap: 8px; white-space: nowrap; }
+        .acciones {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
 
-        .btn-editar, .btn-eliminar {
+        .btn-editar, .btn-eliminar, .btn-info {
             display: inline-flex;
             align-items: center;
             gap: 5px;
@@ -239,6 +244,16 @@ $consulta->close();
             font-family: 'Poppins', sans-serif;
             transition: background 0.2s, transform 0.15s;
             text-decoration: none;
+            white-space: nowrap;
+        }
+        .btn-info {
+            background: #EAF3DE;
+            color: #2e7d12;
+        }
+        .btn-info:hover {
+            background: #d0eab8;
+            transform: translateY(-1px);
+            color: #2e7d12;
         }
         .btn-editar {
             background: #e8f0fe;
@@ -329,6 +344,7 @@ $consulta->close();
                     <thead>
                         <tr>
                             <th>#</th>
+                            <th>Foto</th>
                             <th>Nombre</th>
                             <th>Especie</th>
                             <th>Raza</th>
@@ -346,9 +362,20 @@ $consulta->close();
                         <?php foreach ($animales as $a): ?>
                         <tr>
                             <td><?= $a['id_animal'] ?></td>
-                            <td><?= htmlspecialchars($a['nombre'] ?? '—') ?></td>
+                            <td>
+                                <?php if (!empty($a['foto'])): ?>
+                                    <img src="<?= htmlspecialchars($a['foto']) ?>"
+                                         alt="foto"
+                                         style="width:70px;height:56px;object-fit:cover;border-radius:6px;display:block;">
+                                <?php else: ?>
+                                    <div style="width:70px;height:56px;background:#f0f0f0;border-radius:6px;display:flex;align-items:center;justify-content:center;">
+                                        <i class="zmdi zmdi-collection-item-3" style="color:#ccc;font-size:22px;"></i>
+                                    </div>
+                                <?php endif; ?>
+                            </td>
+                            <td><strong><?= htmlspecialchars($a['nombre'] ?? '—') ?></strong></td>
                             <td><?= htmlspecialchars($a['especie'] ?? '—') ?></td>
-                            <td><?= htmlspecialchars($a['raza']    ?? '—') ?></td>
+                            <td><?= htmlspecialchars($a['raza'] ?? '—') ?></td>
                             <td>
                                 <?php
                                     $sexo_map = ['M' => 'Macho', 'H' => 'Hembra'];
@@ -383,11 +410,15 @@ $consulta->close();
                             </td>
                             <td>
                                 <div class="acciones">
+                                    <a href="ficha-animal.php?id=<?= $a['id_animal'] ?>" class="btn-info">
+                                        <i class="zmdi zmdi-eye"></i> Info
+                                    </a>
                                     <a href="editAnimal.php?id=<?= $a['id_animal'] ?>" class="btn-editar">
                                         <i class="zmdi zmdi-edit"></i> Editar
                                     </a>
                                     <form method="POST" action="listaAnimal.php"
-                                          onsubmit="return confirm('¿Seguro que quieres eliminar este animal?')">
+                                          onsubmit="return confirm('¿Seguro que quieres eliminar este animal?')"
+                                          style="margin:0">
                                         <input type="hidden" name="action"    value="eliminar">
                                         <input type="hidden" name="id_animal" value="<?= $a['id_animal'] ?>">
                                         <button type="submit" class="btn-eliminar">

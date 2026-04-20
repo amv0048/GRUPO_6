@@ -71,7 +71,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" and $_POST["tipo"] == "usuario") {
 
     if (isset($nombre, $apellido, $email, $pass)) {
 
-         $check = $_conexion->prepare("SELECT id_adoptante FROM Usuario WHERE email = ?");
+        $check = $_conexion->prepare("SELECT id_adoptante FROM Usuario WHERE email = ?");
         $check->bind_param("s", $email);
         $check->execute();
         $check->store_result();
@@ -188,6 +188,20 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" and $_POST["tipo"] == "protectora") {
     }
 
     if (isset($nombre, $ciudad, $localidad, $direccion, $email, $pass)) {
+////////////////////////////////////
+        $check = $_conexion->prepare("SELECT id_protectora FROM Protectora WHERE email = ?");
+        $check->bind_param("s", $email);
+        $check->execute();
+        $check->store_result();
+
+        if ($check->num_rows > 0) {
+            $check->close();
+            header("Location: ../../public/registro.html?error=email_duplicado");
+            exit();
+        }
+        $check->close();
+//////////////////////////////////
+
         $pass_cifrada = password_hash($pass, PASSWORD_DEFAULT);
         $consulta = $_conexion->prepare(
             "INSERT INTO Protectora (nombre_protectora, ciudad, localidad, direccion, email, contrasena, telefono, logo)

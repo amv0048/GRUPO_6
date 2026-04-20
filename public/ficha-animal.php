@@ -977,6 +977,14 @@ $tiene_necesidades  = !empty($necesidades);
 
     <!-- VOLVER -->
     <div class="volver">
+
+        <?php
+        if(isset($_SESSION["nombre"]) and !isset($_SESSION["user"])) {
+            echo "<a style='color: #a6ff00' href='listaAnimal.php'>Volver a la Lista de Animales</a>";
+            echo "<br>";
+            echo "<br>";
+        }
+        ?>
         <a href="index.php">← Volver al inicio</a>
     </div>
 
