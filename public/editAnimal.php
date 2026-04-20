@@ -5,26 +5,17 @@ require "../src/sesion/conexion.php";
 error_reporting(E_ALL);
 ini_set("display_errors", 1);
 
-// Solo protectoras
-if (!isset($_SESSION["id"])) {
-    header("Location: login.html");
-    exit();
-}
-if (isset($_SESSION["user"])) {
-    header("Location: index.php");
-    exit();
-}
+if (!isset($_SESSION["id"])) { header("Location: login.html"); exit(); }
+if (isset($_SESSION["user"])) { header("Location: index.php"); exit(); }
 
 $id_protectora = $_SESSION["id"];
 
-// ── VALIDAR ID RECIBIDO ──────────────────────────────────────
 if (!isset($_GET["id"]) || !is_numeric($_GET["id"])) {
-    header("Location: listaAnimal.php");
-    exit();
+    header("Location: listaAnimal.php"); exit();
 }
 $id_animal = (int) $_GET["id"];
 
-// ── CARGAR DATOS DEL ANIMAL (y verificar pertenencia) ────────
+// ── CARGAR DATOS DEL ANIMAL ──────────────────────────────────
 $q = $_conexion->prepare(
     "SELECT a.*, e.id_estado AS estado_actual
      FROM Animales a
@@ -36,15 +27,96 @@ $q->execute();
 $animal = $q->get_result()->fetch_assoc();
 $q->close();
 
-if (!$animal) {
-    // No existe o no pertenece a esta protectora
-    header("Location: listaAnimal.php");
-    exit();
+if (!$animal) { header("Location: listaAnimal.php"); exit(); }
+
+// ── CARGAR FOTOS — SIEMPRE ANTES DEL POST ────────────────────
+function cargarFotos($conexion, $id_animal) {
+    $q = $conexion->prepare(
+        "SELECT id_foto, ruta, es_principal FROM Galeria WHERE id_animal = ? ORDER BY es_principal DESC, id_foto ASC"
+    );
+    $q->bind_param("i", $id_animal);
+    $q->execute();
+    $fotos = $q->get_result()->fetch_all(MYSQLI_ASSOC);
+    $q->close();
+    return $fotos;
 }
 
-// ── PROCESAR ACTUALIZACIÓN ───────────────────────────────────
+$fotos = cargarFotos($_conexion, $id_animal);
+$foto_principal = null;
+foreach ($fotos as $f) {
+    if ($f['es_principal']) { $foto_principal = $f; break; }
+}
+
+// ── PROCESAR POST ────────────────────────────────────────────
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
+    $accion = $_POST['accion'] ?? 'editar';
+
+    // ── CAMBIAR FOTO PRINCIPAL ───────────────────────────────
+    if ($accion === 'set_principal' && isset($_POST['id_foto'])) {
+        $id_foto_nueva = (int)$_POST['id_foto'];
+        $upd = $_conexion->prepare("UPDATE Galeria SET es_principal = 0 WHERE id_animal = ?");
+        $upd->bind_param("i", $id_animal);
+        $upd->execute(); $upd->close();
+        $upd2 = $_conexion->prepare("UPDATE Galeria SET es_principal = 1 WHERE id_foto = ? AND id_animal = ?");
+        $upd2->bind_param("ii", $id_foto_nueva, $id_animal);
+        $upd2->execute(); $upd2->close();
+        header("Location: editAnimal.php?id=$id_animal&ok=principal"); exit();
+    }
+
+    // ── ELIMINAR FOTO ────────────────────────────────────────
+    if ($accion === 'eliminar_foto' && isset($_POST['id_foto'])) {
+        $id_foto_del = (int)$_POST['id_foto'];
+        $q_del = $_conexion->prepare("SELECT ruta, es_principal FROM Galeria WHERE id_foto = ? AND id_animal = ?");
+        $q_del->bind_param("ii", $id_foto_del, $id_animal);
+        $q_del->execute();
+        $foto_del = $q_del->get_result()->fetch_assoc();
+        $q_del->close();
+        if ($foto_del) {
+            $ruta_fisica = realpath(__DIR__ . '/' . $foto_del['ruta']);
+            if ($ruta_fisica && is_file($ruta_fisica)) unlink($ruta_fisica);
+            $del = $_conexion->prepare("DELETE FROM Galeria WHERE id_foto = ?");
+            $del->bind_param("i", $id_foto_del);
+            $del->execute(); $del->close();
+            // Si era la principal, pasar el badge a la siguiente
+            if ($foto_del['es_principal']) {
+                $sig = $_conexion->prepare("SELECT id_foto FROM Galeria WHERE id_animal = ? LIMIT 1");
+                $sig->bind_param("i", $id_animal);
+                $sig->execute();
+                $siguiente = $sig->get_result()->fetch_assoc();
+                $sig->close();
+                if ($siguiente) {
+                    $sp = $_conexion->prepare("UPDATE Galeria SET es_principal = 1 WHERE id_foto = ?");
+                    $sp->bind_param("i", $siguiente['id_foto']);
+                    $sp->execute(); $sp->close();
+                }
+            }
+        }
+        header("Location: editAnimal.php?id=$id_animal&ok=foto_eliminada"); exit();
+    }
+
+    // ── SUBIR FOTO NUEVA ─────────────────────────────────────
+    if ($accion === 'subir_foto') {
+        if (!empty($_FILES['foto_nueva']['name']) && $_FILES['foto_nueva']['error'] === UPLOAD_ERR_OK) {
+            $ext_ok = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+            $ext    = strtolower(pathinfo($_FILES['foto_nueva']['name'], PATHINFO_EXTENSION));
+            if (in_array($ext, $ext_ok)) {
+                $carpeta = realpath(__DIR__ . '/../img') . '/protectoras/protectora_' . $id_protectora . '/animal_' . $id_animal;
+                if (!is_dir($carpeta)) mkdir($carpeta, 0755, true);
+                $archivo = 'foto_' . time() . '.' . $ext;
+                if (move_uploaded_file($_FILES['foto_nueva']['tmp_name'], $carpeta . '/' . $archivo)) {
+                    $ruta = '../img/protectoras/protectora_' . $id_protectora . '/animal_' . $id_animal . '/' . $archivo;
+                    $es_principal = empty($fotos) ? 1 : 0;
+                    $ins = $_conexion->prepare("INSERT INTO Galeria (id_animal, ruta, es_principal) VALUES (?, ?, ?)");
+                    $ins->bind_param("isi", $id_animal, $ruta, $es_principal);
+                    $ins->execute(); $ins->close();
+                }
+            }
+        }
+        header("Location: editAnimal.php?id=$id_animal&ok=foto_subida"); exit();
+    }
+
+    // ── EDITAR DATOS DEL ANIMAL ──────────────────────────────
     $nombre      = htmlspecialchars(trim($_POST["nombre"]));
     $especie     = htmlspecialchars(trim($_POST["especie"]));
     $raza        = htmlspecialchars(trim($_POST["raza"]));
@@ -67,10 +139,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             WHERE id_animal = ? AND id_protectora = ?";
 
     $stmt = $_conexion->prepare($sql);
-    // 15 params: id_estado(i), nombre(s), especie(s), raza(s), sexo(s), color(s),
-    //            peso(d), edad(i), fecha(s), descripcion(s),
-    //            compat_perros(i), compat_gatos(i), compat_ninos(i),
-    //            id_animal(i), id_protectora(i)
     $stmt->bind_param(
         "isssssdissiiiii",
         $id_estado, $nombre, $especie, $raza, $sexo, $color,
@@ -81,63 +149,21 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     if ($stmt->execute()) {
         $stmt->close();
-
-        // ── SUBIR / REEMPLAZAR FOTO PRINCIPAL ───────────────────
-        if (!empty($_FILES['foto']['name']) && $_FILES['foto']['error'] === UPLOAD_ERR_OK) {
-            $ext_ok  = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
-            $ext     = strtolower(pathinfo($_FILES['foto']['name'], PATHINFO_EXTENSION));
-            if (in_array($ext, $ext_ok)) {
-                $dir     = realpath(__DIR__ . '/../img/animales') . '/';
-                $archivo = 'animal_' . $id_animal . '_' . time() . '.' . $ext;
-                if (move_uploaded_file($_FILES['foto']['tmp_name'], $dir . $archivo)) {
-                    $ruta = '../img/animales/' . $archivo;
-
-                    // Borrar archivo antiguo si existe
-                    if (!empty($foto_actual['ruta'])) {
-                        $ruta_fisica = realpath(__DIR__ . '/' . $foto_actual['ruta']);
-                        if ($ruta_fisica && is_file($ruta_fisica)) {
-                            unlink($ruta_fisica);
-                        }
-                    }
-
-                    if (!empty($foto_actual['id_foto'])) {
-                        $upd = $_conexion->prepare(
-                            "UPDATE Galeria SET ruta = ? WHERE id_foto = ?"
-                        );
-                        $upd->bind_param("si", $ruta, $foto_actual['id_foto']);
-                        $upd->execute();
-                        $upd->close();
-                    } else {
-                        $ins = $_conexion->prepare(
-                            "INSERT INTO Galeria (id_animal, ruta, es_principal) VALUES (?, ?, 1)"
-                        );
-                        $ins->bind_param("is", $id_animal, $ruta);
-                        $ins->execute();
-                        $ins->close();
-                    }
-                }
-            }
-        }
-
-        header("Location: listaAnimal.php?edited=1");
-        exit();
+        header("Location: listaAnimal.php?edited=1"); exit();
     } else {
-        $err_db = "No se pudo actualizar el animal. Inténtalo de nuevo.";
+        $err_db = "No se pudo actualizar el animal.";
     }
     $stmt->close();
 }
 
-// ── CARGAR FOTO ACTUAL ───────────────────────────────────────
-$q_foto = $_conexion->prepare(
-    "SELECT id_foto, ruta FROM Galeria WHERE id_animal = ? AND es_principal = 1 LIMIT 1"
-);
-$q_foto->bind_param("i", $id_animal);
-$q_foto->execute();
-$foto_actual = $q_foto->get_result()->fetch_assoc();
-$q_foto->close();
-
-// ── CARGAR ESTADOS ───────────────────────────────────────────
+// ── ESTADOS ──────────────────────────────────────────────────
 $estados = $_conexion->query("SELECT * FROM EstadoAnimal ORDER BY id_estado")->fetch_all(MYSQLI_ASSOC);
+
+$ok_msg = '';
+if (isset($_GET['ok'])) {
+    $msgs = ['principal' => 'Foto principal actualizada', 'foto_subida' => 'Foto añadida correctamente', 'foto_eliminada' => 'Foto eliminada'];
+    $ok_msg = $msgs[$_GET['ok']] ?? '';
+}
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -154,68 +180,38 @@ $estados = $_conexion->query("SELECT * FROM EstadoAnimal ORDER BY id_estado")->f
     <style>
         #padre-nuestro { align-items: flex-start; padding: 40px 20px; }
         #estructura { max-width: 680px; }
-
         .form-section-title {
-            font-size: 11px;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            color: #999;
-            margin: 24px 0 14px;
-            border-top: 1px solid #f0f0f0;
-            padding-top: 20px;
+            font-size: 11px; font-weight: 600; text-transform: uppercase;
+            letter-spacing: 1px; color: #999; margin: 24px 0 14px;
+            border-top: 1px solid #f0f0f0; padding-top: 20px;
         }
         .form-section-title:first-child { margin-top: 0; border-top: none; padding-top: 0; }
-
-        select.form-control {
-            appearance: none;
-            -webkit-appearance: none;
-            cursor: pointer;
-            padding-right: 24px;
-        }
-
-        textarea.form-control {
-            height: auto;
-            min-height: 70px;
-            resize: vertical;
-            padding-top: 6px;
-        }
-
-        .compat-group {
-            display: flex;
-            gap: 20px;
-            flex-wrap: wrap;
-            margin-bottom: 20px;
-        }
-        .compat-item {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            cursor: pointer;
-            font-size: 12px;
-            color: #555;
-            font-weight: 500;
-        }
-        .compat-item input[type="checkbox"] {
-            accent-color: #CA7842;
-            width: 16px;
-            height: 16px;
-            cursor: pointer;
-        }
+        select.form-control { appearance: none; -webkit-appearance: none; cursor: pointer; padding-right: 24px; }
+        textarea.form-control { height: auto; min-height: 70px; resize: vertical; padding-top: 6px; }
+        .compat-group { display: flex; gap: 20px; flex-wrap: wrap; margin-bottom: 20px; }
+        .compat-item { display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 12px; color: #555; font-weight: 500; }
+        .compat-item input[type="checkbox"] { accent-color: #CA7842; width: 16px; height: 16px; cursor: pointer; }
         .compat-item i { color: #CA7842; font-size: 16px; }
+        #perfil-header { padding: 28px 40px 22px; }
 
-        /* badge ID en la cabecera */
-        .id-badge {
-            display: inline-block;
-            background: rgba(202,120,66,0.25);
-            color: #EDA677;
-            font-size: 11px;
-            font-weight: 600;
-            letter-spacing: 1px;
-            padding: 3px 10px;
-            border-radius: 20px;
-            margin-top: 4px;
-        }
+        .galeria-grid { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 16px; }
+        .galeria-item { position: relative; width: 120px; }
+        .galeria-item img { width: 120px; height: 90px; object-fit: cover; border-radius: 8px; display: block; border: 3px solid transparent; transition: border-color 0.2s; }
+        .galeria-item.es-principal img { border-color: #CA7842; }
+        .badge-principal { position: absolute; top: 5px; left: 5px; background: #CA7842; color: #fff; font-size: 9px; font-weight: 700; padding: 2px 6px; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .foto-acciones { display: flex; gap: 6px; margin-top: 6px; }
+        .btn-foto { flex: 1; font-size: 10px; font-weight: 600; padding: 4px 0; border: none; border-radius: 4px; cursor: pointer; font-family: 'Poppins', sans-serif; transition: opacity 0.2s; }
+        .btn-foto:hover { opacity: 0.8; }
+        .btn-set-principal { background: #CA7842; color: #fff; }
+        .btn-eliminar-foto { background: #f0f0f0; color: #e74c3c; }
+
+        .subir-foto-area { border: 2px dashed #ddd; border-radius: 8px; padding: 20px; text-align: center; margin-bottom: 20px; transition: border-color 0.2s; }
+        .subir-foto-area:hover { border-color: #CA7842; }
+        .subir-foto-area label { cursor: pointer; font-size: 13px; color: #999; font-weight: 500; }
+        .subir-foto-area label i { font-size: 24px; display: block; margin-bottom: 6px; color: #CA7842; }
+        .subir-foto-area input[type="file"] { display: none; }
+
+        .msg-ok { background: #EAF3DE; border: 1px solid #97C459; color: #173404; border-radius: 6px; padding: 10px 16px; margin: 0 40px 16px; font-size: 13px; font-weight: 500; }
     </style>
 </head>
 <body>
@@ -240,30 +236,76 @@ $estados = $_conexion->query("SELECT * FROM EstadoAnimal ORDER BY id_estado")->f
 <div id="padre-nuestro">
     <div id="estructura">
 
-        <!-- CABECERA -->
         <div id="perfil-header">
-            <h2 id="perfil-nombre">
-                <?= htmlspecialchars($animal['especie'] ?? 'Animal') ?>
-                <?= $animal['raza'] ? '— ' . htmlspecialchars($animal['raza']) : '' ?>
-            </h2>
-            <p id="perfil-tipo">Editar ficha</p>
-            <span class="id-badge">ID #<?= $id_animal ?></span>
+            <h2 id="perfil-nombre"><?= htmlspecialchars($animal['nombre'] ?? 'Animal') ?></h2>
+            <p id="perfil-tipo">Editar ficha · ID #<?= $id_animal ?></p>
         </div>
 
-        <!-- MENSAJES -->
+        <?php if ($ok_msg): ?>
+            <div class="msg-ok"><?= $ok_msg ?></div>
+        <?php endif; ?>
         <?php if (isset($err_db)): ?>
             <div class="msg-error"><?= $err_db ?></div>
         <?php endif; ?>
 
-        <!-- FORMULARIO -->
         <div id="perfil-form-area">
-            <form action="editAnimal.php?id=<?= $id_animal ?>" method="POST" id="registro" enctype="multipart/form-data">
+
+            <!-- ── FOTOS ── -->
+            <p class="form-section-title" style="margin-top:0;border:none;padding:0">Fotos</p>
+
+            <?php if (!empty($fotos)): ?>
+            <div class="galeria-grid">
+                <?php foreach ($fotos as $f): ?>
+                <div class="galeria-item <?= $f['es_principal'] ? 'es-principal' : '' ?>">
+                    <img src="<?= htmlspecialchars($f['ruta']) ?>" alt="foto">
+                    <?php if ($f['es_principal']): ?>
+                        <span class="badge-principal">Principal</span>
+                    <?php endif; ?>
+                    <div class="foto-acciones">
+                        <?php if (!$f['es_principal']): ?>
+                        <form method="POST" action="editAnimal.php?id=<?= $id_animal ?>" style="flex:1;margin:0">
+                            <input type="hidden" name="accion" value="set_principal">
+                            <input type="hidden" name="id_foto" value="<?= $f['id_foto'] ?>">
+                            <button type="submit" class="btn-foto btn-set-principal">★ Principal</button>
+                        </form>
+                        <?php else: ?>
+                            <span style="flex:1"></span>
+                        <?php endif; ?>
+                        <form method="POST" action="editAnimal.php?id=<?= $id_animal ?>" style="flex:1;margin:0"
+                              onsubmit="return confirm('¿Eliminar esta foto?')">
+                            <input type="hidden" name="accion" value="eliminar_foto">
+                            <input type="hidden" name="id_foto" value="<?= $f['id_foto'] ?>">
+                            <button type="submit" class="btn-foto btn-eliminar-foto">✕ Borrar</button>
+                        </form>
+                    </div>
+                </div>
+                <?php endforeach; ?>
+            </div>
+            <?php else: ?>
+                <p style="font-size:12px;color:#999;margin-bottom:16px">Sin fotos aún.</p>
+            <?php endif; ?>
+
+            <form method="POST" action="editAnimal.php?id=<?= $id_animal ?>"
+                  enctype="multipart/form-data" id="form-subir-foto">
+                <input type="hidden" name="accion" value="subir_foto">
+                <div class="subir-foto-area">
+                    <label for="foto-nueva-input">
+                        <i class="zmdi zmdi-camera-add"></i>
+                        Añadir foto nueva
+                    </label>
+                    <input type="file" name="foto_nueva" id="foto-nueva-input"
+                           accept="image/jpeg,image/png,image/gif,image/webp">
+                </div>
+            </form>
+
+            <!-- ── DATOS ── -->
+            <form action="editAnimal.php?id=<?= $id_animal ?>" method="POST" id="registro">
+                <input type="hidden" name="accion" value="editar">
 
                 <p class="form-section-title">Datos básicos</p>
 
                 <div class="form-wrapper">
                     <input type="text" name="nombre" class="form-control"
-                           placeholder="Nombre del animal"
                            value="<?= htmlspecialchars($animal['nombre'] ?? '') ?>" required>
                     <i class="zmdi zmdi-account"></i>
                 </div>
@@ -279,8 +321,7 @@ $estados = $_conexion->query("SELECT * FROM EstadoAnimal ORDER BY id_estado")->f
                         <i class="zmdi zmdi-caret-down"></i>
                     </div>
                     <div class="form-wrapper">
-                        <input type="text" name="raza" class="form-control"
-                               placeholder="Raza"
+                        <input type="text" name="raza" class="form-control" placeholder="Raza"
                                value="<?= htmlspecialchars($animal['raza'] ?? '') ?>">
                         <i class="zmdi zmdi-collection-item-3"></i>
                     </div>
@@ -296,8 +337,7 @@ $estados = $_conexion->query("SELECT * FROM EstadoAnimal ORDER BY id_estado")->f
                         <i class="zmdi zmdi-caret-down"></i>
                     </div>
                     <div class="form-wrapper">
-                        <input type="text" name="color" class="form-control"
-                               placeholder="Color"
+                        <input type="text" name="color" class="form-control" placeholder="Color"
                                value="<?= htmlspecialchars($animal['color'] ?? '') ?>">
                         <i class="zmdi zmdi-palette"></i>
                     </div>
@@ -305,14 +345,12 @@ $estados = $_conexion->query("SELECT * FROM EstadoAnimal ORDER BY id_estado")->f
 
                 <div class="form-grid">
                     <div class="form-wrapper">
-                        <input type="number" name="edad" class="form-control"
-                               placeholder="Edad (años)" min="0" max="30"
+                        <input type="number" name="edad" class="form-control" placeholder="Edad (años)" min="0" max="30"
                                value="<?= $animal['edad'] !== null ? $animal['edad'] : '' ?>">
                         <i class="zmdi zmdi-calendar"></i>
                     </div>
                     <div class="form-wrapper">
-                        <input type="number" name="peso" class="form-control"
-                               placeholder="Peso (kg)" step="0.01" min="0"
+                        <input type="number" name="peso" class="form-control" placeholder="Peso (kg)" step="0.01" min="0"
                                value="<?= $animal['peso'] !== null ? $animal['peso'] : '' ?>">
                         <i class="zmdi zmdi-balance"></i>
                     </div>
@@ -351,39 +389,17 @@ $estados = $_conexion->query("SELECT * FROM EstadoAnimal ORDER BY id_estado")->f
 
                 <div class="compat-group">
                     <label class="compat-item">
-                        <input type="checkbox" name="compat_ninos"
-                               <?= $animal['compatibilidad_ninos']  ? 'checked' : '' ?>>
+                        <input type="checkbox" name="compat_ninos" <?= $animal['compatibilidad_ninos']  ? 'checked' : '' ?>>
                         <i class="zmdi zmdi-mood"></i> Niños
                     </label>
                     <label class="compat-item">
-                        <input type="checkbox" name="compat_perros"
-                               <?= $animal['compatibilidad_perros'] ? 'checked' : '' ?>>
+                        <input type="checkbox" name="compat_perros" <?= $animal['compatibilidad_perros'] ? 'checked' : '' ?>>
                         <i class="zmdi zmdi-paw"></i> Perros
                     </label>
                     <label class="compat-item">
-                        <input type="checkbox" name="compat_gatos"
-                               <?= $animal['compatibilidad_gatos']  ? 'checked' : '' ?>>
+                        <input type="checkbox" name="compat_gatos" <?= $animal['compatibilidad_gatos']  ? 'checked' : '' ?>>
                         <i class="zmdi zmdi-toys"></i> Gatos
                     </label>
-                </div>
-
-                <p class="form-section-title">Foto principal</p>
-
-                <?php if (!empty($foto_actual['ruta'])): ?>
-                    <div style="margin-bottom:14px">
-                        <img src="<?= htmlspecialchars($foto_actual['ruta']) ?>"
-                             alt="Foto actual"
-                             style="max-height:140px;border-radius:8px;object-fit:cover;">
-                        <p style="font-size:11px;color:#999;margin-top:6px">
-                            Foto actual · sube una nueva para reemplazarla
-                        </p>
-                    </div>
-                <?php endif; ?>
-
-                <div class="form-wrapper">
-                    <input type="file" name="foto" class="form-control"
-                           accept="image/jpeg,image/png,image/gif,image/webp">
-                    <i class="zmdi zmdi-camera"></i>
                 </div>
 
                 <button type="submit">GUARDAR CAMBIOS <i class="zmdi zmdi-check"></i></button>
@@ -393,9 +409,14 @@ $estados = $_conexion->query("SELECT * FROM EstadoAnimal ORDER BY id_estado")->f
         <div id="perfil-volver">
             <a href="listaAnimal.php">← Volver a mis animales</a>
         </div>
-
     </div>
 </div>
+
+<script>
+document.getElementById('foto-nueva-input').addEventListener('change', function() {
+    if (this.files.length > 0) document.getElementById('form-subir-foto').submit();
+});
+</script>
 
 </body>
 </html>

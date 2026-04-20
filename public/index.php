@@ -5,7 +5,7 @@ require "../src/sesion/conexion.php";
 // ── FILTROS (GET) ──────────────────────────────────────────────
 $especie_filtro = isset($_GET['especie']) ? trim($_GET['especie']) : '';
 $ciudad_filtro  = isset($_GET['ciudad'])  ? trim($_GET['ciudad'])  : '';
-$raza_filtro    = isset($_GET['raza'])    ? trim($_GET['raza'])    : '';
+$raza_filtro    = isset($_GET['raza'])  ? trim($_GET['raza'])    : '';
 $sexo_filtro    = isset($_GET['sexo'])    ? trim($_GET['sexo'])    : '';
 $color_filtro   = isset($_GET['color'])   ? trim($_GET['color'])   : '';
 $edad_min       = (isset($_GET['edad_min']) && $_GET['edad_min'] !== '') ? (int)$_GET['edad_min'] : '';
@@ -828,4 +828,4 @@ if (!TIENE_DB_ANIMALES) {
 }
 </script>
 
-</b
+</body>

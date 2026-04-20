@@ -6,14 +6,9 @@
     <title>Index</title>
     
     <?php 
-    session_start();
-    #require "src/sesion/conexion.php";
-    
-    if(!isset($_SESSION["user"])){
-        header("Location: public/indexProtectora.php"); exit();
-    }else{
+
         header("Location: public/index.php"); exit(); 
-    }
+
     
     
     ?>
