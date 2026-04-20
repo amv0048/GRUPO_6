@@ -2,6 +2,16 @@
 session_start();
 require "../src/sesion/conexion.php";
 
+require "../src/PHPMailer.php";
+require "../src/SMTP.php";
+require "../src/Exception.php";
+require "../src/config1.php";
+
+
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\SMTP;
+use PHPMailer\PHPMailer\Exception;
+
 // ── ACCESO: solo admins ──────────────────────────────────────
 if (!isset($_SESSION['user']) || !isset($_SESSION['admin']) || $_SESSION['admin'] != 1) {
     header('Location: index.php');
@@ -66,7 +76,41 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $ins->execute();
         $ins->close();
 
+        try {
+            $mail = new PHPMailer(true);
+            $mail->isSMTP();
+            $mail->Host       = 'smtp.gmail.com';
+            $mail->SMTPAuth   = true;
+            $mail->Username   = MAIL_USER;
+            $mail->Password   = MAIL_PASS;
+            $mail->SMTPSecure = 'tls';
+            $mail->Port       = 587;
+            $mail->CharSet    = 'UTF-8';
+
+            $mail->setFrom(MAIL_USER, 'Go Catch');
+            $mail->addAddress($usuario['email'], $usuario['nombre']);  // email del baneado
+            $mail->Subject = 'Baneo Go Catch';
+            $mail->Body    = "Hola {$usuario['nombre']},\n\n"
+                    . "Tu cuenta en Go Catch ha sido suspendida por el siguiente motivo:\n\n"
+                    . "Motivo: {$motivo_tipo}\n\n"
+                    . ($motivo_detalle !== '' ? "Detalle: {$motivo_detalle}\n\n" : '')
+                    . "Si crees que esto es un error, contacta con nuestro equipo de soporte.\n\n"
+                    . "El equipo de Go Catch";
+
+            $mail->send();
+        } catch (Exception $e) {
+            // El baneo ya se ejecutó — el email fallando no lo deshace
+            // Puedes loguear el error si quieres: error_log($mail->ErrorInfo);
+        }
+
+
+
+
+
         $exito = true;
+
+
+
     }
 }
 
