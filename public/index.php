@@ -107,6 +107,7 @@ if ($res_anim) {
     }
 }
 
+
 // ── LIKES DEL USUARIO ─────────────────────────────────────────
 // TODO ESTO HACE QUE PETE CUANDO HACE LOGIN UN USER, SE CARGA EL INDEX NO SE AUN POQUE 
 $liked_ids = [];
