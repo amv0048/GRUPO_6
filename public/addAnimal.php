@@ -177,7 +177,7 @@ $estados = $_conexion->query("SELECT * FROM EstadoAnimal ORDER BY id_estado")->f
         </a>
     </nav>
     <nav class="hBotones">
-        <a class="hBoton" href="" target="_self">URGENTE</a>
+        <a class="hBoton" href="urgente.php" target="_self">URGENTE</a>
         <a class="hBoton" href="perfil.php" target="_self">MI PERFIL</a>
         <a href="listaAnimal.php" target="_self" id="boton-destacado">MIS ANIMALES</a>
     </nav>
@@ -271,44 +271,4 @@ $estados = $_conexion->query("SELECT * FROM EstadoAnimal ORDER BY id_estado")->f
                 <p class="form-section-title">Descripción</p>
 
                 <div class="form-wrapper">
-                    <textarea name="descripcion" class="form-control" placeholder="Descripción del animal…"></textarea>
-                </div>
-
-                <p class="form-section-title">Compatibilidades</p>
-
-                <div class="compat-group">
-                    <label class="compat-item">
-                        <input type="checkbox" name="compat_ninos">
-                        <i class="zmdi zmdi-mood"></i> Niños
-                    </label>
-                    <label class="compat-item">
-                        <input type="checkbox" name="compat_perros">
-                        <i class="zmdi zmdi-paw"></i> Perros
-                    </label>
-                    <label class="compat-item">
-                        <input type="checkbox" name="compat_gatos">
-                        <i class="zmdi zmdi-toys"></i> Gatos
-                    </label>
-                </div>
-
-                <p class="form-section-title">Foto principal</p>
-
-                <div class="form-wrapper">
-                    <input type="file" name="foto" class="form-control"
-                           accept="image/jpeg,image/png,image/gif,image/webp">
-                    <i class="zmdi zmdi-camera"></i>
-                </div>
-
-                <button type="submit">AÑADIR ANIMAL <i class="zmdi zmdi-check"></i></button>
-            </form>
-        </div>
-
-        <div id="perfil-volver">
-            <a href="listaAnimal.php">← Volver a mis animales</a>
-        </div>
-
-    </div>
-</div>
-
-</body>
-</html>
+                    <textarea name="descripcion" class="

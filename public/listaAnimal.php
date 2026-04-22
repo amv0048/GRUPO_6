@@ -285,7 +285,7 @@ $consulta->close();
         </a>
     </nav>
     <nav class="hBotones">
-        <a class="hBoton" href="" target="_self">URGENTE</a>
+        <a class="hBoton" href="urgente.php" target="_self">URGENTE</a>
         <a class="hBoton" href="perfil.php" target="_self">MI PERFIL</a>
         <a href="listaAnimal.php" target="_self" id="boton-destacado">MIS ANIMALES</a>
     </nav>

@@ -648,7 +648,7 @@ $tiene_necesidades  = !empty($necesidades);
         </a>
     </nav>
     <nav class="hBotones">
-        <a class="hBoton" href="index.php#animales">URGENTE</a>
+        <a class="hBoton" href="urgente.php">URGENTE</a>
         <?php if (isset($_SESSION['id'])): ?>
             <a class="hBoton" href="perfil.php">
                 <i class="zmdi zmdi-account"></i>

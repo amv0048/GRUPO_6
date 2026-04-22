@@ -135,7 +135,7 @@ elseif (isset($_SESSION['protectora'])) $nombre_sesion = $_SESSION['protectora']
 
 
     <nav class="hBotones">
-        <a class="hBoton" href="#animales">URGENTE</a>
+        <a class="hBoton" href="urgente.php">URGENTE</a>
         <?php if (isset($_SESSION['id'])): ?>
             <a class="hBoton" href="perfil.php">
                 <i class="zmdi zmdi-account"></i>
@@ -566,109 +566,4 @@ function initCarousel() {
         if (animate) {
             track.style.transition = 'transform 0.45s cubic-bezier(0.4, 0, 0.2, 1)';
         } else {
-            track.style.transition = 'none';
-            track.getBoundingClientRect(); // forzar layout para que transition:none se aplique antes del transform
-        }
-        track.style.transform = `translateX(-${current * cardW()}px)`;
-    }
-
-    // Cuando una transición termina, comprobamos si estamos en zona clonada
-    // y saltamos silenciosamente a la zona real equivalente
-    track.addEventListener('transitionend', () => {
-        if (current >= CLONE + N) moveTo(current - N, false); // pasamos del último → volver al primero real
-        if (current < CLONE)      moveTo(current + N, false); // pasamos del primero → ir al último real
-    });
-
-    function startAuto() {
-        clearInterval(autoId);
-        autoId = setInterval(() => moveTo(current + 1), 3800);
-    }
-
-    const prevBtn = document.getElementById('prev-btn');
-    const nextBtn = document.getElementById('next-btn');
-    if (prevBtn) prevBtn.addEventListener('click', () => { moveTo(current - 1); startAuto(); });
-    if (nextBtn) nextBtn.addEventListener('click', () => { moveTo(current + 1); startAuto(); });
-
-    window.addEventListener('resize', () => moveTo(current, false));
-
-    moveTo(CLONE, false); // posición inicial sin animación
-    startAuto();
-}
-
-/* ─── DEMO: imágenes de APIs externas cuando la BD está vacía ── */
-
-// Extrae la raza del perro desde la URL de dog.ceo
-// Ej: .../breeds/golden-retriever/... → "Golden Retriever"
-function razaDesdeUrl(url) {
-    const m = url.match(/breeds\/([^\/]+)\//);
-    if (!m) return 'Mestizo';
-    return m[1].split('-').map(w => w[0].toUpperCase() + w.slice(1)).join(' ');
-}
-
-const CIUDADES_DEMO = ['Sevilla', 'Madrid', 'Barcelona', 'Valencia', 'Málaga', 'Granada', 'Bilbao'];
-function ciudadDemo() {
-    return CIUDADES_DEMO[Math.floor(Math.random() * CIUDADES_DEMO.length)];
-}
-
-function crearTarjeta(url, tipo, raza, ciudad) {
-    return `<a class="animal-card" href="#">
-        <div class="animal-foto">
-            <img src="${url}" alt="${tipo} - ${raza}" loading="lazy">
-        </div>
-        <div class="animal-info">
-            <p class="animal-nombre">${tipo} · ${raza}</p>
-            <p class="animal-detalle">Disponible · ${ciudad}</p>
-        </div>
-    </a>`;
-}
-
-if (!TIENE_DB_ANIMALES) {
-    // Llamada en paralelo a las dos APIs
-    Promise.all([
-        fetch('https://dog.ceo/api/breeds/image/random/5').then(r => r.json()),
-        fetch('https://api.thecatapi.com/v1/images/search?limit=5').then(r => r.json())
-    ])
-    .then(([dogs, cats]) => {
-        const tarjetas = [];
-
-        // Perros — dog.ceo devuelve {message: [urls]}
-        (dogs.message || []).forEach(url => {
-            tarjetas.push(crearTarjeta(url, 'Perro', razaDesdeUrl(url), ciudadDemo()));
-        });
-
-        // Gatos — thecatapi devuelve [{url, id, ...}]
-        (cats || []).forEach(cat => {
-            tarjetas.push(crearTarjeta(cat.url, 'Gato', 'Doméstico', ciudadDemo()));
-        });
-
-        // Mezclar perros y gatos aleatoriamente
-        tarjetas.sort(() => Math.random() - 0.5);
-
-        const track = document.getElementById('carousel-track');
-        track.innerHTML = tarjetas.join('');
-
-        initCarousel();
-    })
-    .catch(() => {
-        // Si las APIs fallan, mostrar estado vacío
-        document.getElementById('carousel-wrapper').innerHTML = `
-            <div id="sin-animales">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80" fill="currentColor"
-                     style="width:56px;height:56px;opacity:.25;margin:0 auto 16px;display:block">
-                    <ellipse cx="40" cy="54" rx="18" ry="15"/>
-                    <ellipse cx="20" cy="36" rx="9"  ry="11"/>
-                    <ellipse cx="34" cy="27" rx="9"  ry="11"/>
-                    <ellipse cx="50" cy="27" rx="9"  ry="11"/>
-                    <ellipse cx="64" cy="36" rx="9"  ry="11"/>
-                </svg>
-                <p>No hay animales disponibles en este momento.</p>
-                <a href="index.php">Reintentar</a>
-            </div>`;
-    });
-} else {
-    // La BD tiene animales: iniciar carrusel directamente
-    initCarousel();
-}
-</script>
-
-</b
+            track.style.transition = 
