@@ -1,5 +1,5 @@
 /* ================================================================
-   INDEX.CSS  —  Go Catch
+   INDEXPROTECTORA.CSS  —  Go Catch
    Paleta compartida con login.css / registro.css / perfil.css:
      Navy oscuro  : #0D2D51
      Navy medio   : #124076
@@ -10,7 +10,14 @@
      Texto claro  : #aaa
    ================================================================ */
 
-/* ===== RESET BASE (idéntico al del resto de páginas) ===== */
+/* ================================================================
+   HEADER — override para centrar el logo
+   ================================================================ */
+header .hBotones          { flex: 1; }
+header .hBotones:last-child { justify-content: flex-end; }
+#header-izq               { flex: 0 0 auto; }
+
+/* ===== RESET BASE ===== */
 *, *::before, *::after { box-sizing: border-box; }
 
 body {
@@ -57,13 +64,12 @@ input, select, button { font-family: 'Poppins', sans-serif; }
     line-height: 1.6;
 }
 
-/* Botones CTA — mismas medidas y transición que los botones de registro */
 #hero-cta { display: flex; gap: 14px; flex-wrap: wrap; }
 
 .cta-btn {
     display: inline-block;
     padding: 12px 28px;
-    border-radius: 4px;          /* igual que el resto de botones del proyecto */
+    border-radius: 4px;
     font-size: 13px;
     font-weight: 600;
     letter-spacing: 1px;
@@ -89,7 +95,6 @@ input, select, button { font-family: 'Poppins', sans-serif; }
    ================================================================ */
 #objetivos { padding: 0 60px 72px; }
 
-/* Etiqueta de sección — misma que en perfil.css (.seccion-label) */
 .seccion-etiqueta {
     font-size: 11px;
     font-weight: 600;
@@ -98,18 +103,6 @@ input, select, button { font-family: 'Poppins', sans-serif; }
     color: #CA7842;
     margin-bottom: 16px;
 }
-.seccion-titulo {
-    font-size: 1.4rem;
-    font-weight: 700;
-    color: #fff;
-    margin-bottom: 10px;
-}
-.seccion-subtitulo {
-    font-size: 0.82rem;
-    color: #a8b8cc;
-    margin-bottom: 40px;
-    line-height: 1.6;
-}
 
 #objetivos-grid {
     display: grid;
@@ -117,7 +110,6 @@ input, select, button { font-family: 'Poppins', sans-serif; }
     gap: 16px;
 }
 
-/* Tarjetas de objetivo — terracota, mismo border-radius que tarjetas del proyecto */
 .objetivo-card {
     background: #CA7842;
     border-radius: 8px;
@@ -158,10 +150,8 @@ input, select, button { font-family: 'Poppins', sans-serif; }
     padding: 14px 22px;
 }
 
-/* Las filas son transparentes al layout: sus hijos fluyen directo al form */
 .filtro-fila { display: contents; }
 
-/* Campos select */
 .filtro-campo {
     display: flex;
     align-items: center;
@@ -195,13 +185,11 @@ input, select, button { font-family: 'Poppins', sans-serif; }
 }
 .filtro-select option { background: #0D2D51; color: #fff; }
 
-/* Divisor visual entre grupos */
 .filtro-campo:last-of-type {
     padding-right: 14px;
     border-right: 1px solid rgba(255, 255, 255, 0.12);
 }
 
-/* Rangos numéricos */
 .filtro-rango {
     display: flex;
     align-items: center;
@@ -239,10 +227,7 @@ input, select, button { font-family: 'Poppins', sans-serif; }
 .filtro-input:focus { border-bottom-color: #CA7842; }
 .filtro-input::placeholder { color: #555; }
 
-.filtro-sep {
-    color: #a8b8cc;
-    font-size: 12px;
-}
+.filtro-sep { color: #a8b8cc; font-size: 12px; }
 
 .filtro-rango-unit {
     font-size: 11px;
@@ -250,7 +235,6 @@ input, select, button { font-family: 'Poppins', sans-serif; }
     white-space: nowrap;
 }
 
-/* Checkboxes de compatibilidad */
 .filtro-compat {
     display: flex;
     align-items: center;
@@ -279,7 +263,6 @@ input, select, button { font-family: 'Poppins', sans-serif; }
     flex-shrink: 0;
 }
 
-/* Acciones (submit + reset) */
 .filtro-acciones {
     display: flex;
     align-items: center;
@@ -288,7 +271,6 @@ input, select, button { font-family: 'Poppins', sans-serif; }
     flex-shrink: 0;
 }
 
-/* Botón buscar */
 #filtro-btn {
     background: #CA7842;
     color: #fff;
@@ -321,94 +303,12 @@ input, select, button { font-family: 'Poppins', sans-serif; }
 
 
 /* ================================================================
-   MAPA
-   — Misma lógica de layout dividido que login.css (imagen + formulario)
-   ================================================================ */
-#mapa-section {
-    display: flex;
-    align-items: stretch;
-    min-height: 440px;
-    margin-top: 40px;
-}
-
-#mapa-wrapper { flex: 0 0 62%; position: relative; }
-
-#mapa { width: 100%; height: 100%; min-height: 440px; }
-
-/* Sobrescribir z-index de Leaflet para no interferir con el header */
-.leaflet-pane  { z-index: 1; }
-.leaflet-top,
-.leaflet-bottom { z-index: 2; }
-
-.paw-marker { background: none !important; border: none !important; }
-
-/* Popup Leaflet con tipografía del proyecto */
-.map-popup {
-    font-family: 'Poppins', sans-serif;
-    font-size: 12px;
-    line-height: 1.6;
-    color: #333;
-}
-.map-popup strong { color: #0D2D51; font-weight: 700; }
-
-/* Panel derecho del mapa — mismo fondo navy-medio que cabecera de perfil */
-#mapa-label {
-    flex: 1;
-    background: #124076;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 48px 40px;
-}
-#mapa-label-content { text-align: center; max-width: 280px; }
-
-#mapa-label-content > i {
-    font-size: 2.4rem;
-    color: #CA7842;
-    margin-bottom: 16px;
-    display: block;
-}
-#mapa-label-content h2 {
-    font-size: clamp(1.6rem, 3vw, 2.4rem);
-    font-weight: 800;
-    color: #fff;
-    line-height: 1.2;
-    margin-bottom: 14px;
-}
-#mapa-label-content p {
-    font-size: 0.82rem;
-    color: #a8b8cc;
-    margin-bottom: 24px;
-    line-height: 1.6;
-}
-
-/* Botón localizar — mismo estilo que .cta-secondary */
-#btn-localizar {
-    background: transparent;
-    border: 2px solid #CA7842;
-    color: #CA7842;
-    border-radius: 4px;
-    padding: 10px 22px;
-    font-family: 'Poppins', sans-serif;
-    font-size: 13px;
-    font-weight: 600;
-    letter-spacing: 0.5px;
-    cursor: pointer;
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    transition: background 0.3s, color 0.3s, transform 0.15s;
-}
-#btn-localizar:hover { background: #CA7842; color: #fff; transform: translateY(-1px); }
-
-
-/* ================================================================
    CARRUSEL DE ANIMALES
    ================================================================ */
 #animales {
     padding: 48px 0 64px;
     position: relative;
-    overflow: hidden;   /* recorta los cards fuera de pantalla sin afectar los bordes de los visibles */
+    overflow: hidden;
 }
 
 #carousel-wrapper {
@@ -416,7 +316,6 @@ input, select, button { font-family: 'Poppins', sans-serif; }
     align-items: center;
 }
 
-/* Botones prev/next — misma paleta que el resto */
 .carousel-btn {
     flex-shrink: 0;
     width: 42px;
@@ -437,7 +336,7 @@ input, select, button { font-family: 'Poppins', sans-serif; }
 
 #carousel-track-container {
     flex: 1;
-    overflow: visible;  /* el clip lo hace #animales; aquí dejamos respirar el border-radius */
+    overflow: visible;
     padding: 8px 0;
 }
 
@@ -447,9 +346,8 @@ input, select, button { font-family: 'Poppins', sans-serif; }
     transition: transform 0.45s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Tarjetas de animal */
 .animal-card {
-    flex: 0 0 calc(20% - 10px);   /* 5 visibles descontando el gap */
+    flex: 0 0 calc(20% - 10px);
     position: relative;
     overflow: hidden;
     display: block;
@@ -473,7 +371,6 @@ input, select, button { font-family: 'Poppins', sans-serif; }
 }
 .animal-card:hover .animal-foto img { transform: scale(1.06); }
 
-/* Placeholder sin foto — misma huella SVG que en el HTML */
 .animal-foto-placeholder {
     width: 100%;
     height: 100%;
@@ -484,31 +381,25 @@ input, select, button { font-family: 'Poppins', sans-serif; }
 }
 .animal-foto-placeholder svg { width: 56px; height: 56px; }
 
-/* Botón like (corazón) */
-.btn-like {
+/* Badge de estado del animal */
+.animal-estado {
     position: absolute;
     top: 10px;
-    right: 10px;
+    left: 10px;
     z-index: 3;
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    border: none;
-    background: rgba(0, 0, 0, 0.45);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    padding: 3px 8px;
+    border-radius: 20px;
+    background: rgba(0, 0, 0, 0.55);
     color: #fff;
-    font-size: 15px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: background 0.2s, transform 0.15s, color 0.2s;
-    flex-shrink: 0;
 }
-.btn-like:hover               { background: rgba(0, 0, 0, 0.65); transform: scale(1.15); }
-.btn-like.liked               { color: #e74c3c; }
-.btn-like.liked:hover         { background: rgba(231, 76, 60, 0.35); }
+.animal-estado.estado-disponible  { background: rgba(39, 174, 96, 0.85); }
+.animal-estado.estado-adoptado    { background: rgba(52, 73, 94, 0.85); }
+.animal-estado.estado-en.adopción { background: rgba(202, 120, 66, 0.85); }
 
-/* Info sobre la imagen — gradiente igual que en tarjetas de adopción típicas */
 .animal-info {
     position: absolute;
     bottom: 0;
@@ -532,7 +423,7 @@ input, select, button { font-family: 'Poppins', sans-serif; }
 }
 .animal-detalle {
     font-size: 11px;
-    color: #EDA677;              /* mismo color que links activos del proyecto */
+    color: #EDA677;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -549,6 +440,7 @@ input, select, button { font-family: 'Poppins', sans-serif; }
     height: 56px;
     opacity: 0.25;
     margin: 0 auto 16px;
+    display: block;
 }
 #sin-animales p { font-size: 0.9rem; margin-bottom: 20px; }
 #sin-animales a {
@@ -562,114 +454,14 @@ input, select, button { font-family: 'Poppins', sans-serif; }
 
 
 /* ================================================================
-   SECCIÓN PROTECTORAS
-   ================================================================ */
-#protectoras {
-    padding: 60px 60px 80px;
-    border-top: 1px solid rgba(165, 11, 11, 0.08);
-    text-align: center;
-}
-
-#protectoras-grid {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 20px;
-    margin-top: 32px;
-    text-align: left;
-}
-
-.protectora-card {
-    flex: 0 0 calc(25% - 15px);   /* 4 por fila descontando gaps */
-    background: #839ebd;
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 12px;
-    padding: 24px 20px 20px;
-    display: flex;
-    flex-direction: column;
-    gap: 14px;
-    text-decoration: none;
-    color: #fff;
-    transition: transform 0.25s, background 0.25s, box-shadow 0.25s;
-    box-sizing: border-box;
-}
-.protectora-card:hover {
-    transform: translateY(-4px);
-    background: #ffffff;
-    box-shadow: 0 8px 28px rgba(0, 0, 0, 0.35);
-    text-decoration: underline;
-}
-.protectora-card:hover .protectora-nombre { color: #0D2D51; }
-.protectora-card:hover .protectora-dato   { color: #4a6480; }
-.protectora-card:hover .protectora-dato i { color: #b56a32; }
-
-/* Logo */
-.protectora-logo {
-    width: 52px;
-    height: 52px;
-    border-radius: 50%;
-    background: rgba(202, 120, 66, 0.18);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden;
-    flex-shrink: 0;
-}
-.protectora-logo img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-/* Textos */
-.protectora-info { display: flex; flex-direction: column; gap: 8px; text-decoration: none; }
-
-.protectora-nombre {
-    font-size: 13px;
-    font-weight: 700;
-    color: #fff;
-    line-height: 1.35;
-}
-
-.protectora-dato {
-    font-size: 11px;
-    color: #a8b8cc;
-    text-decoration: none;
-    display: flex;
-    align-items: flex-start;
-    gap: 6px;
-    line-height: 1.5;
-}
-.protectora-dato i {
-    color: #CA7842;
-    font-size: 13px;
-    flex-shrink: 0;
-    margin-top: 1px;
-}
-
-.protectoras-vacio {
-    font-size: 0.85rem;
-    color: #a8b8cc;
-    margin-top: 24px;
-}
-
-
-/* ================================================================
    RESPONSIVE
    ================================================================ */
 @media (max-width: 960px) {
     #hero      { padding: 56px 32px 48px; }
     #objetivos { padding: 0 32px 56px; }
     #filtro    { padding: 0 32px; }
-    #protectoras { padding: 48px 32px; }
 
-    #mapa-section { flex-direction: column; }
-    #mapa-wrapper { flex: none; }
-    #mapa { min-height: 320px; }
-    #mapa-label { padding: 36px 32px; }
-
-    .animal-card { flex: 0 0 calc(33.333% - 9px); }   /* 3 visibles en tablet */
-
-    .protectora-card { flex: 0 0 calc(50% - 10px); }   /* 2 por fila en tablet */
+    .animal-card { flex: 0 0 calc(33.333% - 9px); }
 }
 
 @media (max-width: 640px) {
@@ -683,7 +475,5 @@ input, select, button { font-family: 'Poppins', sans-serif; }
     .filtro-rango, .filtro-compat { flex: 1; min-width: 100%; }
     .filtro-acciones { margin-left: 0; }
 
-    .animal-card { flex: 0 0 calc(50% - 7px); }   /* 2 visibles en móvil */
-
-    .protectora-card { flex: 0 0 100%; }   /* 1 por fila en móvil */
+    .animal-card { flex: 0 0 calc(50% - 7px); }
 }

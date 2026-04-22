@@ -3,7 +3,7 @@
 require '../PHPMailer.php';
 require '../SMTP.php';
 require '../Exception.php';
-//require '../config1.php';
+require '../config1.php';
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\SMTP;
 use PHPMailer\PHPMailer\Exception;
@@ -71,7 +71,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" and $_POST["tipo"] == "usuario") {
 
     if (isset($nombre, $apellido, $email, $pass)) {
 
-         $check = $_conexion->prepare("SELECT id_adoptante FROM Usuario WHERE email = ?");
+        $check = $_conexion->prepare("SELECT id_adoptante FROM Usuario WHERE email = ?");
         $check->bind_param("s", $email);
         $check->execute();
         $check->store_result();
@@ -188,6 +188,20 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" and $_POST["tipo"] == "protectora") {
     }
 
     if (isset($nombre, $ciudad, $localidad, $direccion, $email, $pass)) {
+////////////////////////////////////
+        $check = $_conexion->prepare("SELECT id_protectora FROM Protectora WHERE email = ?");
+        $check->bind_param("s", $email);
+        $check->execute();
+        $check->store_result();
+
+        if ($check->num_rows > 0) {
+            $check->close();
+            header("Location: ../../public/registro.html?error=email_duplicado");
+            exit();
+        }
+        $check->close();
+//////////////////////////////////
+
         $pass_cifrada = password_hash($pass, PASSWORD_DEFAULT);
         $consulta = $_conexion->prepare(
             "INSERT INTO Protectora (nombre_protectora, ciudad, localidad, direccion, email, contrasena, telefono, logo)
@@ -195,7 +209,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" and $_POST["tipo"] == "protectora") {
         );
         $consulta->bind_param("ssssss", $nombre, $ciudad, $localidad, $direccion, $email, $pass_cifrada);
         if ($consulta->execute()) {
+            $id_nueva_protectora = $_conexion->insert_id;
             $consulta->close();
+
+            // ── CREAR CARPETA DE LA PROTECTORA ──────────────────────
+            $carpeta_protectora = realpath(__DIR__ . '/../../public/../img') . '/protectoras/protectora_' . $id_nueva_protectora;
+            if (!is_dir($carpeta_protectora)) {
+                mkdir($carpeta_protectora, 0755, true);
+            }
+            // ────────────────────────────────────────────────────────
 
             $mail = new PHPMailer(true);
             $mail->isSMTP();

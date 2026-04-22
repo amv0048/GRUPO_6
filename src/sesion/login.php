@@ -57,6 +57,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         exit();
     }
 
+    if (!isset($info_usuario["nombre_protectora"]) && !empty($info_usuario["baneado"])) {
+        header("Location: ../../public/login.html?error=baneado");
+        exit();
+    }
+
     if (isset($info_usuario["nombre_protectora"])) {
         $_SESSION["id"]         = $info_usuario["id_protectora"];
         $_SESSION["nombre"] = $info_usuario["nombre_protectora"]; // puede que esto este mal...
@@ -69,7 +74,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     $_SESSION["email"] = $info_usuario["email"];
 
-    header("Location: ../../public/index.php");
+    if (isset($info_usuario["nombre_protectora"])) {
+        header("Location: ../../public/indexProtectora.php");
+    } else {
+        header("Location: ../../public/index.php");
+    }
     exit();
 }
 }

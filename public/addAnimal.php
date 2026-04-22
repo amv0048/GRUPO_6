@@ -56,15 +56,21 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $id_nuevo = $_conexion->insert_id;
         $stmt->close();
 
+        // ── CREAR CARPETA DEL ANIMAL ────────────────────────────
+        $carpeta_animal = realpath(__DIR__ . '/../img') . '/protectoras/protectora_' . $id_protectora . '/animal_' . $id_nuevo;
+        if (!is_dir($carpeta_animal)) {
+            mkdir($carpeta_animal, 0755, true);
+        }
+        // ────────────────────────────────────────────────────────
+
         // ── SUBIR FOTO PRINCIPAL ────────────────────────────────
         if (!empty($_FILES['foto']['name']) && $_FILES['foto']['error'] === UPLOAD_ERR_OK) {
             $ext_ok  = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
             $ext     = strtolower(pathinfo($_FILES['foto']['name'], PATHINFO_EXTENSION));
             if (in_array($ext, $ext_ok)) {
-                $dir     = realpath(__DIR__ . '/../img/animales') . '/';
-                $archivo = 'animal_' . $id_nuevo . '_' . time() . '.' . $ext;
-                if (move_uploaded_file($_FILES['foto']['tmp_name'], $dir . $archivo)) {
-                    $ruta = '../img/animales/' . $archivo;
+                $archivo = 'foto_1_' . time() . '.' . $ext;
+                if (move_uploaded_file($_FILES['foto']['tmp_name'], $carpeta_animal . '/' . $archivo)) {
+                    $ruta = '../img/protectoras/protectora_' . $id_protectora . '/animal_' . $id_nuevo . '/' . $archivo;
                     $ins  = $_conexion->prepare(
                         "INSERT INTO Galeria (id_animal, ruta, es_principal) VALUES (?, ?, 1)"
                     );
