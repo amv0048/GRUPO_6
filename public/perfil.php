@@ -27,6 +27,37 @@ if (isset($_SESSION["user"])) {
     $tipo = "protectora";
 }
 
+// ── CANCELAR CITA ────────────────────────────────────────────
+if ($_SERVER["REQUEST_METHOD"] === "POST" && ($_POST['action'] ?? '') === 'cancelar_cita') {
+    $id_cita = (int)($_POST['id_cita'] ?? 0);
+    $tbl_ok  = $_conexion->query("SHOW TABLES LIKE 'CitaEntrevista'")->num_rows > 0;
+    if ($tbl_ok && $id_cita > 0) {
+        if ($tipo === 'usuario') {
+            // Adoptante solo puede cancelar sus propias citas
+            $q = $_conexion->prepare(
+                "UPDATE CitaEntrevista c
+                 JOIN SolicitudAdopcion s ON c.id_solicitud = s.id_solicitud
+                 SET c.estado = 'CANCELADA'
+                 WHERE c.id_cita = ? AND s.id_adoptante = ?"
+            );
+            $q->bind_param("ii", $id_cita, $_SESSION['id']);
+        } else {
+            // Protectora solo puede cancelar citas de sus animales
+            $q = $_conexion->prepare(
+                "UPDATE CitaEntrevista c
+                 JOIN DisponibilidadProtectora d ON c.id_disponibilidad = d.id_disponibilidad
+                 SET c.estado = 'CANCELADA'
+                 WHERE c.id_cita = ? AND d.id_protectora = ?"
+            );
+            $q->bind_param("ii", $id_cita, $_SESSION['id']);
+        }
+        $q->execute();
+        $q->close();
+    }
+    header("Location: perfil.php");
+    exit();
+}
+
 // ── ELIMINAR PERFIL ──────────────────────────────────────────
 if ($_SERVER["REQUEST_METHOD"] === "POST" && ($_POST['action'] ?? '') === 'eliminar') {
     if ($tipo === 'usuario') {
@@ -419,6 +450,157 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         </div>
 
+        <!-- CITAS / SOLICITUDES -->
+        <?php
+        $tbl_sol = $_conexion->query("SHOW TABLES LIKE 'SolicitudAdopcion'");
+        $tbl_cit = $_conexion->query("SHOW TABLES LIKE 'CitaEntrevista'");
+        $hay_tablas = ($tbl_sol && $tbl_sol->num_rows > 0) && ($tbl_cit && $tbl_cit->num_rows > 0);
+
+        if ($hay_tablas && $tipo === 'usuario'):
+            // Solicitudes del adoptante con cita si la hay
+            $sol_q = $_conexion->prepare(
+                "SELECT s.id_solicitud, s.id_animal, s.estado_solicitud, s.fecha_solicitud,
+                        a.nombre AS nombre_animal, a.especie,
+                        p.nombre_protectora,
+                        c.id_cita, d.fecha AS fecha_cita, d.hora_inicio, d.hora_fin, c.estado AS estado_cita
+                 FROM SolicitudAdopcion s
+                 JOIN Animales a ON s.id_animal = a.id_animal
+                 JOIN Protectora p ON a.id_protectora = p.id_protectora
+                 LEFT JOIN CitaEntrevista c ON c.id_solicitud = s.id_solicitud AND c.estado != 'CANCELADA'
+                 LEFT JOIN DisponibilidadProtectora d ON c.id_disponibilidad = d.id_disponibilidad
+                 WHERE s.id_adoptante = ?
+                 ORDER BY s.fecha_solicitud DESC"
+            );
+            $sol_q->bind_param("i", $_SESSION['id']);
+            $sol_q->execute();
+            $mis_solicitudes = $sol_q->get_result()->fetch_all(MYSQLI_ASSOC);
+            $sol_q->close();
+
+            if (!empty($mis_solicitudes)):
+        ?>
+        <div id="perfil-solicitudes">
+            <p class="seccion-label">Mis solicitudes de adopción</p>
+            <?php foreach ($mis_solicitudes as $sol):
+                $badge_col = ['PENDIENTE'=>'#b8860b','APROBADA'=>'#2e7d12','RECHAZADA'=>'#c62828'];
+                $badge_bg  = ['PENDIENTE'=>'#FFF8E1','APROBADA'=>'#EAF3DE','RECHAZADA'=>'#FFEBEE'];
+                $col = $badge_col[$sol['estado_solicitud']] ?? '#777';
+                $bg  = $badge_bg[$sol['estado_solicitud']]  ?? '#f5f5f5';
+            ?>
+            <div class="sol-perfil-item">
+                <div class="sol-perfil-row">
+                    <div>
+                        <a href="ficha-animal.php?id=<?= (int)$sol['id_animal'] ?>" class="sol-perfil-animal">
+                            <?= htmlspecialchars($sol['nombre_animal']) ?>
+                            <small><?= htmlspecialchars(ucfirst($sol['especie'] ?? '')) ?></small>
+                        </a>
+                        <p class="sol-perfil-protectora"><?= htmlspecialchars($sol['nombre_protectora']) ?></p>
+                    </div>
+                    <span class="sol-perfil-badge" style="color:<?= $col ?>;background:<?= $bg ?>">
+                        <?= $sol['estado_solicitud'] ?>
+                    </span>
+                </div>
+                <?php if ($sol['id_cita']): ?>
+                <div class="sol-perfil-cita-row">
+                    <div class="sol-perfil-cita">
+                        <i class="zmdi zmdi-calendar-check"></i>
+                        <?php $fd = new DateTime($sol['fecha_cita']); ?>
+                        Entrevista: <strong><?= $fd->format('d/m/Y') ?> a las <?= substr($sol['hora_inicio'],0,5) ?></strong>
+                    </div>
+                    <form method="POST" style="margin:0">
+                        <input type="hidden" name="action"  value="cancelar_cita">
+                        <input type="hidden" name="id_cita" value="<?= (int)$sol['id_cita'] ?>">
+                        <button type="submit" class="sol-perfil-btn-cancelar"
+                                onclick="return confirm('¿Cancelar esta entrevista?')">
+                            <i class="zmdi zmdi-close"></i> Cancelar
+                        </button>
+                    </form>
+                </div>
+                <?php elseif ($sol['estado_solicitud'] !== 'RECHAZADA'): ?>
+                <a href="reservar-cita.php?solicitud=<?= (int)$sol['id_solicitud'] ?>" class="sol-perfil-btn-cita">
+                    <i class="zmdi zmdi-calendar-plus"></i> Reservar entrevista
+                </a>
+                <?php endif; ?>
+            </div>
+            <?php endforeach; ?>
+        </div>
+        <?php endif; endif; ?>
+
+        <?php if ($hay_tablas && $tipo === 'protectora'):
+            // Citas de la protectora
+            $cit_q = $_conexion->prepare(
+                "SELECT d.fecha, d.hora_inicio, d.hora_fin,
+                        a.nombre AS nombre_animal, s.nombre AS nombre_adoptante, s.apellido, s.telefono,
+                        c.estado AS estado_cita
+                 FROM CitaEntrevista c
+                 JOIN DisponibilidadProtectora d ON c.id_disponibilidad = d.id_disponibilidad
+                 JOIN SolicitudAdopcion s ON c.id_solicitud = s.id_solicitud
+                 JOIN Animales a ON s.id_animal = a.id_animal
+                 WHERE d.id_protectora = ? AND d.fecha >= CURDATE() AND c.estado != 'CANCELADA'
+                 ORDER BY d.fecha, d.hora_inicio LIMIT 8"
+            );
+            $cit_q->bind_param("i", $_SESSION['id']);
+            $cit_q->execute();
+            $mis_citas = $cit_q->get_result()->fetch_all(MYSQLI_ASSOC);
+            $cit_q->close();
+
+            // Solicitudes pendientes count
+            $pend_q = $_conexion->prepare(
+                "SELECT COUNT(*) AS n FROM SolicitudAdopcion s
+                 JOIN Animales a ON s.id_animal = a.id_animal
+                 WHERE a.id_protectora = ? AND s.estado_solicitud = 'PENDIENTE'"
+            );
+            $pend_q->bind_param("i", $_SESSION['id']);
+            $pend_q->execute();
+            $n_pend = (int)$pend_q->get_result()->fetch_assoc()['n'];
+            $pend_q->close();
+        ?>
+        <div id="perfil-solicitudes">
+            <p class="seccion-label">Gestión de adopciones</p>
+            <div class="protectora-accesos">
+                <a href="solicitudes-protectora.php" class="prot-acc-btn">
+                    <i class="zmdi zmdi-inbox"></i>
+                    <span>Solicitudes<?php if ($n_pend > 0): ?> <strong>(<?= $n_pend ?>)</strong><?php endif; ?></span>
+                </a>
+                <a href="disponibilidad.php" class="prot-acc-btn">
+                    <i class="zmdi zmdi-calendar-alt"></i>
+                    <span>Disponibilidad</span>
+                </a>
+            </div>
+            <?php if (!empty($mis_citas)): ?>
+            <p class="sol-sub-label">Próximas entrevistas</p>
+            <?php foreach ($mis_citas as $c):
+                $fd = new DateTime($c['fecha']);
+            ?>
+            <div class="sol-perfil-item">
+                <div class="sol-perfil-row">
+                    <div>
+                        <p class="sol-perfil-animal"><?= htmlspecialchars($c['nombre_animal']) ?></p>
+                        <p class="sol-perfil-protectora">
+                            <?= htmlspecialchars($c['nombre_adoptante'] . ' ' . $c['apellido']) ?>
+                            <?= $c['telefono'] ? '· ' . htmlspecialchars($c['telefono']) : '' ?>
+                        </p>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:10px;flex-shrink:0">
+                        <div class="sol-perfil-cita" style="text-align:right;flex-direction:column;align-items:flex-end">
+                            <strong><?= $fd->format('d/m/Y') ?></strong>
+                            <span><?= substr($c['hora_inicio'],0,5) ?> – <?= substr($c['hora_fin'],0,5) ?></span>
+                        </div>
+                        <form method="POST" style="margin:0">
+                            <input type="hidden" name="action"  value="cancelar_cita">
+                            <input type="hidden" name="id_cita" value="<?= (int)$c['id_cita'] ?>">
+                            <button type="submit" class="sol-perfil-btn-cancelar"
+                                    onclick="return confirm('¿Cancelar la entrevista con <?= htmlspecialchars(addslashes($c['nombre_adoptante'])) ?>?')">
+                                <i class="zmdi zmdi-close"></i>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <?php endforeach; ?>
+            <?php endif; ?>
+        </div>
+        <?php endif; ?>
+
         <!-- VOLVER -->
         <div id="perfil-volver">
             <a href="index.php">← Volver al inicio</a>
@@ -451,6 +633,83 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 </div>
 
 <style>
+/* ── SOLICITUDES / CITAS EN PERFIL ── */
+#perfil-solicitudes {
+    padding: 0 40px 20px;
+}
+.sol-perfil-item {
+    background: #f9f9f9;
+    border: 1px solid #f0f0f0;
+    border-radius: 8px;
+    padding: 12px 14px;
+    margin-bottom: 8px;
+}
+.sol-perfil-row {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 10px;
+}
+.sol-perfil-animal {
+    font-size: 13px;
+    font-weight: 700;
+    color: #0D2D51;
+    text-decoration: none;
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+}
+.sol-perfil-animal small { font-size: 10px; color: #aaa; font-weight: 500; }
+.sol-perfil-animal:hover { text-decoration: underline; }
+.sol-perfil-protectora { font-size: 11px; color: #aaa; margin-top: 2px; }
+.sol-perfil-badge {
+    font-size: 9px; font-weight: 700; padding: 3px 10px;
+    border-radius: 10px; white-space: nowrap; flex-shrink: 0;
+    text-transform: uppercase; letter-spacing: .6px;
+}
+.sol-perfil-cita {
+    font-size: 11px; color: #2e7d12; margin-top: 7px;
+    display: flex; align-items: center; gap: 6px; font-weight: 600;
+}
+.sol-perfil-btn-cita {
+    display: inline-flex; align-items: center; gap: 6px;
+    margin-top: 8px; padding: 6px 14px; border-radius: 5px;
+    background: #FFF1E6; color: #CA7842; font-size: 11px; font-weight: 700;
+    text-decoration: none; transition: background .2s;
+}
+.sol-perfil-btn-cita:hover { background: #CA7842; color: #fff; }
+
+.sol-perfil-cita-row {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 10px; margin-top: 7px; flex-wrap: wrap;
+}
+.sol-perfil-btn-cancelar {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 5px 11px; border-radius: 5px;
+    background: #fff0f0; color: #c62828;
+    border: 1px solid #f5c0c0;
+    font-family: 'Poppins', sans-serif; font-size: 10px; font-weight: 700;
+    cursor: pointer; transition: background .2s, color .2s; white-space: nowrap;
+}
+.sol-perfil-btn-cancelar:hover { background: #c62828; color: #fff; border-color: #c62828; }
+
+.protectora-accesos {
+    display: flex; gap: 10px; margin-bottom: 14px; flex-wrap: wrap;
+}
+.prot-acc-btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 10px 18px; border-radius: 6px;
+    background: #0D2D51; color: #fff; font-size: 12px; font-weight: 600;
+    text-decoration: none; transition: background .2s;
+}
+.prot-acc-btn:hover { background: #CA7842; }
+.prot-acc-btn i { font-size: 15px; color: #EDA677; }
+
+.sol-sub-label {
+    font-size: 10px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 1px; color: #aaa; margin: 12px 0 8px;
+}
+
 #perfil-eliminar {
     text-align: center;
     padding: 8px 40px 32px;

@@ -904,7 +904,9 @@ $tiene_necesidades  = !empty($necesidades);
                 <!-- ─ BOTONES ─ -->
                 <div class="botones-area">
                     <?php if ($estado === 'DISPONIBLE'): ?>
-                        <a href="<?= isset($_SESSION['id']) ? '#' : 'login.html' ?>"
+                        <a href="<?= isset($_SESSION['id']) && isset($_SESSION['user'])
+                                        ? "solicitud-adopcion.php?id=$id_animal"
+                                        : 'login.html?redirect=' . urlencode("solicitud-adopcion.php?id=$id_animal") ?>"
                            class="btn-adoptar">
                             <i class="zmdi zmdi-home"></i>
                             QUIERO ADOPTARLO

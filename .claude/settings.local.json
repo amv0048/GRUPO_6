@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(mysql -u root -e \"DESCRIBE GRUPO_6.Animales; DESCRIBE GRUPO_6.Usuarios; SHOW TABLES FROM GRUPO_6;\")",
+      "Bash(mysql -u root bd_protectora -e \"SHOW TABLES; DESCRIBE Usuarios; DESCRIBE Animales;\")"
+    ]
+  }
+}

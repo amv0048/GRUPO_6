@@ -85,6 +85,40 @@ $res_col->bind_param('i', $id_protectora);
 $res_col->execute();
 $r = $res_col->get_result();
 if ($r) while ($row = $r->fetch_assoc()) $colores[] = $row['color'];
+
+// ── CONTADORES PARA EL PANEL ───────────────────────────────────
+$cnt_pendientes = 0;
+$st_cnt = $_conexion->prepare(
+    "SELECT COUNT(*) AS n FROM SolicitudAdopcion s
+     JOIN Animales a ON s.id_animal = a.id_animal
+     WHERE a.id_protectora = ? AND s.estado_solicitud = 'PENDIENTE'"
+);
+$st_cnt->bind_param("i", $id_protectora);
+$st_cnt->execute();
+$row_cnt = $st_cnt->get_result()->fetch_assoc();
+$cnt_pendientes = (int)($row_cnt['n'] ?? 0);
+$st_cnt->close();
+
+// ── PRÓXIMAS CITAS ────────────────────────────────────────────
+$proximas_idx = [];
+// Solo si las tablas existen
+$tbl_check = $_conexion->query("SHOW TABLES LIKE 'CitaEntrevista'");
+if ($tbl_check && $tbl_check->num_rows > 0) {
+    $pc = $_conexion->prepare(
+        "SELECT d.fecha, d.hora_inicio, a.nombre AS nombre_animal,
+                s.nombre AS nombre_adoptante, s.apellido
+         FROM CitaEntrevista c
+         JOIN DisponibilidadProtectora d ON c.id_disponibilidad = d.id_disponibilidad
+         JOIN SolicitudAdopcion s ON c.id_solicitud = s.id_solicitud
+         JOIN Animales a ON s.id_animal = a.id_animal
+         WHERE d.id_protectora = ? AND d.fecha >= CURDATE() AND c.estado != 'CANCELADA'
+         ORDER BY d.fecha, d.hora_inicio LIMIT 5"
+    );
+    $pc->bind_param("i", $id_protectora);
+    $pc->execute();
+    $proximas_idx = $pc->get_result()->fetch_all(MYSQLI_ASSOC);
+    $pc->close();
+}
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -116,7 +150,7 @@ if ($r) while ($row = $r->fetch_assoc()) $colores[] = $row['color'];
     </nav>
 
     <nav class="hBotones">
-        <a class="hBoton" href="#animales">URGENTE</a>
+        <a class="hBoton" href="urgente.php">URGENTE</a>
         <a class="hBoton" href="perfil.php">
             <i class="zmdi zmdi-account"></i>
             <?= htmlspecialchars($_SESSION['nombre']) ?>
@@ -135,6 +169,15 @@ if ($r) while ($row = $r->fetch_assoc()) $colores[] = $row['color'];
         <p>Gestiona y da visibilidad a tus animales</p>
         <div id="hero-cta">
             <a href="#animales" class="cta-btn cta-primary">Ver mis animales</a>
+            <a href="solicitudes-protectora.php" class="cta-btn cta-secondary" style="position:relative">
+                Solicitudes de adopción
+                <?php if ($cnt_pendientes > 0): ?>
+                    <span style="position:absolute;top:-8px;right:-8px;background:#CA7842;color:#fff;font-size:10px;font-weight:700;min-width:20px;height:20px;border-radius:10px;display:flex;align-items:center;justify-content:center;padding:0 4px"><?= $cnt_pendientes ?></span>
+                <?php endif; ?>
+            </a>
+            <a href="disponibilidad.php" class="cta-btn cta-secondary">
+                <i class="zmdi zmdi-calendar" style="margin-right:6px"></i>Disponibilidad
+            </a>
         </div>
     </div>
 </section>
@@ -160,6 +203,93 @@ if ($r) while ($row = $r->fetch_assoc()) $colores[] = $row['color'];
         </div>
     </div>
 </section>
+
+
+<!-- ══════════════════════════════════════════
+     PANEL DE GESTIÓN
+══════════════════════════════════════════ -->
+<section id="panel-gestion">
+    <div class="panel-gestion-grid">
+
+        <!-- Solicitudes -->
+        <a href="solicitudes-protectora.php" class="panel-card panel-card-sol">
+            <i class="zmdi zmdi-inbox"></i>
+            <div class="panel-card-info">
+                <p class="panel-card-titulo">Solicitudes de adopción</p>
+                <p class="panel-card-sub">
+                    <?php if ($cnt_pendientes > 0): ?>
+                        <span class="panel-badge"><?= $cnt_pendientes ?> pendiente<?= $cnt_pendientes > 1 ? 's' : '' ?></span>
+                    <?php else: ?>
+                        Sin solicitudes nuevas
+                    <?php endif; ?>
+                </p>
+            </div>
+            <i class="zmdi zmdi-chevron-right panel-card-arrow"></i>
+        </a>
+
+        <!-- Disponibilidad -->
+        <a href="disponibilidad.php" class="panel-card panel-card-cal">
+            <i class="zmdi zmdi-calendar-alt"></i>
+            <div class="panel-card-info">
+                <p class="panel-card-titulo">Disponibilidad para entrevistas</p>
+                <p class="panel-card-sub">
+                    <?php if (!empty($proximas_idx)): ?>
+                        <?php $p = $proximas_idx[0]; $fd = new DateTime($p['fecha']); ?>
+                        Próxima: <?= $fd->format('d/m') ?> <?= substr($p['hora_inicio'],0,5) ?>
+                    <?php else: ?>
+                        Gestiona tus horarios disponibles
+                    <?php endif; ?>
+                </p>
+            </div>
+            <i class="zmdi zmdi-chevron-right panel-card-arrow"></i>
+        </a>
+
+        <?php if (!empty($proximas_idx)): ?>
+        <!-- Mini lista de citas -->
+        <div class="panel-card panel-card-citas" style="cursor:default">
+            <i class="zmdi zmdi-calendar-check"></i>
+            <div class="panel-card-info" style="flex:1">
+                <p class="panel-card-titulo">Próximas entrevistas</p>
+                <?php foreach ($proximas_idx as $c):
+                    $fd = new DateTime($c['fecha']);
+                ?>
+                <p class="panel-card-cita-item">
+                    <strong><?= $fd->format('d/m') ?> <?= substr($c['hora_inicio'],0,5) ?></strong>
+                    — <?= htmlspecialchars($c['nombre_animal']) ?>
+                    · <?= htmlspecialchars($c['nombre_adoptante'] . ' ' . $c['apellido']) ?>
+                </p>
+                <?php endforeach; ?>
+            </div>
+        </div>
+        <?php endif; ?>
+
+    </div>
+</section>
+
+<style>
+#panel-gestion { padding: 0 60px 48px; }
+.panel-gestion-grid { display: flex; flex-direction: column; gap: 10px; }
+.panel-card {
+    display: flex; align-items: center; gap: 16px;
+    background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.12);
+    border-radius: 8px; padding: 16px 20px; text-decoration: none;
+    transition: background .2s, border-color .2s;
+}
+.panel-card:hover { background: rgba(255,255,255,.12); border-color: #CA7842; }
+.panel-card > .zmdi:first-child { font-size: 22px; color: #CA7842; flex-shrink: 0; }
+.panel-card-info { flex: 1; }
+.panel-card-titulo { font-size: 13px; font-weight: 700; color: #fff; }
+.panel-card-sub    { font-size: 11px; color: #a8b8cc; margin-top: 2px; }
+.panel-card-arrow  { font-size: 18px; color: rgba(255,255,255,.3); }
+.panel-badge {
+    display: inline-block; background: #CA7842; color: #fff;
+    font-size: 10px; font-weight: 700; padding: 2px 9px; border-radius: 10px;
+}
+.panel-card-cita-item { font-size: 11px; color: #a8b8cc; margin-top: 4px; }
+.panel-card-cita-item strong { color: #EDA677; }
+@media (max-width: 960px) { #panel-gestion { padding: 0 32px 40px; } }
+@media (max-width: 640px) { #panel-gestion { padding: 0 20px 32px; } }
+</style>
 
 
 <!-- ══════════════════════════════════════════
