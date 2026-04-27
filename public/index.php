@@ -154,6 +154,22 @@ if ($res_col) {
     while ($row = $res_col->fetch_assoc()) $colores[] = $row['color'];
 }
 
+// ── CROWDFUNDING ACTIVO ────────────────────────────────────────
+$crowd_casos = [];
+$tbl_crowd = $_conexion->query("SHOW TABLES LIKE 'CrowdfundingCaso'");
+if ($tbl_crowd && $tbl_crowd->num_rows > 0) {
+    $res_crowd = $_conexion->query(
+        "SELECT c.id_caso, c.titulo, c.animal_nombre, c.descripcion,
+                c.meta_euros, c.recaudado, c.foto, p.nombre_protectora
+         FROM CrowdfundingCaso c
+         JOIN Protectora p ON c.id_protectora = p.id_protectora
+         WHERE c.activo = 1
+         ORDER BY c.fecha_creacion DESC
+         LIMIT 6"
+    );
+    if ($res_crowd) while ($row = $res_crowd->fetch_assoc()) $crowd_casos[] = $row;
+}
+
 // ── NOMBRE DE SESIÓN ───────────────────────────────────────────
 $nombre_sesion = '';
 if (isset($_SESSION['user']))       $nombre_sesion = $_SESSION['user'];
@@ -415,6 +431,202 @@ elseif (isset($_SESSION['protectora'])) $nombre_sesion = $_SESSION['protectora']
     </div>
 
 </section>
+
+
+<!-- ══════════════════════════════════════════
+     CROWDFUNDING (PÚBLICO)
+══════════════════════════════════════════ -->
+<?php if (!empty($crowd_casos)): ?>
+<section id="crowdfunding-public">
+    <p class="seccion-etiqueta">Ayuda a cambiar vidas</p>
+    <h2 class="seccion-titulo">Casos que necesitan tu apoyo</h2>
+
+    <div class="crowd-pub-grid">
+        <?php foreach ($crowd_casos as $caso):
+            $pct = $caso['meta_euros'] > 0
+                ? min(100, round($caso['recaudado'] / $caso['meta_euros'] * 100))
+                : 0;
+        ?>
+        <div class="crowd-pub-card">
+            <?php if (!empty($caso['foto'])): ?>
+            <div class="crowd-pub-foto">
+                <img src="<?= htmlspecialchars($caso['foto']) ?>" alt="<?= htmlspecialchars($caso['titulo']) ?>">
+            </div>
+            <?php else: ?>
+            <div class="crowd-pub-foto crowd-pub-foto-placeholder">
+                <i class="zmdi zmdi-money-box"></i>
+            </div>
+            <?php endif; ?>
+            <div class="crowd-pub-body">
+                <p class="crowd-pub-protectora"><?= htmlspecialchars($caso['nombre_protectora']) ?></p>
+                <h3 class="crowd-pub-titulo"><?= htmlspecialchars($caso['titulo']) ?></h3>
+                <?php if (!empty($caso['animal_nombre'])): ?>
+                <p class="crowd-pub-animal">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80" width="12" height="12" fill="currentColor" style="vertical-align:middle;margin-right:4px"><ellipse cx="40" cy="54" rx="18" ry="15"/><ellipse cx="20" cy="36" rx="9" ry="11"/><ellipse cx="34" cy="27" rx="9" ry="11"/><ellipse cx="50" cy="27" rx="9" ry="11"/><ellipse cx="64" cy="36" rx="9" ry="11"/></svg>
+                    <?= htmlspecialchars($caso['animal_nombre']) ?>
+                </p>
+                <?php endif; ?>
+                <p class="crowd-pub-desc">
+                    <?= htmlspecialchars(mb_substr($caso['descripcion'], 0, 120)) ?><?= mb_strlen($caso['descripcion']) > 120 ? '…' : '' ?>
+                </p>
+                <div class="crowd-pub-progress">
+                    <div class="crowd-pub-bar">
+                        <div class="crowd-pub-fill" style="width:<?= $pct ?>%"></div>
+                    </div>
+                    <div class="crowd-pub-nums">
+                        <span><?= number_format($caso['recaudado'], 0, ',', '.') ?> €</span>
+                        <span><?= $pct ?>% de <?= number_format($caso['meta_euros'], 0, ',', '.') ?> €</span>
+                    </div>
+                </div>
+                <button class="crowd-btn-donar" type="button"
+                    data-id="<?= $caso['id_caso'] ?>"
+                    data-titulo="<?= htmlspecialchars($caso['titulo'], ENT_QUOTES) ?>">
+                    <i class="zmdi zmdi-money"></i> Donar
+                </button>
+            </div>
+        </div>
+        <?php endforeach; ?>
+    </div>
+</section>
+
+<!-- Modal Donación -->
+<div id="don-modal" class="don-modal-overlay" style="display:none" role="dialog" aria-modal="true">
+    <div class="don-modal">
+        <div class="don-modal-header">
+            <h3>Apoya este caso</h3>
+            <button id="don-modal-close" type="button" aria-label="Cerrar">
+                <i class="zmdi zmdi-close"></i>
+            </button>
+        </div>
+        <p id="don-modal-titulo" style="color:#EDA677;font-size:13px;margin-bottom:16px;font-weight:600"></p>
+        <div class="don-form-group">
+            <label>Tu nombre <span style="color:#a8b8cc;font-weight:400">(opcional)</span></label>
+            <input type="text" id="don-nombre" placeholder="Anónimo">
+        </div>
+        <div class="don-form-group">
+            <label>Cantidad a donar (€)</label>
+            <div class="don-quick-amounts">
+                <button type="button" class="don-quick" data-v="5">5 €</button>
+                <button type="button" class="don-quick" data-v="10">10 €</button>
+                <button type="button" class="don-quick" data-v="25">25 €</button>
+                <button type="button" class="don-quick" data-v="50">50 €</button>
+            </div>
+            <input type="number" id="don-cantidad" min="1" step="0.01" placeholder="Otra cantidad…">
+        </div>
+        <p class="don-aviso">
+            <i class="zmdi zmdi-info-outline"></i>
+            La pasarela de pago estará disponible próximamente. Tu intención de donación quedará registrada.
+        </p>
+        <div class="don-acciones">
+            <button type="button" id="don-cancel">Cancelar</button>
+            <button type="button" id="don-submit"><i class="zmdi zmdi-money"></i> Confirmar donación</button>
+        </div>
+        <div id="don-feedback" style="display:none;margin-top:12px;padding:10px 14px;border-radius:6px;font-size:13px"></div>
+    </div>
+</div>
+
+<style>
+/* ── CROWDFUNDING PUBLIC ──────────────────────────────────── */
+#crowdfunding-public { padding: 60px 60px 0; }
+#crowdfunding-public .seccion-titulo { font-size: 28px; font-weight: 800; color: #fff; margin: 4px 0 0; }
+.crowd-pub-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px; margin-top: 32px;
+}
+.crowd-pub-card {
+    background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.12);
+    border-radius: 12px; overflow: hidden; transition: border-color .2s, transform .2s;
+}
+.crowd-pub-card:hover { border-color: #CA7842; transform: translateY(-2px); }
+.crowd-pub-foto { height: 160px; overflow: hidden; }
+.crowd-pub-foto img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.crowd-pub-foto-placeholder {
+    height: 160px; background: rgba(202,120,66,.08);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 44px; color: rgba(202,120,66,.5);
+}
+.crowd-pub-body { padding: 16px 20px 20px; }
+.crowd-pub-protectora {
+    font-size: 10px; color: #CA7842; font-weight: 700;
+    text-transform: uppercase; letter-spacing: .06em; margin-bottom: 4px;
+}
+.crowd-pub-titulo { font-size: 14px; font-weight: 700; color: #fff; margin-bottom: 6px; }
+.crowd-pub-animal { font-size: 12px; color: #EDA677; margin-bottom: 8px; }
+.crowd-pub-desc { font-size: 12px; color: #a8b8cc; line-height: 1.6; margin-bottom: 14px; }
+.crowd-pub-progress { margin-bottom: 14px; }
+.crowd-pub-bar {
+    height: 6px; background: rgba(255,255,255,.1);
+    border-radius: 3px; overflow: hidden; margin-bottom: 6px;
+}
+.crowd-pub-fill {
+    height: 100%; background: linear-gradient(90deg,#CA7842,#EDA677); border-radius: 3px;
+}
+.crowd-pub-nums { display: flex; justify-content: space-between; font-size: 11px; color: #a8b8cc; }
+.crowd-pub-nums span:first-child { color: #EDA677; font-weight: 600; }
+.crowd-btn-donar {
+    width: 100%; background: #CA7842; color: #fff; border: none; border-radius: 8px;
+    padding: 10px; font-family: 'Poppins', sans-serif; font-size: 13px; font-weight: 600;
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    gap: 6px; transition: background .2s;
+}
+.crowd-btn-donar:hover { background: #b06335; }
+
+/* ── DONATION MODAL ──────────────────────────────────────── */
+.don-modal-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,.68); z-index: 9000;
+    display: flex; align-items: center; justify-content: center; padding: 20px;
+}
+.don-modal {
+    background: #0D2D51; border: 1px solid rgba(255,255,255,.15);
+    border-radius: 14px; width: 100%; max-width: 420px; padding: 28px;
+}
+.don-modal-header {
+    display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;
+}
+.don-modal-header h3 { font-size: 18px; font-weight: 700; color: #fff; }
+.don-modal-header button {
+    background: none; border: none; color: #a8b8cc; font-size: 22px; cursor: pointer; line-height: 1;
+}
+.don-form-group { margin-bottom: 14px; }
+.don-form-group label {
+    display: block; font-size: 12px; font-weight: 600; color: #a8b8cc; margin-bottom: 6px;
+}
+.don-form-group input {
+    width: 100%; background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.15);
+    border-radius: 8px; padding: 10px 14px; color: #fff; font-family: 'Poppins', sans-serif;
+    font-size: 13px; outline: none; box-sizing: border-box;
+}
+.don-form-group input:focus { border-color: #CA7842; }
+.don-quick-amounts { display: flex; gap: 8px; margin-bottom: 8px; flex-wrap: wrap; }
+.don-quick {
+    background: rgba(202,120,66,.12); color: #EDA677;
+    border: 1px solid rgba(202,120,66,.25); border-radius: 6px;
+    padding: 6px 14px; font-family: 'Poppins', sans-serif; font-size: 12px;
+    font-weight: 600; cursor: pointer; transition: background .2s;
+}
+.don-quick:hover, .don-quick.active { background: #CA7842; color: #fff; border-color: #CA7842; }
+.don-aviso {
+    font-size: 11px; color: #a8b8cc; background: rgba(255,255,255,.05);
+    border-radius: 6px; padding: 8px 12px; margin-bottom: 16px; line-height: 1.6;
+    display: flex; gap: 6px; align-items: flex-start;
+}
+.don-acciones { display: flex; gap: 10px; justify-content: flex-end; }
+.don-acciones button {
+    font-family: 'Poppins', sans-serif; font-size: 13px; font-weight: 600;
+    padding: 10px 20px; border-radius: 8px; border: none; cursor: pointer;
+    display: flex; align-items: center; gap: 6px; transition: opacity .2s;
+}
+.don-acciones button:hover { opacity: .85; }
+#don-cancel { background: rgba(255,255,255,.1); color: #fff; }
+#don-submit { background: #CA7842; color: #fff; }
+
+@media (max-width: 960px) { #crowdfunding-public { padding: 48px 32px 0; } }
+@media (max-width: 640px) {
+    #crowdfunding-public { padding: 36px 20px 0; }
+    .crowd-pub-grid { grid-template-columns: 1fr; }
+}
+</style>
+<?php endif; ?>
 
 
 <!-- ══════════════════════════════════════════
@@ -831,6 +1043,90 @@ if (!TIENE_DB_ANIMALES) {
 } else {
     // La BD tiene animales: iniciar carrusel directamente
     initCarousel();
+}
+
+/* ─── DONACIONES ─────────────────────────────────────────── */
+const donModal    = document.getElementById('don-modal');
+if (donModal) {
+    const donTitulo   = document.getElementById('don-modal-titulo');
+    const donNombre   = document.getElementById('don-nombre');
+    const donCantidad = document.getElementById('don-cantidad');
+    const donFeedback = document.getElementById('don-feedback');
+    const donSubmit   = document.getElementById('don-submit');
+    let   donCasoId   = null;
+
+    document.querySelectorAll('.crowd-btn-donar').forEach(btn => {
+        btn.addEventListener('click', () => {
+            donCasoId = btn.dataset.id;
+            donTitulo.textContent = btn.dataset.titulo;
+            donModal.style.display = 'flex';
+            donFeedback.style.display = 'none';
+            donSubmit.disabled = false;
+            donNombre.value = '';
+            donCantidad.value = '';
+            document.querySelectorAll('.don-quick').forEach(b => b.classList.remove('active'));
+        });
+    });
+
+    document.querySelectorAll('.don-quick').forEach(btn => {
+        btn.addEventListener('click', () => {
+            donCantidad.value = btn.dataset.v;
+            document.querySelectorAll('.don-quick').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+        });
+    });
+
+    function closeDonModal() { donModal.style.display = 'none'; }
+    document.getElementById('don-modal-close').addEventListener('click', closeDonModal);
+    document.getElementById('don-cancel').addEventListener('click', closeDonModal);
+    donModal.addEventListener('click', e => { if (e.target === donModal) closeDonModal(); });
+
+    donSubmit.addEventListener('click', () => {
+        const cantidad = parseFloat(donCantidad.value);
+        if (!cantidad || cantidad <= 0) {
+            donFeedback.style.cssText = 'display:block;background:rgba(220,60,60,.12);color:#ffaaaa;padding:10px 14px;border-radius:6px;font-size:13px';
+            donFeedback.textContent = 'Introduce una cantidad válida.';
+            return;
+        }
+        donSubmit.disabled = true;
+        fetch('crowdfunding-donacion.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: `id_caso=${encodeURIComponent(donCasoId)}&cantidad=${encodeURIComponent(cantidad)}&nombre=${encodeURIComponent(donNombre.value)}`
+        })
+        .then(r => r.json())
+        .then(data => {
+            donFeedback.style.display = 'block';
+            donFeedback.style.padding = '10px 14px';
+            donFeedback.style.borderRadius = '6px';
+            donFeedback.style.fontSize = '13px';
+            if (data.ok) {
+                donFeedback.style.background = 'rgba(60,200,100,.12)';
+                donFeedback.style.color = '#7dffb0';
+                donFeedback.textContent = '¡Gracias! Tu intención de donación ha sido registrada. La pasarela de pago estará disponible próximamente.';
+                // Update progress bar in the card
+                const pct = data.meta > 0 ? Math.min(100, Math.round(data.recaudado / data.meta * 100)) : 0;
+                const card = document.querySelector(`.crowd-btn-donar[data-id="${donCasoId}"]`)?.closest('.crowd-pub-card');
+                if (card) {
+                    const fill = card.querySelector('.crowd-pub-fill');
+                    const nums = card.querySelectorAll('.crowd-pub-nums span');
+                    if (fill) fill.style.width = pct + '%';
+                    if (nums[0]) nums[0].textContent = data.recaudado.toLocaleString('es-ES', {minimumFractionDigits:0}) + ' €';
+                    if (nums[1]) nums[1].textContent = pct + '% de ' + data.meta.toLocaleString('es-ES', {minimumFractionDigits:0}) + ' €';
+                }
+            } else {
+                donFeedback.style.background = 'rgba(220,60,60,.12)';
+                donFeedback.style.color = '#ffaaaa';
+                donFeedback.textContent = data.error || 'Error al registrar la donación.';
+                donSubmit.disabled = false;
+            }
+        })
+        .catch(() => {
+            donFeedback.style.cssText = 'display:block;background:rgba(220,60,60,.12);color:#ffaaaa;padding:10px 14px;border-radius:6px;font-size:13px';
+            donFeedback.textContent = 'Error de conexión.';
+            donSubmit.disabled = false;
+        });
+    });
 }
 </script>
 
