@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Preview · Plantilla de compartir Go Catch</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,900&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy-dark:#0D2D51;
+    --navy-mid:#124076;
+    --terracota:#CA7842;
+    --terracota-soft:#EDA677;
+    --terracota-dark:#a85f30;
+    --crema:#F7EEE8;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{
+    background:#0a0a0a;
+    color:#fff;
+    font-family:'Poppins',system-ui,sans-serif;
+    min-height:100vh;
+    padding:40px 20px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+  }
+  h1{ font-weight:700; font-size:22px; margin-bottom:6px; letter-spacing:-0.3px; }
+  .subtitulo{ color:#888; margin-bottom:32px; font-size:13px; }
+
+  /* ─── TARJETA STORY 1080x1920 escalada para preview ─── */
+  .scaler{
+    width:346px; height:614px;
+    overflow:hidden;
+    border-radius:32px;
+    box-shadow:0 30px 80px rgba(0,0,0,0.6);
+  }
+  .share-card{
+    width:1080px; height:1920px;
+    transform:scale(0.32);
+    transform-origin:top left;
+    position:relative;
+    background:var(--navy-dark);
+    color:#fff;
+    font-family:'Poppins',sans-serif;
+    overflow:hidden;
+  }
+
+  /* ── HEADER: logo + marca + badge EN ADOPCIÓN ── */
+  .card-header{
+    position:absolute;
+    top:60px; left:60px; right:60px;
+    z-index:5;
+    display:flex;
+    align-items:center;
+    gap:24px;
+  }
+  .card-header svg{ width:96px; height:96px; flex-shrink:0; }
+  .card-header .marca-nombre{
+    font-family:'Fraunces',serif;
+    font-weight:900;
+    font-size:54px;
+    line-height:1;
+    color:#fff;
+    text-shadow:0 4px 14px rgba(0,0,0,0.55);
+  }
+  .badge-adopcion{
+    margin-left:auto;
+    background:var(--terracota);
+    color:#fff;
+    padding:18px 32px;
+    border-radius:999px;
+    font-weight:800;
+    font-size:26px;
+    letter-spacing:2px;
+    box-shadow:0 6px 20px rgba(0,0,0,0.35);
+  }
+
+  /* ── FOTO: full-bleed, corte DIAGONAL ── */
+  .foto{
+    position:absolute;
+    top:0; left:0; right:0;
+    height:1180px;
+    overflow:hidden;
+    clip-path:polygon(0 0, 100% 0, 100% 92%, 0 100%);
+  }
+  .foto img{ width:100%; height:100%; object-fit:cover; display:block; }
+
+  /* ── BLOQUE NAVY inferior con corte diagonal contrario ── */
+  .panel{
+    position:absolute;
+    left:0; right:0; bottom:0;
+    height:820px;
+    background:var(--navy-dark);
+    clip-path:polygon(0 92px, 100% 0, 100% 100%, 0 100%);
+    padding:160px 70px 80px;
+    display:flex;
+    flex-direction:column;
+  }
+
+  /* ── NOMBRE de la mascota ── */
+  .nombre{
+    font-family:'Fraunces',serif;
+    font-weight:900;
+    font-size:170px;
+    line-height:0.95;
+    color:#fff;
+    letter-spacing:-3px;
+    margin-bottom:30px;
+  }
+
+  /* ── META: edad · ciudad · protectora ── */
+  .meta{
+    font-size:34px;
+    font-weight:500;
+    color:rgba(255,255,255,0.88);
+    margin-bottom:60px;
+    line-height:1.4;
+  }
+  .meta .sep{ margin:0 14px; color:var(--terracota); font-weight:700; }
+
+  /* ── BOTÓN único: "Conóceme" — CENTRADO ── */
+  .btn{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap:24px;
+    background:var(--terracota);
+    color:#fff;
+    padding:42px 70px;
+    border-radius:999px;
+    font-family:'Poppins',sans-serif;
+    font-weight:700;
+    font-size:46px;
+    letter-spacing:0.5px;
+    text-decoration:none;
+    width:fit-content;
+    align-self:center;          /* ← centrado horizontal en el panel flex */
+    box-shadow:0 12px 40px rgba(202,120,66,0.45);
+  }
+  .btn .arrow{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    width:64px; height:64px;
+    border-radius:50%;
+    background:#fff;
+    color:var(--terracota);
+    font-size:38px;
+    font-weight:900;
+  }
+</style>
+</head>
+<body>
+
+<h1>Plantilla de compartir · Go Catch</h1>
+<p class="subtitulo">Stories 1080×1920 · navy + terracota · botón centrado</p>
+
+<div class="scaler">
+  <div class="share-card">
+
+    <div class="foto">
+      <img src="https://images.dog.ceo/breeds/retriever-golden/n02099601_103.jpg" alt="">
+    </div>
+
+    <div class="card-header">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+        <rect x="0" y="0" width="200" height="200" rx="36" ry="36" fill="#CA7842"/>
+        <text x="110" y="148" font-family="'Fraunces',serif" font-weight="900" font-size="145"
+              fill="#fff" text-anchor="middle">gc</text>
+      </svg>
+      <div class="marca-nombre">go catch</div>
+      <div class="badge-adopcion">EN ADOPCIÓN</div>
+    </div>
+
+    <div class="panel">
+      <div class="nombre">Luna</div>
+      <div class="meta">
+        2 años<span class="sep">·</span>Sevilla<span class="sep">·</span>Patitas Felices
+      </div>
+      <a class="btn" href="#">
+        Conóceme
+        <span class="arrow">→</span>
+      </a>
+    </div>
+
+  </div>
+</div>
+
+</body>
+</html>
