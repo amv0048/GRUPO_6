@@ -1,0 +1,161 @@
+        *, *::before, *::after { box-sizing: border-box; }
+        body { font-family: 'Poppins', sans-serif; font-size: 13px; color: #333; margin: 0; background: #0D2D51; min-height: 100vh; }
+        p, h1, h2, h3 { margin: 0; }
+        a { text-decoration: none; color: inherit; }
+
+        #page-wrapper { max-width: 1200px; margin: 0 auto; padding: 36px 24px 60px; }
+
+        .breadcrumb { font-size: 11px; color: #EDA677; margin-bottom: 22px; display: flex; align-items: center; gap: 6px; }
+        .breadcrumb a { color: #EDA677; }
+        .breadcrumb a:hover { color: #fff; }
+        .breadcrumb span { color: #fff; opacity: .5; }
+
+        .page-title { color: #fff; font-size: 22px; font-weight: 800; margin-bottom: 4px; }
+        .page-sub   { color: rgba(255,255,255,.5); font-size: 12px; margin-bottom: 28px; }
+
+        /* ── MENSAJE FLASH ── */
+        .flash { padding: 12px 18px; border-radius: 8px; margin-bottom: 20px; font-size: 12px; font-weight: 600; }
+        .flash-ok  { background: #EAF3DE; color: #2e7d12; }
+        .flash-err { background: #FFEBEE; color: #c62828; }
+
+        /* ── LAYOUT DOS COLUMNAS ── */
+        .layout { display: grid; grid-template-columns: 1fr 320px; gap: 24px; align-items: start; }
+        @media (max-width: 900px) { .layout { grid-template-columns: 1fr; } }
+
+        /* ── CARD GENÉRICA ── */
+        .card { background: #fff; border-radius: 10px; box-shadow: 0 8px 30px rgba(0,0,0,.25); overflow: hidden; }
+        .card-header { background: #0D2D51; padding: 16px 22px; border-bottom: 2px solid #CA7842; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+        .card-header h2 { color: #fff; font-size: 14px; font-weight: 700; }
+        .card-body { padding: 20px 22px; }
+
+        /* ── NAVEGACIÓN MES ── */
+        .mes-nav { display: flex; align-items: center; gap: 10px; }
+        .mes-nav a {
+            display: flex; align-items: center; justify-content: center;
+            width: 32px; height: 32px; border-radius: 50%;
+            background: rgba(255,255,255,.1); color: #EDA677;
+            font-size: 18px; transition: background .2s;
+        }
+        .mes-nav a:hover { background: rgba(202,120,66,.4); }
+        .mes-nav h2 { color: #fff; font-size: 15px; font-weight: 700; }
+
+        /* ── CALENDARIO ── */
+        .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+        .cal-dia-label {
+            text-align: center; font-size: 10px; font-weight: 700;
+            text-transform: uppercase; letter-spacing: .8px;
+            color: #bbb; padding: 6px 0;
+        }
+        .cal-dia {
+            min-height: 80px; border-radius: 6px;
+            background: #f9f9f9; border: 1.5px solid transparent;
+            padding: 6px; cursor: pointer; transition: border-color .2s, background .2s;
+            position: relative;
+        }
+        .cal-dia:hover { border-color: #CA7842; background: #fff8f0; }
+        .cal-dia.vacio { background: transparent; cursor: default; border-color: transparent; }
+        .cal-dia.pasado { opacity: .4; cursor: not-allowed; }
+        .cal-dia.hoy { border-color: #CA7842; background: #FFF1E6; }
+        .cal-dia.tiene-slots { background: #f0f7e6; }
+        .cal-dia.tiene-citas { background: #e8f0fe; border-color: #4a80d6; }
+
+        .cal-num { font-size: 11px; font-weight: 700; color: #555; }
+        .cal-dia.hoy .cal-num { color: #CA7842; }
+
+        .cal-slot-dot {
+            display: inline-flex; align-items: center; justify-content: center;
+            width: 100%; margin-top: 3px;
+            font-size: 9px; font-weight: 700; border-radius: 4px; padding: 1px 0;
+        }
+        .dot-libre  { background: #c8e6c9; color: #1b5e20; }
+        .dot-citado { background: #bbdefb; color: #0d47a1; }
+
+        /* ── PANEL AÑADIR SLOTS ── */
+        .panel-slot {
+            position: fixed; top: 0; right: -400px; width: 380px; height: 100vh;
+            background: #fff; box-shadow: -6px 0 40px rgba(0,0,0,.3);
+            z-index: 500; transition: right .35s cubic-bezier(.4,0,.2,1);
+            display: flex; flex-direction: column;
+            overflow-y: auto;
+        }
+        .panel-slot.abierto { right: 0; }
+        .panel-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.4); z-index: 499; }
+        .panel-overlay.activo { display: block; }
+
+        .panel-slot-header {
+            background: #0D2D51; padding: 18px 22px;
+            display: flex; align-items: center; justify-content: space-between;
+            flex-shrink: 0;
+        }
+        .panel-slot-header h3 { color: #fff; font-size: 15px; font-weight: 700; }
+        .panel-cerrar { background: none; border: none; color: #EDA677; font-size: 22px; cursor: pointer; padding: 0; display: flex; }
+
+        .panel-slot-body { padding: 22px; flex: 1; }
+
+        .campo { display: flex; flex-direction: column; gap: 5px; margin-bottom: 16px; }
+        .campo label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .8px; color: #888; }
+        .campo input, .campo select {
+            font-family: 'Poppins', sans-serif; font-size: 13px; color: #333;
+            border: 1.5px solid #e0e0e0; border-radius: 6px; padding: 9px 12px;
+            outline: none; background: #fafafa; width: 100%; transition: border-color .2s;
+        }
+        .campo input:focus, .campo select:focus { border-color: #CA7842; background: #fff; }
+
+        .sep-o { text-align: center; color: #ccc; font-size: 11px; font-weight: 600; margin: 18px 0; position: relative; }
+        .sep-o::before, .sep-o::after { content: ''; position: absolute; top: 50%; width: 42%; height: 1px; background: #f0f0f0; }
+        .sep-o::before { left: 0; } .sep-o::after { right: 0; }
+
+        .btn-primario {
+            width: 100%; padding: 12px; background: #CA7842; color: #fff; border: none;
+            border-radius: 6px; font-family: 'Poppins', sans-serif; font-size: 13px;
+            font-weight: 700; letter-spacing: .8px; cursor: pointer;
+            transition: background .2s; display: flex; align-items: center; justify-content: center; gap: 8px;
+        }
+        .btn-primario:hover { background: #b56a32; }
+        .btn-secundario {
+            width: 100%; padding: 10px; background: transparent; color: #CA7842;
+            border: 1.5px solid #CA7842; border-radius: 6px;
+            font-family: 'Poppins', sans-serif; font-size: 12px; font-weight: 600;
+            cursor: pointer; transition: background .2s, color .2s;
+            display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 10px;
+        }
+        .btn-secundario:hover { background: #CA7842; color: #fff; }
+
+        /* Lista de slots del día en el panel */
+        .slots-lista { margin-top: 22px; }
+        .slots-lista-titulo { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .8px; color: #999; margin-bottom: 10px; }
+        .slot-item {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 9px 12px; border-radius: 6px; margin-bottom: 6px;
+            background: #f9f9f9; border: 1px solid #f0f0f0;
+        }
+        .slot-item.ocupado { background: #e8f0fe; border-color: #c5d8fc; }
+        .slot-hora { font-size: 12px; font-weight: 700; color: #333; }
+        .slot-quien { font-size: 11px; color: #888; margin-top: 2px; }
+        .slot-del {
+            background: #FFEBEE; color: #c62828; border: none; border-radius: 4px;
+            padding: 4px 10px; font-size: 10px; font-weight: 700; cursor: pointer;
+            font-family: 'Poppins', sans-serif; transition: background .2s;
+        }
+        .slot-del:hover { background: #ffcdd2; }
+        .slot-badge-ocu { font-size: 9px; font-weight: 700; background: #1a5cd6; color: #fff; padding: 2px 8px; border-radius: 10px; }
+
+        /* ── PANEL DERECHO: próximas citas ── */
+        .sidebar-card { background: #fff; border-radius: 10px; box-shadow: 0 8px 30px rgba(0,0,0,.25); overflow: hidden; }
+        .sidebar-header { background: #0D2D51; padding: 14px 18px; border-bottom: 2px solid #CA7842; }
+        .sidebar-header h3 { color: #fff; font-size: 13px; font-weight: 700; }
+        .sidebar-body { padding: 14px; }
+        .cita-item { padding: 11px 12px; border-radius: 6px; border: 1px solid #f0f0f0; margin-bottom: 8px; }
+        .cita-fecha-hora { font-size: 11px; font-weight: 700; color: #0D2D51; }
+        .cita-animal  { font-size: 11px; color: #CA7842; font-weight: 600; margin-top: 2px; }
+        .cita-persona { font-size: 11px; color: #777; margin-top: 1px; }
+        .sin-citas { text-align: center; padding: 20px 10px; color: #bbb; font-size: 12px; }
+        .sin-citas i { font-size: 28px; display: block; margin-bottom: 8px; }
+
+        /* Leyenda */
+        .leyenda { display: flex; gap: 14px; flex-wrap: wrap; margin-bottom: 14px; }
+        .leyenda-item { display: flex; align-items: center; gap: 6px; font-size: 11px; color: #555; }
+        .leyenda-dot { width: 12px; height: 12px; border-radius: 3px; }
+        .ld-libre  { background: #c8e6c9; }
+        .ld-citado { background: #bbdefb; }
+        .ld-hoy    { border: 2px solid #CA7842; background: #FFF1E6; }

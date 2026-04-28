@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 session_start();
 require "../src/sesion/conexion.php";
 
@@ -177,42 +177,7 @@ if (isset($_GET['ok'])) {
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/material-design-iconic-font/2.2.0/css/material-design-iconic-font.min.css">
     <link rel="stylesheet" href="css/header.css">
     <link rel="stylesheet" href="css/perfil.css">
-    <style>
-        #padre-nuestro { align-items: flex-start; padding: 40px 20px; }
-        #estructura { max-width: 680px; }
-        .form-section-title {
-            font-size: 11px; font-weight: 600; text-transform: uppercase;
-            letter-spacing: 1px; color: #999; margin: 24px 0 14px;
-            border-top: 1px solid #f0f0f0; padding-top: 20px;
-        }
-        .form-section-title:first-child { margin-top: 0; border-top: none; padding-top: 0; }
-        select.form-control { appearance: none; -webkit-appearance: none; cursor: pointer; padding-right: 24px; }
-        textarea.form-control { height: auto; min-height: 70px; resize: vertical; padding-top: 6px; }
-        .compat-group { display: flex; gap: 20px; flex-wrap: wrap; margin-bottom: 20px; }
-        .compat-item { display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 12px; color: #555; font-weight: 500; }
-        .compat-item input[type="checkbox"] { accent-color: #CA7842; width: 16px; height: 16px; cursor: pointer; }
-        .compat-item i { color: #CA7842; font-size: 16px; }
-        #perfil-header { padding: 28px 40px 22px; }
-
-        .galeria-grid { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 16px; }
-        .galeria-item { position: relative; width: 120px; }
-        .galeria-item img { width: 120px; height: 90px; object-fit: cover; border-radius: 8px; display: block; border: 3px solid transparent; transition: border-color 0.2s; }
-        .galeria-item.es-principal img { border-color: #CA7842; }
-        .badge-principal { position: absolute; top: 5px; left: 5px; background: #CA7842; color: #fff; font-size: 9px; font-weight: 700; padding: 2px 6px; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
-        .foto-acciones { display: flex; gap: 6px; margin-top: 6px; }
-        .btn-foto { flex: 1; font-size: 10px; font-weight: 600; padding: 4px 0; border: none; border-radius: 4px; cursor: pointer; font-family: 'Poppins', sans-serif; transition: opacity 0.2s; }
-        .btn-foto:hover { opacity: 0.8; }
-        .btn-set-principal { background: #CA7842; color: #fff; }
-        .btn-eliminar-foto { background: #f0f0f0; color: #e74c3c; }
-
-        .subir-foto-area { border: 2px dashed #ddd; border-radius: 8px; padding: 20px; text-align: center; margin-bottom: 20px; transition: border-color 0.2s; }
-        .subir-foto-area:hover { border-color: #CA7842; }
-        .subir-foto-area label { cursor: pointer; font-size: 13px; color: #999; font-weight: 500; }
-        .subir-foto-area label i { font-size: 24px; display: block; margin-bottom: 6px; color: #CA7842; }
-        .subir-foto-area input[type="file"] { display: none; }
-
-        .msg-ok { background: #EAF3DE; border: 1px solid #97C459; color: #173404; border-radius: 6px; padding: 10px 16px; margin: 0 40px 16px; font-size: 13px; font-weight: 500; }
-    </style>
+    <link rel="stylesheet" href="css/editAnimal.css">
 </head>
 <body>
 

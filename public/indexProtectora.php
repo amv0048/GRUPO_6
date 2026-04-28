@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 session_start();
 require "../src/sesion/conexion.php";
 
@@ -121,29 +121,6 @@ if ($tbl_check && $tbl_check->num_rows > 0) {
 }
 
 // ── CROWDFUNDING: tablas + CRUD ───────────────────────────────
-$_conexion->query("CREATE TABLE IF NOT EXISTS CrowdfundingCaso (
-    id_caso        INT AUTO_INCREMENT PRIMARY KEY,
-    id_protectora  INT NOT NULL,
-    titulo         VARCHAR(200) NOT NULL,
-    animal_nombre  VARCHAR(100),
-    descripcion    TEXT NOT NULL,
-    meta_euros     DECIMAL(10,2) NOT NULL,
-    recaudado      DECIMAL(10,2) NOT NULL DEFAULT 0.00,
-    activo         TINYINT(1) NOT NULL DEFAULT 1,
-    fecha_creacion DATETIME DEFAULT CURRENT_TIMESTAMP,
-    foto           VARCHAR(255),
-    FOREIGN KEY (id_protectora) REFERENCES Protectora(id_protectora) ON DELETE CASCADE
-)");
-$_conexion->query("CREATE TABLE IF NOT EXISTS Donacion (
-    id_donacion    INT AUTO_INCREMENT PRIMARY KEY,
-    id_caso        INT NOT NULL,
-    id_adoptante   INT DEFAULT NULL,
-    nombre_donante VARCHAR(100),
-    cantidad       DECIMAL(8,2) NOT NULL,
-    fecha          DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (id_caso) REFERENCES CrowdfundingCaso(id_caso) ON DELETE CASCADE,
-    FOREIGN KEY (id_adoptante) REFERENCES Usuario(id_adoptante) ON DELETE SET NULL
-)");
 
 $crowd_ok    = '';
 $crowd_error = '';
@@ -363,30 +340,6 @@ $st_cf->close();
     </div>
 </section>
 
-<style>
-#panel-gestion { padding: 0 60px 48px; }
-.panel-gestion-grid { display: flex; flex-direction: column; gap: 10px; }
-.panel-card {
-    display: flex; align-items: center; gap: 16px;
-    background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.12);
-    border-radius: 8px; padding: 16px 20px; text-decoration: none;
-    transition: background .2s, border-color .2s;
-}
-.panel-card:hover { background: rgba(255,255,255,.12); border-color: #CA7842; }
-.panel-card > .zmdi:first-child { font-size: 22px; color: #CA7842; flex-shrink: 0; }
-.panel-card-info { flex: 1; }
-.panel-card-titulo { font-size: 13px; font-weight: 700; color: #fff; }
-.panel-card-sub    { font-size: 11px; color: #a8b8cc; margin-top: 2px; }
-.panel-card-arrow  { font-size: 18px; color: rgba(255,255,255,.3); }
-.panel-badge {
-    display: inline-block; background: #CA7842; color: #fff;
-    font-size: 10px; font-weight: 700; padding: 2px 9px; border-radius: 10px;
-}
-.panel-card-cita-item { font-size: 11px; color: #a8b8cc; margin-top: 4px; }
-.panel-card-cita-item strong { color: #EDA677; }
-@media (max-width: 960px) { #panel-gestion { padding: 0 32px 40px; } }
-@media (max-width: 640px) { #panel-gestion { padding: 0 20px 32px; } }
-</style>
 
 
 <!-- ══════════════════════════════════════════
@@ -740,138 +693,6 @@ $st_cf->close();
     </div>
 </div>
 
-<style>
-/* ── CROWDFUNDING SECTION ─────────────────────────────────── */
-#crowdfunding { padding: 0 60px 60px; }
-
-.seccion-titulo { font-size: 22px; font-weight: 700; color: #fff; margin: 4px 0 0; }
-
-.crowd-header {
-    display: flex; align-items: flex-end; justify-content: space-between;
-    margin-bottom: 24px; gap: 16px; flex-wrap: wrap;
-}
-#btn-nuevo-crowd {
-    background: #CA7842; color: #fff; border: none; border-radius: 8px;
-    padding: 10px 20px; font-family: 'Poppins', sans-serif; font-size: 13px;
-    font-weight: 600; cursor: pointer; display: flex; align-items: center;
-    gap: 6px; transition: background .2s; white-space: nowrap;
-}
-#btn-nuevo-crowd:hover { background: #b06335; }
-
-.crowd-msg {
-    padding: 10px 16px; border-radius: 6px; font-size: 13px;
-    margin-bottom: 18px; display: flex; align-items: center; gap: 8px;
-}
-.crowd-ok  { background: rgba(60,200,100,.12); color: #7dffb0; }
-.crowd-err { background: rgba(220,60,60,.12);  color: #ffaaaa; }
-.crowd-vacio { color: #a8b8cc; font-size: 14px; padding: 0 0 24px; }
-
-.crowd-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 20px;
-}
-.crowd-card {
-    background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.12);
-    border-radius: 12px; overflow: hidden; transition: border-color .2s;
-}
-.crowd-card:hover { border-color: #CA7842; }
-.crowd-card-inactivo { opacity: .55; }
-.crowd-card-foto img { width: 100%; height: 160px; object-fit: cover; display: block; }
-.crowd-card-body { padding: 16px 20px 20px; }
-
-.crowd-card-top {
-    display: flex; align-items: center; flex-wrap: wrap; gap: 6px; margin-bottom: 8px;
-}
-.crowd-card-top h3 { font-size: 14px; font-weight: 700; color: #fff; flex: 1; min-width: 0; }
-.crowd-animal-tag {
-    background: rgba(202,120,66,.2); color: #EDA677; font-size: 10px;
-    font-weight: 600; padding: 2px 8px; border-radius: 20px; white-space: nowrap;
-}
-.crowd-estado-tag {
-    font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 20px;
-}
-.crowd-estado-tag.activo   { background: rgba(60,200,100,.18); color: #7dffb0; }
-.crowd-estado-tag.inactivo { background: rgba(200,200,200,.1); color: #a8b8cc; }
-
-.crowd-desc {
-    font-size: 12px; color: #a8b8cc; line-height: 1.6; margin-bottom: 14px;
-    display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
-}
-.crowd-progress-wrap { margin-bottom: 14px; }
-.crowd-progress-bar {
-    height: 6px; background: rgba(255,255,255,.1); border-radius: 3px;
-    overflow: hidden; margin-bottom: 6px;
-}
-.crowd-progress-fill {
-    height: 100%; background: linear-gradient(90deg,#CA7842,#EDA677);
-    border-radius: 3px; transition: width .5s;
-}
-.crowd-progress-info {
-    display: flex; justify-content: space-between; font-size: 11px; color: #a8b8cc;
-}
-.crowd-progress-info span:first-child { color: #EDA677; font-weight: 600; }
-
-.crowd-acciones { display: flex; gap: 8px; flex-wrap: wrap; }
-.crowd-acciones button {
-    font-family: 'Poppins', sans-serif; font-size: 11px; font-weight: 600;
-    padding: 6px 12px; border-radius: 6px; border: none; cursor: pointer;
-    display: flex; align-items: center; gap: 4px; transition: opacity .2s;
-}
-.crowd-acciones button:hover { opacity: .8; }
-.crowd-btn-edit   { background: rgba(255,255,255,.1); color: #fff; }
-.crowd-btn-toggle { background: rgba(202,120,66,.2);  color: #EDA677; }
-.crowd-btn-del    { background: rgba(220,60,60,.15);  color: #ffaaaa; }
-
-/* ── MODAL ────────────────────────────────────────────────── */
-.crowd-modal-overlay {
-    position: fixed; inset: 0; background: rgba(0,0,0,.68); z-index: 9000;
-    display: flex; align-items: center; justify-content: center; padding: 20px;
-}
-.crowd-modal {
-    background: #0D2D51; border: 1px solid rgba(255,255,255,.15);
-    border-radius: 14px; width: 100%; max-width: 520px;
-    max-height: 90vh; overflow-y: auto; padding: 28px;
-}
-.crowd-modal-header {
-    display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px;
-}
-.crowd-modal-header h3 { font-size: 18px; font-weight: 700; color: #fff; }
-.crowd-modal-header button {
-    background: none; border: none; color: #a8b8cc; font-size: 22px; cursor: pointer; line-height: 1;
-}
-.crowd-form-group { margin-bottom: 14px; }
-.crowd-form-group label {
-    display: block; font-size: 12px; font-weight: 600; color: #a8b8cc; margin-bottom: 6px;
-}
-.crowd-form-group input,
-.crowd-form-group textarea {
-    width: 100%; background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.15);
-    border-radius: 8px; padding: 10px 14px; color: #fff; font-family: 'Poppins', sans-serif;
-    font-size: 13px; outline: none; box-sizing: border-box;
-}
-.crowd-form-group input:focus,
-.crowd-form-group textarea:focus { border-color: #CA7842; }
-.crowd-form-group textarea { resize: vertical; }
-.crowd-form-actions {
-    display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px;
-}
-.crowd-form-actions button {
-    font-family: 'Poppins', sans-serif; font-size: 13px; font-weight: 600;
-    padding: 10px 22px; border-radius: 8px; border: none; cursor: pointer;
-    display: flex; align-items: center; gap: 6px; transition: opacity .2s;
-}
-.crowd-form-actions button:hover { opacity: .85; }
-#crowd-modal-cancel { background: rgba(255,255,255,.1); color: #fff; }
-#crowd-form-submit  { background: #CA7842; color: #fff; }
-
-@media (max-width: 960px) { #crowdfunding { padding: 0 32px 48px; } }
-@media (max-width: 640px) {
-    #crowdfunding { padding: 0 20px 36px; }
-    .crowd-grid { grid-template-columns: 1fr; }
-    .crowd-header { flex-direction: column; align-items: flex-start; }
-}
-</style>
 
 
 <!-- ══════════════════════════════════════════

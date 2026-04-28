@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 session_start();
 require "../src/sesion/conexion.php";
 
@@ -533,107 +533,6 @@ elseif (isset($_SESSION['protectora'])) $nombre_sesion = $_SESSION['protectora']
     </div>
 </div>
 
-<style>
-/* ── CROWDFUNDING PUBLIC ──────────────────────────────────── */
-#crowdfunding-public { padding: 60px 60px 0; }
-#crowdfunding-public .seccion-titulo { font-size: 28px; font-weight: 800; color: #fff; margin: 4px 0 0; }
-.crowd-pub-grid {
-    display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 20px; margin-top: 32px;
-}
-.crowd-pub-card {
-    background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.12);
-    border-radius: 12px; overflow: hidden; transition: border-color .2s, transform .2s;
-}
-.crowd-pub-card:hover { border-color: #CA7842; transform: translateY(-2px); }
-.crowd-pub-foto { height: 160px; overflow: hidden; }
-.crowd-pub-foto img { width: 100%; height: 100%; object-fit: cover; display: block; }
-.crowd-pub-foto-placeholder {
-    height: 160px; background: rgba(202,120,66,.08);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 44px; color: rgba(202,120,66,.5);
-}
-.crowd-pub-body { padding: 16px 20px 20px; }
-.crowd-pub-protectora {
-    font-size: 10px; color: #CA7842; font-weight: 700;
-    text-transform: uppercase; letter-spacing: .06em; margin-bottom: 4px;
-}
-.crowd-pub-titulo { font-size: 14px; font-weight: 700; color: #fff; margin-bottom: 6px; }
-.crowd-pub-animal { font-size: 12px; color: #EDA677; margin-bottom: 8px; }
-.crowd-pub-desc { font-size: 12px; color: #a8b8cc; line-height: 1.6; margin-bottom: 14px; }
-.crowd-pub-progress { margin-bottom: 14px; }
-.crowd-pub-bar {
-    height: 6px; background: rgba(255,255,255,.1);
-    border-radius: 3px; overflow: hidden; margin-bottom: 6px;
-}
-.crowd-pub-fill {
-    height: 100%; background: linear-gradient(90deg,#CA7842,#EDA677); border-radius: 3px;
-}
-.crowd-pub-nums { display: flex; justify-content: space-between; font-size: 11px; color: #a8b8cc; }
-.crowd-pub-nums span:first-child { color: #EDA677; font-weight: 600; }
-.crowd-btn-donar {
-    width: 100%; background: #CA7842; color: #fff; border: none; border-radius: 8px;
-    padding: 10px; font-family: 'Poppins', sans-serif; font-size: 13px; font-weight: 600;
-    cursor: pointer; display: flex; align-items: center; justify-content: center;
-    gap: 6px; transition: background .2s;
-}
-.crowd-btn-donar:hover { background: #b06335; }
-
-/* ── DONATION MODAL ──────────────────────────────────────── */
-.don-modal-overlay {
-    position: fixed; inset: 0; background: rgba(0,0,0,.68); z-index: 9000;
-    display: flex; align-items: center; justify-content: center; padding: 20px;
-}
-.don-modal {
-    background: #0D2D51; border: 1px solid rgba(255,255,255,.15);
-    border-radius: 14px; width: 100%; max-width: 420px; padding: 28px;
-}
-.don-modal-header {
-    display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;
-}
-.don-modal-header h3 { font-size: 18px; font-weight: 700; color: #fff; }
-.don-modal-header button {
-    background: none; border: none; color: #a8b8cc; font-size: 22px; cursor: pointer; line-height: 1;
-}
-.don-form-group { margin-bottom: 14px; }
-.don-form-group label {
-    display: block; font-size: 12px; font-weight: 600; color: #a8b8cc; margin-bottom: 6px;
-}
-.don-form-group input {
-    width: 100%; background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.15);
-    border-radius: 8px; padding: 10px 14px; color: #fff; font-family: 'Poppins', sans-serif;
-    font-size: 13px; outline: none; box-sizing: border-box;
-}
-.don-form-group input:focus { border-color: #CA7842; }
-.don-quick-amounts { display: flex; gap: 8px; margin-bottom: 8px; flex-wrap: wrap; }
-.don-quick {
-    background: rgba(202,120,66,.12); color: #EDA677;
-    border: 1px solid rgba(202,120,66,.25); border-radius: 6px;
-    padding: 6px 14px; font-family: 'Poppins', sans-serif; font-size: 12px;
-    font-weight: 600; cursor: pointer; transition: background .2s;
-}
-.don-quick:hover, .don-quick.active { background: #CA7842; color: #fff; border-color: #CA7842; }
-.don-aviso {
-    font-size: 11px; color: #a8b8cc; background: rgba(255,255,255,.05);
-    border-radius: 6px; padding: 8px 12px; margin-bottom: 16px; line-height: 1.6;
-    display: flex; gap: 6px; align-items: flex-start;
-}
-.don-acciones { display: flex; gap: 10px; justify-content: flex-end; }
-.don-acciones button {
-    font-family: 'Poppins', sans-serif; font-size: 13px; font-weight: 600;
-    padding: 10px 20px; border-radius: 8px; border: none; cursor: pointer;
-    display: flex; align-items: center; gap: 6px; transition: opacity .2s;
-}
-.don-acciones button:hover { opacity: .85; }
-#don-cancel { background: rgba(255,255,255,.1); color: #fff; }
-#don-submit { background: #CA7842; color: #fff; }
-
-@media (max-width: 960px) { #crowdfunding-public { padding: 48px 32px 0; } }
-@media (max-width: 640px) {
-    #crowdfunding-public { padding: 36px 20px 0; }
-    .crowd-pub-grid { grid-template-columns: 1fr; }
-}
-</style>
 <?php endif; ?>
 
 

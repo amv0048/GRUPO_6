@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 session_start();
 require "../src/sesion/conexion.php";
 
@@ -104,71 +104,7 @@ $estados = $_conexion->query("SELECT * FROM EstadoAnimal ORDER BY id_estado")->f
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/material-design-iconic-font/2.2.0/css/material-design-iconic-font.min.css">
     <link rel="stylesheet" href="css/header.css">
     <link rel="stylesheet" href="css/perfil.css">
-    <style>
-        /* ── Overrides específicos de esta página ── */
-        #padre-nuestro { align-items: flex-start; padding: 40px 20px; }
-
-        #estructura { max-width: 680px; }
-
-        /* cabecera de sección dentro de la tarjeta */
-        .form-section-title {
-            font-size: 11px;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            color: #999;
-            margin: 24px 0 14px;
-            border-top: 1px solid #f0f0f0;
-            padding-top: 20px;
-        }
-        .form-section-title:first-child { margin-top: 0; border-top: none; padding-top: 0; }
-
-        /* select con mismo estilo que inputs */
-        select.form-control {
-            appearance: none;
-            -webkit-appearance: none;
-            cursor: pointer;
-            padding-right: 24px;
-        }
-
-        /* textarea */
-        textarea.form-control {
-            height: auto;
-            min-height: 70px;
-            resize: vertical;
-            padding-top: 6px;
-        }
-
-        /* checkboxes de compatibilidad */
-        .compat-group {
-            display: flex;
-            gap: 20px;
-            flex-wrap: wrap;
-            margin-bottom: 20px;
-        }
-        .compat-item {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            cursor: pointer;
-            font-size: 12px;
-            color: #555;
-            font-weight: 500;
-        }
-        .compat-item input[type="checkbox"] {
-            accent-color: #CA7842;
-            width: 16px;
-            height: 16px;
-            cursor: pointer;
-        }
-        .compat-item i {
-            color: #CA7842;
-            font-size: 16px;
-        }
-
-        /* cabecera azul de la tarjeta */
-        #perfil-header { padding: 28px 40px 22px; }
-    </style>
+    <link rel="stylesheet" href="css/addAnimal.css">
 </head>
 <body>
 

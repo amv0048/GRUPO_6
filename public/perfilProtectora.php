@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 session_start();
 require "../src/sesion/conexion.php";
 
@@ -146,18 +146,6 @@ $ciudades = [
     "sevilla" => "Sevilla",
 ];
 
-// ── DONACIÓN DIRECTA: crear tabla si no existe ────────────
-$_conexion->query("CREATE TABLE IF NOT EXISTS DonacionDirecta (
-    id_donacion    INT AUTO_INCREMENT PRIMARY KEY,
-    id_protectora  INT NOT NULL,
-    id_adoptante   INT DEFAULT NULL,
-    nombre_donante VARCHAR(100),
-    cantidad       DECIMAL(8,2) NOT NULL,
-    fecha          DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (id_protectora) REFERENCES Protectora(id_protectora) ON DELETE CASCADE,
-    FOREIGN KEY (id_adoptante)  REFERENCES Usuario(id_adoptante) ON DELETE SET NULL
-)");
-
 $es_adoptante = isset($_SESSION['id']) && isset($_SESSION['user']);
 ?>
 <!DOCTYPE html>
@@ -172,37 +160,7 @@ $es_adoptante = isset($_SESSION['id']) && isset($_SESSION['user']);
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/material-design-iconic-font/2.2.0/css/material-design-iconic-font.min.css">
     <link rel="stylesheet" href="css/header.css">
     <link rel="stylesheet" href="css/perfil.css">
-    <style>
-        /* ── Vista solo lectura ── */
-        .info-publica {
-            padding: 8px 40px 24px;
-            display: flex;
-            flex-direction: column;
-            gap: 14px;
-        }
-        .info-fila {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            font-size: 13px;
-            color: #ccc;
-        }
-        .info-fila i {
-            color: #CA7842;
-            font-size: 16px;
-            width: 20px;
-            flex-shrink: 0;
-        }
-
-        /* ── Select ciudad con mismo estilo que inputs ── */
-        select.form-control {
-            appearance: none;
-            -webkit-appearance: none;
-            cursor: pointer;
-            padding-right: 24px;
-        }
-        select.form-control option[value=""] { color: #aaa; }
-    </style>
+    <link rel="stylesheet" href="css/perfilProtectora.css">
 </head>
 <body>
 
@@ -407,87 +365,6 @@ $es_adoptante = isset($_SESSION['id']) && isset($_SESSION['user']);
     </div>
 </div>
 
-<style>
-#perfil-eliminar {
-    text-align: center;
-    padding: 8px 40px 32px;
-}
-#btn-eliminar-perfil {
-    background: none;
-    border: none;
-    color: #e74c3c;
-    font-family: 'Poppins', sans-serif;
-    font-size: 12px;
-    font-weight: 600;
-    cursor: pointer;
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    letter-spacing: 0.5px;
-    opacity: 0.75;
-    transition: opacity 0.2s;
-}
-#btn-eliminar-perfil:hover { opacity: 1; text-decoration: underline; }
-
-.modal-overlay {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.55);
-    align-items: center;
-    justify-content: center;
-    z-index: 1000;
-}
-.modal-overlay.activo { display: flex; }
-.modal-box {
-    background: #fff;
-    border-radius: 12px;
-    padding: 40px 36px 32px;
-    max-width: 380px;
-    width: 90%;
-    text-align: center;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-}
-.modal-icono {
-    font-size: 2.4rem;
-    color: #e74c3c;
-    margin-bottom: 12px;
-    display: block;
-}
-.modal-titulo {
-    font-size: 16px;
-    font-weight: 700;
-    color: #0D2D51;
-    margin-bottom: 8px;
-}
-.modal-msg {
-    font-size: 13px;
-    color: #666;
-    line-height: 1.6;
-    margin-bottom: 0;
-}
-.modal-acciones {
-    display: flex;
-    gap: 12px;
-    justify-content: center;
-    margin-top: 28px;
-}
-.modal-btn {
-    padding: 10px 26px;
-    border-radius: 4px;
-    font-family: 'Poppins', sans-serif;
-    font-size: 13px;
-    font-weight: 600;
-    cursor: pointer;
-    border: none;
-    letter-spacing: 0.5px;
-    transition: background 0.2s, transform 0.15s;
-}
-.modal-btn-cancelar { background: #f0f0f0; color: #555; }
-.modal-btn-cancelar:hover { background: #e0e0e0; }
-.modal-btn-confirmar { background: #e74c3c; color: #fff; }
-.modal-btn-confirmar:hover { background: #c0392b; transform: scale(1.02); }
-</style>
 
 <script>
 document.getElementById('btn-eliminar-perfil').addEventListener('click', function () {
@@ -542,75 +419,6 @@ document.getElementById('modal-eliminar').addEventListener('click', function (e)
     </div>
 </div>
 
-<style>
-.don-prot-cta {
-    display: flex; align-items: center; justify-content: space-between;
-    gap: 16px; flex-wrap: wrap;
-    background: #124076; border: 1px solid rgba(255,255,255,.18);
-    border-radius: 10px; padding: 16px 24px; margin: 4px 24px 20px;
-}
-.don-prot-cta-text { display: flex; align-items: center; gap: 12px; }
-.don-prot-cta-text > .zmdi { font-size: 24px; color: #6aadff; flex-shrink: 0; }
-.don-prot-titulo { font-size: 13px; font-weight: 700; color: #fff; }
-.don-prot-sub    { font-size: 11px; color: #b0ccf0; margin-top: 2px; }
-#btn-donar-protectora {
-    background: #CA7842; color: #fff; border: none; border-radius: 8px;
-    padding: 9px 18px; font-family: 'Poppins', sans-serif; font-size: 13px;
-    font-weight: 600; cursor: pointer; white-space: nowrap;
-    display: flex; align-items: center; gap: 6px; transition: background .2s;
-}
-#btn-donar-protectora:hover { background: #b06335; }
-
-.don-prot-overlay {
-    position: fixed; inset: 0; background: rgba(0,0,0,.68); z-index: 9000;
-    display: flex; align-items: center; justify-content: center; padding: 20px;
-}
-.don-prot-modal {
-    background: #0D2D51; border: 1px solid rgba(255,255,255,.15);
-    border-radius: 14px; width: 100%; max-width: 420px; padding: 28px;
-    font-family: 'Poppins', sans-serif;
-}
-.don-prot-header {
-    display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;
-}
-.don-prot-header h3 { font-size: 18px; font-weight: 700; color: #fff; }
-.don-prot-header button {
-    background: none; border: none; color: #a8b8cc; font-size: 22px; cursor: pointer; line-height: 1;
-}
-.don-prot-group { margin-bottom: 14px; }
-.don-prot-group label {
-    display: block; font-size: 12px; font-weight: 600; color: #a8b8cc; margin-bottom: 6px;
-}
-.don-prot-group input {
-    width: 100%; background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.15);
-    border-radius: 8px; padding: 10px 14px; color: #fff;
-    font-family: 'Poppins', sans-serif; font-size: 13px;
-    outline: none; box-sizing: border-box;
-}
-.don-prot-group input:focus { border-color: #CA7842; }
-.don-prot-quick-row { display: flex; gap: 8px; margin-bottom: 8px; flex-wrap: wrap; }
-.don-prot-quick {
-    background: rgba(202,120,66,.12); color: #EDA677;
-    border: 1px solid rgba(202,120,66,.25); border-radius: 6px;
-    padding: 6px 14px; font-family: 'Poppins', sans-serif;
-    font-size: 12px; font-weight: 600; cursor: pointer; transition: background .2s;
-}
-.don-prot-quick:hover, .don-prot-quick.active { background: #CA7842; color: #fff; border-color: #CA7842; }
-.don-prot-aviso {
-    font-size: 11px; color: #a8b8cc; background: rgba(255,255,255,.05);
-    border-radius: 6px; padding: 8px 12px; margin-bottom: 16px; line-height: 1.6;
-    display: flex; gap: 6px; align-items: flex-start;
-}
-.don-prot-btns { display: flex; gap: 10px; justify-content: flex-end; }
-.don-prot-btns button {
-    font-family: 'Poppins', sans-serif; font-size: 13px; font-weight: 600;
-    padding: 10px 20px; border-radius: 8px; border: none; cursor: pointer;
-    display: flex; align-items: center; gap: 6px; transition: opacity .2s;
-}
-.don-prot-btns button:hover { opacity: .85; }
-#don-prot-cancel { background: rgba(255,255,255,.1); color: #fff; }
-#don-prot-submit { background: #CA7842; color: #fff; }
-</style>
 
 <script>
 (function () {
