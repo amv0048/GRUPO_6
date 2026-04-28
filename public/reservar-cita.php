@@ -255,6 +255,7 @@ $dias_es  = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
         .dia-badge {
             display: flex; flex-direction: column; align-items: center; justify-content: center;
             width: 44px; height: 44px; border-radius: 8px; background: #0D2D51; color: #fff; flex-shrink: 0;
+            padding: 30px;
         }
         .dia-badge-dia { font-size: 18px; font-weight: 800; line-height: 1; }
         .dia-badge-mes { font-size: 9px; font-weight: 600; text-transform: uppercase; color: #EDA677; }

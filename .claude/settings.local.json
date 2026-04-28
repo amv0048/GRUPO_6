@@ -2,7 +2,16 @@
   "permissions": {
     "allow": [
       "Bash(mysql -u root -e \"DESCRIBE GRUPO_6.Animales; DESCRIBE GRUPO_6.Usuarios; SHOW TABLES FROM GRUPO_6;\")",
-      "Bash(mysql -u root bd_protectora -e \"SHOW TABLES; DESCRIBE Usuarios; DESCRIBE Animales;\")"
+      "Bash(mysql -u root bd_protectora -e \"SHOW TABLES; DESCRIBE Usuarios; DESCRIBE Animales;\")",
+      "Bash(php -l c:/xampp/htdocs/GRUPO_6/public/crowdfunding-donacion.php)",
+      "Bash(php -l c:/xampp/htdocs/GRUPO_6/public/indexProtectora.php)",
+      "Bash(php -l c:/xampp/htdocs/GRUPO_6/public/index.php)",
+      "PowerShell(php -l \"c:\\\\xampp\\\\htdocs\\\\GRUPO_6\\\\public\\\\crowdfunding-donacion.php\")",
+      "PowerShell(php -l \"c:\\\\xampp\\\\htdocs\\\\GRUPO_6\\\\public\\\\indexProtectora.php\")",
+      "PowerShell(php -l \"c:\\\\xampp\\\\htdocs\\\\GRUPO_6\\\\public\\\\index.php\")",
+      "PowerShell(& \"C:\\\\xampp\\\\php\\\\php.exe\" -l \"c:\\\\xampp\\\\htdocs\\\\GRUPO_6\\\\public\\\\crowdfunding-donacion.php\")",
+      "PowerShell(& \"C:\\\\xampp\\\\php\\\\php.exe\" -l \"c:\\\\xampp\\\\htdocs\\\\GRUPO_6\\\\public\\\\indexProtectora.php\")",
+      "PowerShell(& \"C:\\\\xampp\\\\php\\\\php.exe\" -l \"c:\\\\xampp\\\\htdocs\\\\GRUPO_6\\\\public\\\\index.php\")"
     ]
   }
 }
