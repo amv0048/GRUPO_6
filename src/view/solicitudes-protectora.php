@@ -1,6 +1,6 @@
-﻿<?php
+<?php
 session_start();
-require "../src/sesion/conexion.php";
+require "../sesion/conexion.php";
 
 // Solo protectoras
 if (!isset($_SESSION['id']) || isset($_SESSION['user'])) {
@@ -95,8 +95,8 @@ $vivienda_labels = ['piso' => 'Piso', 'casa' => 'Casa', 'chalet' => 'Chalet', 'o
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,900&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/material-design-iconic-font/2.2.0/css/material-design-iconic-font.min.css">
-    <link rel="stylesheet" href="css/header.css">
-    <link rel="stylesheet" href="css/solicitudes-protectora.css">
+    <link rel="stylesheet" href="../../public/css/header.css">
+    <link rel="stylesheet" href="../../public/css/solicitudes-protectora.css">
 </head>
 <body>
 
@@ -115,7 +115,7 @@ $vivienda_labels = ['piso' => 'Piso', 'casa' => 'Casa', 'chalet' => 'Chalet', 'o
             <i class="zmdi zmdi-account"></i>
             <?= htmlspecialchars($_SESSION['nombre']) ?>
         </a>
-        <a href="../src/sesion/logout.php" id="boton-destacado">CERRAR SESIÓN</a>
+        <a href="../sesion/logout.php" id="boton-destacado">CERRAR SESIÓN</a>
     </nav>
 </header>
 

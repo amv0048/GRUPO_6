@@ -1,6 +1,6 @@
 <?php
 session_start();
-require "../src/sesion/conexion.php";
+require "../sesion/conexion.php";
 header('Content-Type: application/json');
 
 $id_caso  = (int)($_POST['id_caso']   ?? 0);

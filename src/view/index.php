@@ -1,6 +1,6 @@
-﻿<?php
+<?php
 session_start();
-require "../src/sesion/conexion.php";
+require "../sesion/conexion.php";
 
 // ── FILTROS (GET) ──────────────────────────────────────────────
 $especie_filtro = isset($_GET['especie']) ? trim($_GET['especie']) : '';
@@ -186,8 +186,8 @@ elseif (isset($_SESSION['protectora'])) $nombre_sesion = $_SESSION['protectora']
     <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,900&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/material-design-iconic-font/2.2.0/css/material-design-iconic-font.min.css">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-    <link rel="stylesheet" href="css/header.css">
-    <link rel="stylesheet" href="css/index.css">
+    <link rel="stylesheet" href="../../public/css/header.css">
+    <link rel="stylesheet" href="../../public/css/index.css">
 </head>
 <body>
 
@@ -235,10 +235,10 @@ elseif (isset($_SESSION['protectora'])) $nombre_sesion = $_SESSION['protectora']
                 <i class="zmdi zmdi-account"></i>
                 <?= htmlspecialchars($_SESSION["nombre"]) //TODO NOMBRE?>
             </a>
-            <a href="../src/sesion/logout.php" id="boton-destacado">CERRAR SESIÓN</a>
+            <a href="../sesion/logout.php" id="boton-destacado">CERRAR SESIÓN</a>
         <?php else: ?>
-            <a class="hBoton" href="registro.html">REGÍSTRATE</a>
-            <a href="login.html" id="boton-destacado">INICIA SESIÓN</a>
+            <a class="hBoton" href="../../public/registro.html">REGÍSTRATE</a>
+            <a href="../../public/login.html" id="boton-destacado">INICIA SESIÓN</a>
         <?php endif; ?>
     </nav>
 </header>
@@ -253,8 +253,8 @@ elseif (isset($_SESSION['protectora'])) $nombre_sesion = $_SESSION['protectora']
         <p>Encuentra al nuevo miembro de tu familia</p>
         <div id="hero-cta">
             <a href="#animales" class="cta-btn cta-primary">Ver animales</a>
-            <a href="registro.html" class="cta-btn cta-secondary">Únete a nosotros</a>
-            <a class="cta-btn cta-primary" href="pdf/BOE-204_Codigo_de_Proteccion_y_Bienestar_Animal.pdf" target="_blank">Ver ley de bienestar animal</a>
+            <a href="../../public/registro.html" class="cta-btn cta-secondary">Únete a nosotros</a>
+            <a class="cta-btn cta-primary" href="../../public/pdf/BOE-204_Codigo_de_Proteccion_y_Bienestar_Animal.pdf" target="_blank">Ver ley de bienestar animal</a>
         </div>
     </div>
 </section>
@@ -776,7 +776,7 @@ document.addEventListener('click', function(e) {
 
     const id = btn.dataset.id;
 
-    fetch('like.php', {
+    fetch('../controller/like.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: 'id_animal=' + encodeURIComponent(id)
@@ -996,7 +996,7 @@ if (donModal) {
             return;
         }
         donSubmit.disabled = true;
-        fetch('crowdfunding-donacion.php', {
+        fetch('../controller/crowdfunding-donacion.php', {
             method: 'POST',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
             body: `id_caso=${encodeURIComponent(donCasoId)}&cantidad=${encodeURIComponent(cantidad)}&nombre=${encodeURIComponent(donNombre.value)}`

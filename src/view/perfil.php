@@ -1,12 +1,12 @@
-﻿<?php
+<?php
 session_start();
-require "../src/sesion/conexion.php";
+require "../sesion/conexion.php";
 
 error_reporting(E_ALL);
 ini_set("display_errors", 1);
 
 if (!isset($_SESSION["id"])) {
-    header("Location: login.html");
+    header("Location: ../../public/login.html");
     exit();
 }
 
@@ -136,7 +136,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 }
                 $archivo = 'perfil_' . time() . '.' . $ext;
                 if (move_uploaded_file($_FILES['foto']['tmp_name'], $carpeta . '/' . $archivo)) {
-                    $ruta_foto = '../img/userPerfil/user_' . $_SESSION["id"] . '/' . $archivo;
+                    $ruta_foto = '../../img/userPerfil/user_' . $_SESSION["id"] . '/' . $archivo;
                     $campos[]  = "foto_perfil = ?";
                     $valores[] = $ruta_foto;
                     $tipos    .= "s";
@@ -238,7 +238,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 }
                 $archivo = 'perfil_' . time() . '.' . $ext;
                 if (move_uploaded_file($_FILES['foto']['tmp_name'], $carpeta . '/' . $archivo)) {
-                    $ruta_foto = '../img/protectoras/protectora_' . $_SESSION["id"] . '/foto_perfil/' . $archivo;
+                    $ruta_foto = '../../img/protectoras/protectora_' . $_SESSION["id"] . '/foto_perfil/' . $archivo;
                     $campos[]  = "logo = ?";
                     $valores[] = $ruta_foto;
                     $tipos    .= "s";
@@ -283,8 +283,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,900&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/material-design-iconic-font/2.2.0/css/material-design-iconic-font.min.css">
-    <link rel="stylesheet" href="css/header.css">
-    <link rel="stylesheet" href="css/perfil.css">
+    <link rel="stylesheet" href="../../public/css/header.css">
+    <link rel="stylesheet" href="../../public/css/perfil.css">
 </head>
 <body>
 
@@ -300,7 +300,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     </nav>
     <nav class="hBotones">
         <a class="hBoton" href="" target="_self">URGENTE</a>
-        <a class="hBoton" href="registro.html" target="_self">REGÍSTRATE</a>
+        <a class="hBoton" href="../../public/registro.html" target="_self">REGÍSTRATE</a>
         <a href="" target="_self" id="boton-destacado">INICIA SESIÓN</a>
     </nav>
 </header>
@@ -314,9 +314,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 <div id="foto-perfil">
                 <img src="<?php
                     if ($tipo == 'usuario') {
-                        echo isset($datos["foto_perfil"]) && $datos["foto_perfil"] ? htmlspecialchars($datos["foto_perfil"]) : '../img/profile/default/1.jpg';
+                        echo isset($datos["foto_perfil"]) && $datos["foto_perfil"] ? htmlspecialchars($datos["foto_perfil"]) : '../../img/profile/default/1.jpg';
                     } else {
-                        echo isset($datos["logo"]) && $datos["logo"] ? htmlspecialchars($datos["logo"]) : '../img/profile/default/1.jpg';
+                        echo isset($datos["logo"]) && $datos["logo"] ? htmlspecialchars($datos["logo"]) : '../../img/profile/default/1.jpg';
                     }
                 ?>" alt="Foto de perfil" id="foto-img">
                 </div>

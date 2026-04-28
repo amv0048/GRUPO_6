@@ -1,11 +1,11 @@
-﻿<?php
+<?php
 session_start();
-require "../src/sesion/conexion.php";
+require "../sesion/conexion.php";
 
 error_reporting(E_ALL);
 ini_set("display_errors", 1);
 
-if (!isset($_SESSION["id"])) { header("Location: login.html"); exit(); }
+if (!isset($_SESSION["id"])) { header("Location: ../../public/login.html"); exit(); }
 if (isset($_SESSION["user"])) { header("Location: index.php"); exit(); }
 
 $id_protectora = $_SESSION["id"];
@@ -105,7 +105,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 if (!is_dir($carpeta)) mkdir($carpeta, 0755, true);
                 $archivo = 'foto_' . time() . '.' . $ext;
                 if (move_uploaded_file($_FILES['foto_nueva']['tmp_name'], $carpeta . '/' . $archivo)) {
-                    $ruta = '../img/protectoras/protectora_' . $id_protectora . '/animal_' . $id_animal . '/' . $archivo;
+                    $ruta = '../../img/protectoras/protectora_' . $id_protectora . '/animal_' . $id_animal . '/' . $archivo;
                     $es_principal = empty($fotos) ? 1 : 0;
                     $ins = $_conexion->prepare("INSERT INTO Galeria (id_animal, ruta, es_principal) VALUES (?, ?, ?)");
                     $ins->bind_param("isi", $id_animal, $ruta, $es_principal);
@@ -175,9 +175,9 @@ if (isset($_GET['ok'])) {
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,900&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/material-design-iconic-font/2.2.0/css/material-design-iconic-font.min.css">
-    <link rel="stylesheet" href="css/header.css">
-    <link rel="stylesheet" href="css/perfil.css">
-    <link rel="stylesheet" href="css/editAnimal.css">
+    <link rel="stylesheet" href="../../public/css/header.css">
+    <link rel="stylesheet" href="../../public/css/perfil.css">
+    <link rel="stylesheet" href="../../public/css/editAnimal.css">
 </head>
 <body>
 

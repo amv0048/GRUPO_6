@@ -1,13 +1,13 @@
-﻿<?php
+<?php
 session_start();
-require "../src/sesion/conexion.php";
+require "../sesion/conexion.php";
 
 error_reporting(E_ALL);
 ini_set("display_errors", 1);
 
 // Solo protectoras pueden acceder
 if (!isset($_SESSION["id"])) {
-    header("Location: login.html");
+    header("Location: ../../public/login.html");
     exit();
 }
 if (isset($_SESSION["user"])) {
@@ -70,8 +70,8 @@ $consulta->close();
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,900&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/material-design-iconic-font/2.2.0/css/material-design-iconic-font.min.css">
-    <link rel="stylesheet" href="css/header.css">
-    <link rel="stylesheet" href="css/listaAnimal.css">
+    <link rel="stylesheet" href="../../public/css/header.css">
+    <link rel="stylesheet" href="../../public/css/listaAnimal.css">
 </head>
 <body>
 

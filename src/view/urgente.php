@@ -1,13 +1,13 @@
-﻿<?php
+<?php
 session_start();
-require "../src/sesion/conexion.php";
+require "../sesion/conexion.php";
 
 error_reporting(E_ALL);
 ini_set("display_errors", 1);
 
 
 // ── DIRECTORIO DE UPLOADS ────────────────────────────────────
-$upload_dir = "../img/urgente/";
+$upload_dir = "../../img/urgente/";
 if (!is_dir($upload_dir)) {
     mkdir($upload_dir, 0755, true);
 }
@@ -44,7 +44,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["action"]) && $_POST["
                 $nombre_archivo = uniqid("urg_", true) . "." . $ext;
                 $ruta_destino   = $upload_dir . $nombre_archivo;
                 if (move_uploaded_file($_FILES["foto"]["tmp_name"], $ruta_destino)) {
-                    $foto_ruta = "../img/urgente/" . $nombre_archivo;
+                    $foto_ruta = "../../img/urgente/" . $nombre_archivo;
                 } else {
                     $msg_err = "No se pudo guardar la imagen. Inténtalo de nuevo.";
                 }
@@ -140,8 +140,8 @@ if (!empty($pubs)) {
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,900&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/material-design-iconic-font/2.2.0/css/material-design-iconic-font.min.css">
-    <link rel="stylesheet" href="css/header.css">
-    <link rel="stylesheet" href="css/urgente.css">
+    <link rel="stylesheet" href="../../public/css/header.css">
+    <link rel="stylesheet" href="../../public/css/urgente.css">
 </head>
 <body>
 
@@ -163,10 +163,10 @@ if (!empty($pubs)) {
                 <i class="zmdi zmdi-account"></i>
                 <?= htmlspecialchars($_SESSION["nombre"] ?? '') ?>
             </a>
-            <a href="../src/sesion/logout.php" id="boton-destacado">CERRAR SESIÓN</a>
+            <a href="../sesion/logout.php" id="boton-destacado">CERRAR SESIÓN</a>
         <?php else: ?>
-            <a class="hBoton" href="registro.html">REGÍSTRATE</a>
-            <a href="login.html" id="boton-destacado">INICIA SESIÓN</a>
+            <a class="hBoton" href="../../public/registro.html">REGÍSTRATE</a>
+            <a href="../../public/login.html" id="boton-destacado">INICIA SESIÓN</a>
         <?php endif; ?>
     </nav>
 </header>

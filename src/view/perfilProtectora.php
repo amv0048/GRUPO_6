@@ -1,6 +1,6 @@
-﻿<?php
+<?php
 session_start();
-require "../src/sesion/conexion.php";
+require "../sesion/conexion.php";
 
 error_reporting(E_ALL);
 ini_set("display_errors", 1);
@@ -15,7 +15,7 @@ if (isset($_GET['id']) && is_numeric($_GET['id'])) {
                || (int)$_SESSION['id'] !== $id_ver;
 } else {
     if (!isset($_SESSION['id'])) {
-        header("Location: login.html");
+        header("Location: ../../public/login.html");
         exit();
     }
     if (isset($_SESSION['user'])) {
@@ -158,9 +158,9 @@ $es_adoptante = isset($_SESSION['id']) && isset($_SESSION['user']);
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,900&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/material-design-iconic-font/2.2.0/css/material-design-iconic-font.min.css">
-    <link rel="stylesheet" href="css/header.css">
-    <link rel="stylesheet" href="css/perfil.css">
-    <link rel="stylesheet" href="css/perfilProtectora.css">
+    <link rel="stylesheet" href="../../public/css/header.css">
+    <link rel="stylesheet" href="../../public/css/perfil.css">
+    <link rel="stylesheet" href="../../public/css/perfilProtectora.css">
 </head>
 <body>
 
@@ -176,7 +176,7 @@ $es_adoptante = isset($_SESSION['id']) && isset($_SESSION['user']);
     </nav>
     <nav class="hBotones">
         <a class="hBoton" href="" target="_self">URGENTE</a>
-        <a class="hBoton" href="registro.html" target="_self">REGÍSTRATE</a>
+        <a class="hBoton" href="../../public/registro.html" target="_self">REGÍSTRATE</a>
         <a href="" target="_self" id="boton-destacado">INICIA SESIÓN</a>
     </nav>
 </header>
@@ -188,7 +188,7 @@ $es_adoptante = isset($_SESSION['id']) && isset($_SESSION['user']);
         <div id="perfil-header">
             <div id="foto-perfil-container">
                 <div id="foto-perfil">
-                    <img src="<?= isset($datos["logo"]) && $datos["logo"] ? htmlspecialchars($datos["logo"]) : '../img/profile/default/oficiales/1.jpg' ?>"
+                    <img src="<?= isset($datos["logo"]) && $datos["logo"] ? htmlspecialchars($datos["logo"]) : '../../img/profile/default/oficiales/1.jpg' ?>"
                          alt="Logo de la protectora" id="foto-img">
                 </div>
                 <?php if (!$solo_vista): ?>
@@ -463,7 +463,7 @@ document.getElementById('modal-eliminar').addEventListener('click', function (e)
             return;
         }
         submit.disabled = true;
-        fetch('donacion-protectora.php', {
+        fetch('../controller/donacion-protectora.php', {
             method: 'POST',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
             body: `id_protectora=${encodeURIComponent(protId)}&cantidad=${encodeURIComponent(cant)}&nombre=${encodeURIComponent(inputNom.value)}`

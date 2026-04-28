@@ -1,13 +1,13 @@
-﻿<?php
+<?php
 session_start();
-require "../src/sesion/conexion.php";
+require "../sesion/conexion.php";
 
 error_reporting(E_ALL);
 ini_set("display_errors", 1);
 
 // Solo protectoras
 if (!isset($_SESSION["id"])) {
-    header("Location: login.html");
+    header("Location: ../../public/login.html");
     exit();
 }
 if (isset($_SESSION["user"])) {
@@ -70,7 +70,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             if (in_array($ext, $ext_ok)) {
                 $archivo = 'foto_1_' . time() . '.' . $ext;
                 if (move_uploaded_file($_FILES['foto']['tmp_name'], $carpeta_animal . '/' . $archivo)) {
-                    $ruta = '../img/protectoras/protectora_' . $id_protectora . '/animal_' . $id_nuevo . '/' . $archivo;
+                    $ruta = '../../img/protectoras/protectora_' . $id_protectora . '/animal_' . $id_nuevo . '/' . $archivo;
                     $ins  = $_conexion->prepare(
                         "INSERT INTO Galeria (id_animal, ruta, es_principal) VALUES (?, ?, 1)"
                     );
@@ -102,9 +102,9 @@ $estados = $_conexion->query("SELECT * FROM EstadoAnimal ORDER BY id_estado")->f
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,900&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/material-design-iconic-font/2.2.0/css/material-design-iconic-font.min.css">
-    <link rel="stylesheet" href="css/header.css">
-    <link rel="stylesheet" href="css/perfil.css">
-    <link rel="stylesheet" href="css/addAnimal.css">
+    <link rel="stylesheet" href="../../public/css/header.css">
+    <link rel="stylesheet" href="../../public/css/perfil.css">
+    <link rel="stylesheet" href="../../public/css/addAnimal.css">
 </head>
 <body>
 

@@ -1,6 +1,6 @@
-﻿<?php
+<?php
 session_start();
-require "../src/sesion/conexion.php";
+require "../sesion/conexion.php";
 
 error_reporting(E_ALL);
 ini_set("display_errors", 1);
@@ -89,8 +89,8 @@ $tiene_necesidades  = !empty($necesidades);
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,900&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/material-design-iconic-font/2.2.0/css/material-design-iconic-font.min.css">
-    <link rel="stylesheet" href="css/header.css">
-    <link rel="stylesheet" href="css/ficha-animal.css">
+    <link rel="stylesheet" href="../../public/css/header.css">
+    <link rel="stylesheet" href="../../public/css/ficha-animal.css">
 </head>
 <body>
 
@@ -112,10 +112,10 @@ $tiene_necesidades  = !empty($necesidades);
                 <i class="zmdi zmdi-account"></i>
                 <?= htmlspecialchars($_SESSION["nombre"] ?? '') ?>
             </a>
-            <a href="../src/sesion/logout.php" id="boton-destacado">CERRAR SESIÓN</a>
+            <a href="../sesion/logout.php" id="boton-destacado">CERRAR SESIÓN</a>
         <?php else: ?>
-            <a class="hBoton" href="registro.html">REGÍSTRATE</a>
-            <a href="login.html" id="boton-destacado">INICIA SESIÓN</a>
+            <a class="hBoton" href="../../public/registro.html">REGÍSTRATE</a>
+            <a href="../../public/login.html" id="boton-destacado">INICIA SESIÓN</a>
         <?php endif; ?>
     </nav>
 </header>
