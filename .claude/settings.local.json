@@ -11,7 +11,9 @@
       "PowerShell(php -l \"c:\\\\xampp\\\\htdocs\\\\GRUPO_6\\\\public\\\\index.php\")",
       "PowerShell(& \"C:\\\\xampp\\\\php\\\\php.exe\" -l \"c:\\\\xampp\\\\htdocs\\\\GRUPO_6\\\\public\\\\crowdfunding-donacion.php\")",
       "PowerShell(& \"C:\\\\xampp\\\\php\\\\php.exe\" -l \"c:\\\\xampp\\\\htdocs\\\\GRUPO_6\\\\public\\\\indexProtectora.php\")",
-      "PowerShell(& \"C:\\\\xampp\\\\php\\\\php.exe\" -l \"c:\\\\xampp\\\\htdocs\\\\GRUPO_6\\\\public\\\\index.php\")"
+      "PowerShell(& \"C:\\\\xampp\\\\php\\\\php.exe\" -l \"c:\\\\xampp\\\\htdocs\\\\GRUPO_6\\\\public\\\\index.php\")",
+      "PowerShell(& \"C:\\\\xampp\\\\php\\\\php.exe\" -l \"c:\\\\xampp\\\\htdocs\\\\GRUPO_6\\\\public\\\\perfilProtectora.php\")",
+      "PowerShell(& \"C:\\\\xampp\\\\php\\\\php.exe\" -l \"c:\\\\xampp\\\\htdocs\\\\GRUPO_6\\\\public\\\\donacion-protectora.php\")"
     ]
   }
 }

@@ -145,6 +145,20 @@ $ciudades = [
     "malaga"  => "Málaga",
     "sevilla" => "Sevilla",
 ];
+
+// ── DONACIÓN DIRECTA: crear tabla si no existe ────────────
+$_conexion->query("CREATE TABLE IF NOT EXISTS DonacionDirecta (
+    id_donacion    INT AUTO_INCREMENT PRIMARY KEY,
+    id_protectora  INT NOT NULL,
+    id_adoptante   INT DEFAULT NULL,
+    nombre_donante VARCHAR(100),
+    cantidad       DECIMAL(8,2) NOT NULL,
+    fecha          DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (id_protectora) REFERENCES Protectora(id_protectora) ON DELETE CASCADE,
+    FOREIGN KEY (id_adoptante)  REFERENCES Usuario(id_adoptante) ON DELETE SET NULL
+)");
+
+$es_adoptante = isset($_SESSION['id']) && isset($_SESSION['user']);
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -273,6 +287,23 @@ $ciudades = [
                 </div>
                 <?php endif; ?>
             </div>
+
+            <?php if ($es_adoptante): ?>
+            <div class="don-prot-cta">
+                <div class="don-prot-cta-text">
+                    <i class="zmdi zmdi-money-box"></i>
+                    <div>
+                        <p class="don-prot-titulo">Apoya a <?= htmlspecialchars($datos['nombre_protectora']) ?></p>
+                        <p class="don-prot-sub">Tu donación ayuda a costear los cuidados de sus animales</p>
+                    </div>
+                </div>
+                <button type="button" id="btn-donar-protectora"
+                        data-id="<?= $id_ver ?>"
+                        data-nombre="<?= htmlspecialchars($datos['nombre_protectora'], ENT_QUOTES) ?>">
+                    <i class="zmdi zmdi-money"></i> Donar
+                </button>
+            </div>
+            <?php endif; ?>
 
         <?php else: ?>
 
@@ -468,6 +499,191 @@ document.getElementById('modal-cancelar').addEventListener('click', function () 
 document.getElementById('modal-eliminar').addEventListener('click', function (e) {
     if (e.target === this) this.classList.remove('activo');
 });
+</script>
+<?php endif; ?>
+
+<?php if ($es_adoptante): ?>
+<!-- ── MODAL DONACIÓN A LA PROTECTORA ─────────────────── -->
+<div id="don-prot-modal" class="don-prot-overlay" style="display:none" role="dialog" aria-modal="true">
+    <div class="don-prot-modal">
+        <div class="don-prot-header">
+            <h3>Donar a la protectora</h3>
+            <button id="don-prot-close" type="button" aria-label="Cerrar">
+                <i class="zmdi zmdi-close"></i>
+            </button>
+        </div>
+        <p id="don-prot-nombre-label" style="color:#EDA677;font-size:13px;margin-bottom:16px;font-weight:600"></p>
+
+        <div class="don-prot-group">
+            <label>Tu nombre <span style="color:#a8b8cc;font-weight:400">(opcional)</span></label>
+            <input type="text" id="don-prot-input-nombre" placeholder="Anónimo">
+        </div>
+        <div class="don-prot-group">
+            <label>Cantidad a donar (€)</label>
+            <div class="don-prot-quick-row">
+                <button type="button" class="don-prot-quick" data-v="5">5 €</button>
+                <button type="button" class="don-prot-quick" data-v="10">10 €</button>
+                <button type="button" class="don-prot-quick" data-v="25">25 €</button>
+                <button type="button" class="don-prot-quick" data-v="50">50 €</button>
+            </div>
+            <input type="number" id="don-prot-cantidad" min="1" step="0.01" placeholder="Otra cantidad…">
+        </div>
+        <p class="don-prot-aviso">
+            <i class="zmdi zmdi-info-outline"></i>
+            La pasarela de pago estará disponible próximamente. Tu intención de donación quedará registrada.
+        </p>
+        <div class="don-prot-btns">
+            <button type="button" id="don-prot-cancel">Cancelar</button>
+            <button type="button" id="don-prot-submit">
+                <i class="zmdi zmdi-money"></i> Confirmar donación
+            </button>
+        </div>
+        <div id="don-prot-feedback" style="display:none;margin-top:12px;padding:10px 14px;border-radius:6px;font-size:13px"></div>
+    </div>
+</div>
+
+<style>
+.don-prot-cta {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 16px; flex-wrap: wrap;
+    background: #124076; border: 1px solid rgba(255,255,255,.18);
+    border-radius: 10px; padding: 16px 24px; margin: 4px 24px 20px;
+}
+.don-prot-cta-text { display: flex; align-items: center; gap: 12px; }
+.don-prot-cta-text > .zmdi { font-size: 24px; color: #6aadff; flex-shrink: 0; }
+.don-prot-titulo { font-size: 13px; font-weight: 700; color: #fff; }
+.don-prot-sub    { font-size: 11px; color: #b0ccf0; margin-top: 2px; }
+#btn-donar-protectora {
+    background: #CA7842; color: #fff; border: none; border-radius: 8px;
+    padding: 9px 18px; font-family: 'Poppins', sans-serif; font-size: 13px;
+    font-weight: 600; cursor: pointer; white-space: nowrap;
+    display: flex; align-items: center; gap: 6px; transition: background .2s;
+}
+#btn-donar-protectora:hover { background: #b06335; }
+
+.don-prot-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,.68); z-index: 9000;
+    display: flex; align-items: center; justify-content: center; padding: 20px;
+}
+.don-prot-modal {
+    background: #0D2D51; border: 1px solid rgba(255,255,255,.15);
+    border-radius: 14px; width: 100%; max-width: 420px; padding: 28px;
+    font-family: 'Poppins', sans-serif;
+}
+.don-prot-header {
+    display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;
+}
+.don-prot-header h3 { font-size: 18px; font-weight: 700; color: #fff; }
+.don-prot-header button {
+    background: none; border: none; color: #a8b8cc; font-size: 22px; cursor: pointer; line-height: 1;
+}
+.don-prot-group { margin-bottom: 14px; }
+.don-prot-group label {
+    display: block; font-size: 12px; font-weight: 600; color: #a8b8cc; margin-bottom: 6px;
+}
+.don-prot-group input {
+    width: 100%; background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.15);
+    border-radius: 8px; padding: 10px 14px; color: #fff;
+    font-family: 'Poppins', sans-serif; font-size: 13px;
+    outline: none; box-sizing: border-box;
+}
+.don-prot-group input:focus { border-color: #CA7842; }
+.don-prot-quick-row { display: flex; gap: 8px; margin-bottom: 8px; flex-wrap: wrap; }
+.don-prot-quick {
+    background: rgba(202,120,66,.12); color: #EDA677;
+    border: 1px solid rgba(202,120,66,.25); border-radius: 6px;
+    padding: 6px 14px; font-family: 'Poppins', sans-serif;
+    font-size: 12px; font-weight: 600; cursor: pointer; transition: background .2s;
+}
+.don-prot-quick:hover, .don-prot-quick.active { background: #CA7842; color: #fff; border-color: #CA7842; }
+.don-prot-aviso {
+    font-size: 11px; color: #a8b8cc; background: rgba(255,255,255,.05);
+    border-radius: 6px; padding: 8px 12px; margin-bottom: 16px; line-height: 1.6;
+    display: flex; gap: 6px; align-items: flex-start;
+}
+.don-prot-btns { display: flex; gap: 10px; justify-content: flex-end; }
+.don-prot-btns button {
+    font-family: 'Poppins', sans-serif; font-size: 13px; font-weight: 600;
+    padding: 10px 20px; border-radius: 8px; border: none; cursor: pointer;
+    display: flex; align-items: center; gap: 6px; transition: opacity .2s;
+}
+.don-prot-btns button:hover { opacity: .85; }
+#don-prot-cancel { background: rgba(255,255,255,.1); color: #fff; }
+#don-prot-submit { background: #CA7842; color: #fff; }
+</style>
+
+<script>
+(function () {
+    const modal     = document.getElementById('don-prot-modal');
+    const btnOpen   = document.getElementById('btn-donar-protectora');
+    const labelNom  = document.getElementById('don-prot-nombre-label');
+    const inputNom  = document.getElementById('don-prot-input-nombre');
+    const inputCant = document.getElementById('don-prot-cantidad');
+    const feedback  = document.getElementById('don-prot-feedback');
+    const submit    = document.getElementById('don-prot-submit');
+    let   protId    = null;
+
+    btnOpen.addEventListener('click', () => {
+        protId = btnOpen.dataset.id;
+        labelNom.textContent = btnOpen.dataset.nombre;
+        modal.style.display = 'flex';
+        feedback.style.display = 'none';
+        submit.disabled = false;
+        inputNom.value = '';
+        inputCant.value = '';
+        document.querySelectorAll('.don-prot-quick').forEach(b => b.classList.remove('active'));
+    });
+
+    document.querySelectorAll('.don-prot-quick').forEach(btn => {
+        btn.addEventListener('click', () => {
+            inputCant.value = btn.dataset.v;
+            document.querySelectorAll('.don-prot-quick').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+        });
+    });
+
+    function closeDonProt() { modal.style.display = 'none'; }
+    document.getElementById('don-prot-close').addEventListener('click', closeDonProt);
+    document.getElementById('don-prot-cancel').addEventListener('click', closeDonProt);
+    modal.addEventListener('click', e => { if (e.target === modal) closeDonProt(); });
+
+    submit.addEventListener('click', () => {
+        const cant = parseFloat(inputCant.value);
+        if (!cant || cant <= 0) {
+            feedback.style.cssText = 'display:block;background:rgba(220,60,60,.12);color:#ffaaaa;padding:10px 14px;border-radius:6px;font-size:13px';
+            feedback.textContent = 'Introduce una cantidad válida.';
+            return;
+        }
+        submit.disabled = true;
+        fetch('donacion-protectora.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: `id_protectora=${encodeURIComponent(protId)}&cantidad=${encodeURIComponent(cant)}&nombre=${encodeURIComponent(inputNom.value)}`
+        })
+        .then(r => r.json())
+        .then(data => {
+            feedback.style.display = 'block';
+            feedback.style.padding = '10px 14px';
+            feedback.style.borderRadius = '6px';
+            feedback.style.fontSize = '13px';
+            if (data.ok) {
+                feedback.style.background = 'rgba(60,200,100,.12)';
+                feedback.style.color = '#7dffb0';
+                feedback.textContent = '¡Gracias! Tu intención de donación ha sido registrada. La pasarela de pago estará disponible próximamente.';
+            } else {
+                feedback.style.background = 'rgba(220,60,60,.12)';
+                feedback.style.color = '#ffaaaa';
+                feedback.textContent = data.error || 'Error al registrar la donación.';
+                submit.disabled = false;
+            }
+        })
+        .catch(() => {
+            feedback.style.cssText = 'display:block;background:rgba(220,60,60,.12);color:#ffaaaa;padding:10px 14px;border-radius:6px;font-size:13px';
+            feedback.textContent = 'Error de conexión.';
+            submit.disabled = false;
+        });
+    });
+})();
 </script>
 <?php endif; ?>
 
