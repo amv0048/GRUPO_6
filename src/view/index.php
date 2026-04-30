@@ -46,66 +46,20 @@ $animales_arr = $animalModel->getDisponibles([
 
 
 // ── LIKES DEL USUARIO ─────────────────────────────────────────
-// TODO ESTO HACE QUE PETE CUANDO HACE LOGIN UN USER, SE CARGA EL INDEX NO SE AUN POQUE 
 $liked_ids = [];
 if (isset($_SESSION['id']) && isset($_SESSION['user'])) {
-    $uid = (int)$_SESSION['id'];
-    $res_likes = $_conexion->query(
-        "SELECT id_animal FROM Likes WHERE id_adoptante = $uid"
-    );
-    if ($res_likes) {
-        while ($r = $res_likes->fetch_assoc()) $liked_ids[] = (int)$r['id_animal'];
-    }
+    $liked_ids = $likeModel->getLikesByAdoptante((int)$_SESSION['id']);
 }
 
 // ── OPCIONES DE FILTRO ─────────────────────────────────────────
-$especies = [];
-$res_esp = $_conexion->query(
-    "SELECT DISTINCT especie FROM Animales WHERE especie IS NOT NULL ORDER BY especie"
-);
-if ($res_esp) {
-    while ($row = $res_esp->fetch_assoc()) $especies[] = $row['especie'];
-}
-
-$ciudades = [];
-$res_ciu = $_conexion->query(
-    "SELECT DISTINCT ciudad FROM Protectora WHERE ciudad IS NOT NULL ORDER BY ciudad"
-);
-if ($res_ciu) {
-    while ($row = $res_ciu->fetch_assoc()) $ciudades[] = $row['ciudad'];
-}
-
-$razas = [];
-$res_raza = $_conexion->query(
-    "SELECT DISTINCT raza FROM Animales WHERE raza IS NOT NULL AND raza != '' ORDER BY raza"
-);
-if ($res_raza) {
-    while ($row = $res_raza->fetch_assoc()) $razas[] = $row['raza'];
-}
-
-$colores = [];
-$res_col = $_conexion->query(
-    "SELECT DISTINCT color FROM Animales WHERE color IS NOT NULL AND color != '' ORDER BY color"
-);
-if ($res_col) {
-    while ($row = $res_col->fetch_assoc()) $colores[] = $row['color'];
-}
+$filter_opts = $animalModel->getFilterOptions();
+$especies = $filter_opts['especies'];
+$ciudades = $filter_opts['ciudades'];
+$razas    = $filter_opts['razas'];
+$colores  = $filter_opts['colores'];
 
 // ── CROWDFUNDING ACTIVO ────────────────────────────────────────
-$crowd_casos = [];
-$tbl_crowd = $_conexion->query("SHOW TABLES LIKE 'CrowdfundingCaso'");
-if ($tbl_crowd && $tbl_crowd->num_rows > 0) {
-    $res_crowd = $_conexion->query(
-        "SELECT c.id_caso, c.titulo, c.animal_nombre, c.descripcion,
-                c.meta_euros, c.recaudado, c.foto, p.nombre_protectora
-         FROM CrowdfundingCaso c
-         JOIN Protectora p ON c.id_protectora = p.id_protectora
-         WHERE c.activo = 1
-         ORDER BY c.fecha_creacion DESC
-         LIMIT 6"
-    );
-    if ($res_crowd) while ($row = $res_crowd->fetch_assoc()) $crowd_casos[] = $row;
-}
+$crowd_casos = $crowdfundingModel->getCasosActivos(6);
 
 // ── NOMBRE DE SESIÓN ───────────────────────────────────────────
 $nombre_sesion = '';

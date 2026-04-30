@@ -1,6 +1,9 @@
 <?php
 session_start();
 require "../sesion/conexion.php";
+require_once "../model/AnimalModel.php";
+require_once "../model/AdopcionModel.php";
+require_once "../model/CrowdfundingModel.php";
 
 // Solo protectoras pueden ver esta página
 if (!isset($_SESSION['id']) || isset($_SESSION['user'])) {
@@ -8,6 +11,10 @@ if (!isset($_SESSION['id']) || isset($_SESSION['user'])) {
     exit();
 }
 $id_protectora = (int)$_SESSION['id'];
+
+$animalModel       = new AnimalModel($_conexion);
+$adopcionModel     = new AdopcionModel($_conexion);
+$crowdfundingModel = new CrowdfundingModel($_conexion);
 
 // ── FILTROS (GET) ──────────────────────────────────────────────
 $especie_filtro = isset($_GET['especie']) ? trim($_GET['especie']) : '';
@@ -23,102 +30,31 @@ $compat_gatos   = !empty($_GET['compat_gatos']);
 $compat_ninos   = !empty($_GET['compat_ninos']);
 
 // ── ANIMALES DE ESTA PROTECTORA ────────────────────────────────
-$sql = "SELECT a.id_animal, a.nombre, a.especie, a.raza, a.edad, a.sexo,
-               g.ruta AS foto,
-               p.nombre_protectora, p.ciudad,
-               e.nombre AS estado
-        FROM Animales a
-        JOIN EstadoAnimal e ON a.id_estado = e.id_estado
-        JOIN Protectora p   ON a.id_protectora = p.id_protectora
-        LEFT JOIN Galeria g ON a.id_animal = g.id_animal AND g.es_principal = 1
-        WHERE a.id_protectora = ?";
-
-$params = [$id_protectora];
-$types  = 'i';
-
-if ($especie_filtro !== '') { $sql .= " AND a.especie = ?"; $params[] = $especie_filtro; $types .= 's'; }
-if ($raza_filtro !== '')    { $sql .= " AND a.raza = ?";    $params[] = $raza_filtro;    $types .= 's'; }
-if ($sexo_filtro !== '')    { $sql .= " AND a.sexo = ?";    $params[] = $sexo_filtro;    $types .= 's'; }
-if ($color_filtro !== '')   { $sql .= " AND a.color = ?";   $params[] = $color_filtro;   $types .= 's'; }
-if ($edad_min !== '') { $sql .= " AND a.edad >= ?"; $params[] = $edad_min; $types .= 'i'; }
-if ($edad_max !== '') { $sql .= " AND a.edad <= ?"; $params[] = $edad_max; $types .= 'i'; }
-if ($peso_min !== '') { $sql .= " AND a.peso >= ?"; $params[] = $peso_min; $types .= 'd'; }
-if ($peso_max !== '') { $sql .= " AND a.peso <= ?"; $params[] = $peso_max; $types .= 'd'; }
-if ($compat_perros) $sql .= " AND a.compatibilidad_perros = 1";
-if ($compat_gatos)  $sql .= " AND a.compatibilidad_gatos = 1";
-if ($compat_ninos)  $sql .= " AND a.compatibilidad_ninos = 1";
-$sql .= " ORDER BY a.fecha_entrada DESC LIMIT 10";
-
-$animales_arr = [];
-$stmt = $_conexion->prepare($sql);
-$stmt->bind_param($types, ...$params);
-$stmt->execute();
-$res_anim = $stmt->get_result();
-if ($res_anim) {
-    while ($row = $res_anim->fetch_assoc()) $animales_arr[] = $row;
-}
+$animales_arr = $animalModel->getByProtectora($id_protectora, [
+    'especie'       => $especie_filtro,
+    'raza'          => $raza_filtro,
+    'sexo'          => $sexo_filtro,
+    'color'         => $color_filtro,
+    'edad_min'      => $edad_min,
+    'edad_max'      => $edad_max,
+    'peso_min'      => $peso_min,
+    'peso_max'      => $peso_max,
+    'compat_perros' => $compat_perros,
+    'compat_gatos'  => $compat_gatos,
+    'compat_ninos'  => $compat_ninos,
+]);
 
 // ── OPCIONES DE FILTRO (solo animales de esta protectora) ──────
-$especies = [];
-$res_esp = $_conexion->prepare(
-    "SELECT DISTINCT especie FROM Animales WHERE id_protectora = ? AND especie IS NOT NULL ORDER BY especie"
-);
-$res_esp->bind_param('i', $id_protectora);
-$res_esp->execute();
-$r = $res_esp->get_result();
-if ($r) while ($row = $r->fetch_assoc()) $especies[] = $row['especie'];
-
-$razas = [];
-$res_raza = $_conexion->prepare(
-    "SELECT DISTINCT raza FROM Animales WHERE id_protectora = ? AND raza IS NOT NULL AND raza != '' ORDER BY raza"
-);
-$res_raza->bind_param('i', $id_protectora);
-$res_raza->execute();
-$r = $res_raza->get_result();
-if ($r) while ($row = $r->fetch_assoc()) $razas[] = $row['raza'];
-
-$colores = [];
-$res_col = $_conexion->prepare(
-    "SELECT DISTINCT color FROM Animales WHERE id_protectora = ? AND color IS NOT NULL AND color != '' ORDER BY color"
-);
-$res_col->bind_param('i', $id_protectora);
-$res_col->execute();
-$r = $res_col->get_result();
-if ($r) while ($row = $r->fetch_assoc()) $colores[] = $row['color'];
+$filter_opts = $animalModel->getFilterOptionsByProtectora($id_protectora);
+$especies = $filter_opts['especies'];
+$razas    = $filter_opts['razas'];
+$colores  = $filter_opts['colores'];
 
 // ── CONTADORES PARA EL PANEL ───────────────────────────────────
-$cnt_pendientes = 0;
-$st_cnt = $_conexion->prepare(
-    "SELECT COUNT(*) AS n FROM SolicitudAdopcion s
-     JOIN Animales a ON s.id_animal = a.id_animal
-     WHERE a.id_protectora = ? AND s.estado_solicitud = 'PENDIENTE'"
-);
-$st_cnt->bind_param("i", $id_protectora);
-$st_cnt->execute();
-$row_cnt = $st_cnt->get_result()->fetch_assoc();
-$cnt_pendientes = (int)($row_cnt['n'] ?? 0);
-$st_cnt->close();
+$cnt_pendientes = $adopcionModel->countPendientesByProtectora($id_protectora);
 
 // ── PRÓXIMAS CITAS ────────────────────────────────────────────
-$proximas_idx = [];
-// Solo si las tablas existen
-$tbl_check = $_conexion->query("SHOW TABLES LIKE 'CitaEntrevista'");
-if ($tbl_check && $tbl_check->num_rows > 0) {
-    $pc = $_conexion->prepare(
-        "SELECT d.fecha, d.hora_inicio, a.nombre AS nombre_animal,
-                s.nombre AS nombre_adoptante, s.apellido
-         FROM CitaEntrevista c
-         JOIN DisponibilidadProtectora d ON c.id_disponibilidad = d.id_disponibilidad
-         JOIN SolicitudAdopcion s ON c.id_solicitud = s.id_solicitud
-         JOIN Animales a ON s.id_animal = a.id_animal
-         WHERE d.id_protectora = ? AND d.fecha >= CURDATE() AND c.estado != 'CANCELADA'
-         ORDER BY d.fecha, d.hora_inicio LIMIT 5"
-    );
-    $pc->bind_param("i", $id_protectora);
-    $pc->execute();
-    $proximas_idx = $pc->get_result()->fetch_all(MYSQLI_ASSOC);
-    $pc->close();
-}
+$proximas_idx = $adopcionModel->getProximasCitasByProtectora($id_protectora, 5);
 
 // ── CROWDFUNDING: tablas + CRUD ───────────────────────────────
 
@@ -136,50 +72,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['crowd_action'])) {
         if ($cf_titulo === '' || $cf_desc === '' || $cf_meta <= 0) {
             $crowd_error = 'Completa los campos obligatorios (título, descripción y meta).';
         } elseif ($act === 'crear') {
-            $st = $_conexion->prepare(
-                "INSERT INTO CrowdfundingCaso
-                 (id_protectora, titulo, animal_nombre, descripcion, meta_euros, foto)
-                 VALUES (?,?,?,?,?,?)"
-            );
-            $st->bind_param('isssds', $id_protectora, $cf_titulo, $cf_animal, $cf_desc, $cf_meta, $cf_foto);
-            $st->execute() ? $crowd_ok = 'Caso publicado correctamente.' : $crowd_error = 'Error al guardar.';
+            $crowdfundingModel->crear($id_protectora, $cf_titulo, $cf_animal, $cf_desc, $cf_meta, $cf_foto)
+                ? $crowd_ok = 'Caso publicado correctamente.'
+                : $crowd_error = 'Error al guardar.';
         } else {
             $cf_id = (int)($_POST['id_caso'] ?? 0);
-            $st = $_conexion->prepare(
-                "UPDATE CrowdfundingCaso
-                 SET titulo=?, animal_nombre=?, descripcion=?, meta_euros=?, foto=?
-                 WHERE id_caso=? AND id_protectora=?"
-            );
-            $st->bind_param('sssdsii', $cf_titulo, $cf_animal, $cf_desc, $cf_meta, $cf_foto, $cf_id, $id_protectora);
-            $st->execute() ? $crowd_ok = 'Caso actualizado.' : $crowd_error = 'Error al actualizar.';
+            $crowdfundingModel->actualizar($cf_id, $id_protectora, $cf_titulo, $cf_animal, $cf_desc, $cf_meta, $cf_foto)
+                ? $crowd_ok = 'Caso actualizado.'
+                : $crowd_error = 'Error al actualizar.';
         }
     } elseif ($act === 'eliminar') {
         $cf_id = (int)($_POST['id_caso'] ?? 0);
-        $st = $_conexion->prepare(
-            "DELETE FROM CrowdfundingCaso WHERE id_caso=? AND id_protectora=?"
-        );
-        $st->bind_param('ii', $cf_id, $id_protectora);
-        $st->execute() ? $crowd_ok = 'Caso eliminado.' : $crowd_error = 'Error al eliminar.';
+        $crowdfundingModel->eliminar($cf_id, $id_protectora)
+            ? $crowd_ok = 'Caso eliminado.'
+            : $crowd_error = 'Error al eliminar.';
     } elseif ($act === 'toggle') {
         $cf_id = (int)($_POST['id_caso'] ?? 0);
-        $st = $_conexion->prepare(
-            "UPDATE CrowdfundingCaso SET activo = NOT activo WHERE id_caso=? AND id_protectora=?"
-        );
-        $st->bind_param('ii', $cf_id, $id_protectora);
-        $st->execute() ? $crowd_ok = 'Estado del caso actualizado.' : $crowd_error = 'Error al actualizar.';
+        $crowdfundingModel->toggleActivo($cf_id, $id_protectora)
+            ? $crowd_ok = 'Estado del caso actualizado.'
+            : $crowd_error = 'Error al actualizar.';
     }
 }
 
-$casos_arr = [];
-$st_cf = $_conexion->prepare(
-    "SELECT id_caso, titulo, animal_nombre, descripcion, meta_euros, recaudado, activo, foto
-     FROM CrowdfundingCaso WHERE id_protectora = ? ORDER BY fecha_creacion DESC"
-);
-$st_cf->bind_param('i', $id_protectora);
-$st_cf->execute();
-$r_cf = $st_cf->get_result();
-if ($r_cf) while ($row = $r_cf->fetch_assoc()) $casos_arr[] = $row;
-$st_cf->close();
+$casos_arr = $crowdfundingModel->getCasosByProtectora($id_protectora);
 ?>
 <!DOCTYPE html>
 <html lang="es">
