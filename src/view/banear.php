@@ -1,6 +1,7 @@
 <?php
 session_start();
 require "../sesion/conexion.php";
+require_once "../model/UsuarioModel.php";
 
 require "../PHPMailer.php";
 require "../SMTP.php";
@@ -19,24 +20,16 @@ if (!isset($_SESSION['user']) || !isset($_SESSION['admin']) || $_SESSION['admin'
 }
 
 // ── OBTENER USUARIO A BANEAR ─────────────────────────────────
-$id_objetivo = isset($_GET['id']) ? (int)$_GET['id'] : 0;
+$id_objetivo  = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 
 if ($id_objetivo <= 0) {
     header('Location: moderacion.php');
     exit();
 }
 
-// Cargar datos del usuario
-$stmt = $_conexion->prepare(
-    "SELECT id_adoptante, nombre, apellido, email, admin, baneado FROM Usuario WHERE id_adoptante = ?"
-);
-$stmt->bind_param("i", $id_objetivo);
-$stmt->execute();
-$res = $stmt->get_result();
-$usuario = $res->fetch_assoc();
-$stmt->close();
+$usuarioModel = new UsuarioModel($_conexion);
+$usuario      = $usuarioModel->getParaBanear($id_objetivo);
 
-// Validaciones de seguridad
 if (!$usuario) {
     header('Location: moderacion.php?error=noexiste');
     exit();
@@ -62,19 +55,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($motivo_tipo === '') {
         $error = 'Selecciona el motivo del baneo.';
     } else {
-        // Actualizar baneado = TRUE en Usuario
-        $upd = $_conexion->prepare("UPDATE Usuario SET baneado = TRUE WHERE id_adoptante = ?");
-        $upd->bind_param("i", $id_objetivo);
-        $upd->execute();
-        $upd->close();
-
-        // Registrar en historial de baneos
-        $ins = $_conexion->prepare(
-            "INSERT INTO Baneos (id_adoptante, motivo_tipo, motivo_detalle, id_admin) VALUES (?, ?, ?, ?)"
-        );
-        $ins->bind_param("issi", $id_objetivo, $motivo_tipo, $motivo_detalle, $id_admin);
-        $ins->execute();
-        $ins->close();
+        $usuarioModel->banear($id_objetivo, $motivo_tipo, $motivo_detalle, $id_admin);
 
         try {
             $mail = new PHPMailer(true);

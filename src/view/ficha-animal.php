@@ -1,9 +1,7 @@
 <?php
 session_start();
 require "../sesion/conexion.php";
-
-error_reporting(E_ALL);
-ini_set("display_errors", 1);
+require_once "../model/AnimalModel.php";
 
 // ── VALIDAR PARÁMETRO ────────────────────────────────────────
 if (!isset($_GET['id']) || !is_numeric($_GET['id'])) {
@@ -11,38 +9,16 @@ if (!isset($_GET['id']) || !is_numeric($_GET['id'])) {
     exit();
 }
 
-$id_animal = (int) $_GET['id'];
+$id_animal   = (int) $_GET['id'];
+$animalModel = new AnimalModel($_conexion);
 
-// ── CONSULTA PRINCIPAL ───────────────────────────────────────
-$stmt = $_conexion->prepare(
-    "SELECT a.id_animal, a.nombre, a.especie, a.raza, a.sexo, a.color,
-            a.peso, a.edad, a.fecha_entrada, a.descripcion,
-            a.compatibilidad_perros, a.compatibilidad_gatos, a.compatibilidad_ninos,
-            e.nombre AS estado,
-            p.nombre_protectora, p.ciudad, p.localidad, p.telefono, p.email AS email_protectora, p.logo
-     FROM Animales a
-     LEFT JOIN EstadoAnimal e ON a.id_estado = e.id_estado
-     LEFT JOIN Protectora   p ON a.id_protectora = p.id_protectora
-     WHERE a.id_animal = ?"
-);
-$stmt->bind_param("i", $id_animal);
-$stmt->execute();
-$animal = $stmt->get_result()->fetch_assoc();
-$stmt->close();
-
+$animal = $animalModel->getById($id_animal);
 if (!$animal) {
     header("Location: index.php");
     exit();
 }
 
-// ── GALERÍA DE FOTOS ─────────────────────────────────────────
-$stmt_g = $_conexion->prepare(
-    "SELECT ruta, es_principal FROM Galeria WHERE id_animal = ? ORDER BY es_principal DESC, id_foto ASC"
-);
-$stmt_g->bind_param("i", $id_animal);
-$stmt_g->execute();
-$fotos = $stmt_g->get_result()->fetch_all(MYSQLI_ASSOC);
-$stmt_g->close();
+$fotos = $animalModel->getGaleria($id_animal);
 
 $total_fotos = count($fotos);
 

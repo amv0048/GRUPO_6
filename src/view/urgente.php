@@ -1,10 +1,7 @@
 <?php
 session_start();
 require "../sesion/conexion.php";
-
-error_reporting(E_ALL);
-ini_set("display_errors", 1);
-
+require_once "../model/UrgenteModel.php";
 
 // ── DIRECTORIO DE UPLOADS ────────────────────────────────────
 $upload_dir = "../../img/urgente/";
@@ -12,8 +9,9 @@ if (!is_dir($upload_dir)) {
     mkdir($upload_dir, 0755, true);
 }
 
-$msg_ok  = null;
-$msg_err = null;
+$msg_ok       = null;
+$msg_err      = null;
+$urgenteModel = new UrgenteModel($_conexion);
 
 // ════════════════════════════════════════════════════════════
 //  POST: NUEVA PUBLICACIÓN
@@ -31,7 +29,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["action"]) && $_POST["
     if (!$tipo || strlen($descripcion) < 5) {
         $msg_err = "Por favor, indica el tipo de publicación y una descripción.";
     } else {
-        // Subida de foto (opcional)
         $foto_ruta = null;
         if (!empty($_FILES["foto"]["name"])) {
             $ext_permitidas = ["jpg", "jpeg", "png", "gif", "webp"];
@@ -52,21 +49,16 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["action"]) && $_POST["
         }
 
         if (!$msg_err) {
-            $stmt = $_conexion->prepare(
-                "INSERT INTO PublicacionUrgente
-                    (tipo, nombre_animal, especie, descripcion, foto, nombre_contacto, telefono_contacto, ciudad)
-                 VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
-            );
-            $stmt->bind_param("ssssssss",
-                $tipo, $nombre, $especie, $descripcion,
-                $foto_ruta, $contacto, $telefono, $ciudad
-            );
-            if ($stmt->execute()) {
+            if ($urgenteModel->createPublicacion([
+                'tipo'       => $tipo,      'nombre'     => $nombre,
+                'especie'    => $especie,   'descripcion' => $descripcion,
+                'foto'       => $foto_ruta, 'contacto'   => $contacto,
+                'telefono'   => $telefono,  'ciudad'     => $ciudad,
+            ])) {
                 $msg_ok = "¡Publicación enviada correctamente!";
             } else {
                 $msg_err = "Error al guardar la publicación. Inténtalo de nuevo.";
             }
-            $stmt->close();
         }
     }
 }
@@ -75,19 +67,13 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["action"]) && $_POST["
 //  POST: NUEVO COMENTARIO
 // ════════════════════════════════════════════════════════════
 if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["action"]) && $_POST["action"] === "comentar") {
-    $id_pub      = isset($_POST["id_publicacion"]) ? (int)$_POST["id_publicacion"] : 0;
-    $texto       = trim($_POST["texto"] ?? '');
-    $nombre_aut  = trim($_POST["nombre_autor"] ?? '');
+    $id_pub     = isset($_POST["id_publicacion"]) ? (int)$_POST["id_publicacion"] : 0;
+    $texto      = trim($_POST["texto"] ?? '');
+    $nombre_aut = trim($_POST["nombre_autor"] ?? '');
 
     if ($id_pub && strlen($texto) >= 2 && strlen($nombre_aut) >= 2) {
-        $stmt = $_conexion->prepare(
-            "INSERT INTO ComentarioUrgente (id_publicacion, texto, nombre_autor) VALUES (?, ?, ?)"
-        );
-        $stmt->bind_param("iss", $id_pub, $texto, $nombre_aut);
-        $stmt->execute();
-        $stmt->close();
+        $urgenteModel->addComentario($id_pub, $texto, $nombre_aut);
     }
-    // Redirigir para evitar reenvío al refrescar
     header("Location: urgente.php#pub-" . $id_pub);
     exit();
 }
@@ -100,35 +86,10 @@ $filtro = isset($_GET["tipo"]) && in_array($_GET["tipo"], ["PERDIDO", "ENCONTRAD
             : "";
 
 // ════════════════════════════════════════════════════════════
-//  CARGAR PUBLICACIONES
+//  CARGAR PUBLICACIONES Y COMENTARIOS
 // ════════════════════════════════════════════════════════════
-$sql_pubs = "SELECT p.*,
-                (SELECT COUNT(*) FROM ComentarioUrgente c WHERE c.id_publicacion = p.id_publicacion) AS total_comentarios
-             FROM PublicacionUrgente p
-             WHERE p.activo = 1";
-if ($filtro) {
-    $sql_pubs .= " AND p.tipo = '" . $filtro . "'";
-}
-$sql_pubs .= " ORDER BY p.fecha DESC";
-
-$result   = $_conexion->query($sql_pubs);
-$pubs     = $result ? $result->fetch_all(MYSQLI_ASSOC) : [];
-
-// ════════════════════════════════════════════════════════════
-//  CARGAR COMENTARIOS DE CADA PUBLICACIÓN
-// ════════════════════════════════════════════════════════════
-$comentarios_map = [];
-if (!empty($pubs)) {
-    $ids = implode(",", array_column($pubs, "id_publicacion"));
-    $res_c = $_conexion->query(
-        "SELECT * FROM ComentarioUrgente WHERE id_publicacion IN ($ids) ORDER BY fecha ASC"
-    );
-    if ($res_c) {
-        foreach ($res_c->fetch_all(MYSQLI_ASSOC) as $c) {
-            $comentarios_map[$c["id_publicacion"]][] = $c;
-        }
-    }
-}
+$pubs            = $urgenteModel->getPublicaciones($filtro);
+$comentarios_map = $urgenteModel->getComentarios(array_column($pubs, 'id_publicacion'));
 ?>
 <!DOCTYPE html>
 <html lang="es">

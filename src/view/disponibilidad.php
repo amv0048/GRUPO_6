@@ -1,68 +1,49 @@
 <?php
 session_start();
 require "../sesion/conexion.php";
+require_once "../model/DisponibilidadModel.php";
+require_once "../model/AdopcionModel.php";
 
 // Solo protectoras
 if (!isset($_SESSION['id']) || isset($_SESSION['user'])) {
     header('Location: index.php');
     exit();
 }
-$id_protectora = (int)$_SESSION['id'];
-
+$id_protectora       = (int)$_SESSION['id'];
+$disponibilidadModel = new DisponibilidadModel($_conexion);
+$adopcionModel       = new AdopcionModel($_conexion);
 
 // ── ACCIONES POST ─────────────────────────────────────────────
-$msg = '';
+$msg      = '';
 $msg_tipo = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $accion = $_POST['accion'] ?? '';
 
     if ($accion === 'add_slot') {
-        $fecha      = $_POST['fecha']      ?? '';
-        $hora_ini   = $_POST['hora_inicio'] ?? '';
-        $hora_fin   = $_POST['hora_fin']    ?? '';
+        $fecha    = $_POST['fecha']       ?? '';
+        $hora_ini = $_POST['hora_inicio'] ?? '';
+        $hora_fin = $_POST['hora_fin']    ?? '';
 
         if ($fecha && $hora_ini && $hora_fin && $hora_fin > $hora_ini && $fecha >= date('Y-m-d')) {
-            $ins = $_conexion->prepare(
-                "INSERT IGNORE INTO DisponibilidadProtectora (id_protectora, fecha, hora_inicio, hora_fin)
-                 VALUES (?, ?, ?, ?)"
-            );
-            $ins->bind_param("isss", $id_protectora, $fecha, $hora_ini, $hora_fin);
-            if ($ins->execute() && $_conexion->affected_rows > 0) {
+            if ($disponibilidadModel->addSlot($id_protectora, $fecha, $hora_ini, $hora_fin)) {
                 $msg = 'Franja horaria añadida.'; $msg_tipo = 'ok';
             } else {
                 $msg = 'Esa franja ya existe para ese día.'; $msg_tipo = 'err';
             }
-            $ins->close();
         } else {
             $msg = 'Datos incorrectos. Comprueba la fecha (no puede ser en el pasado) y las horas.'; $msg_tipo = 'err';
         }
     }
 
     if ($accion === 'add_bloque') {
-        // Añadir múltiples slots de duración fija en un rango
-        $fecha      = $_POST['fecha']       ?? '';
-        $desde      = $_POST['desde']       ?? '';
-        $hasta      = $_POST['hasta']       ?? '';
-        $duracion   = (int)($_POST['duracion'] ?? 30);
+        $fecha    = $_POST['fecha']    ?? '';
+        $desde    = $_POST['desde']    ?? '';
+        $hasta    = $_POST['hasta']    ?? '';
+        $duracion = (int)($_POST['duracion'] ?? 30);
 
         if ($fecha && $desde && $hasta && $hasta > $desde && $fecha >= date('Y-m-d') && in_array($duracion, [30,60,90,120])) {
-            $t_ini = strtotime("$fecha $desde");
-            $t_fin = strtotime("$fecha $hasta");
-            $ins   = $_conexion->prepare(
-                "INSERT IGNORE INTO DisponibilidadProtectora (id_protectora, fecha, hora_inicio, hora_fin)
-                 VALUES (?, ?, ?, ?)"
-            );
-            $added = 0;
-            while ($t_ini + $duracion * 60 <= $t_fin) {
-                $hi = date('H:i:s', $t_ini);
-                $hf = date('H:i:s', $t_ini + $duracion * 60);
-                $ins->bind_param("isss", $id_protectora, $fecha, $hi, $hf);
-                $ins->execute();
-                if ($_conexion->affected_rows > 0) $added++;
-                $t_ini += $duracion * 60;
-            }
-            $ins->close();
+            $added = $disponibilidadModel->addBloque($id_protectora, $fecha, $desde, $hasta, $duracion);
             $msg = "$added franjas añadidas."; $msg_tipo = 'ok';
         } else {
             $msg = 'Datos incorrectos para el bloque.'; $msg_tipo = 'err';
@@ -71,20 +52,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if ($accion === 'delete_slot') {
         $id_slot = (int)($_POST['id_slot'] ?? 0);
-        // Solo si no tiene cita reservada y pertenece a esta protectora
-        $del = $_conexion->prepare(
-            "DELETE d FROM DisponibilidadProtectora d
-             LEFT JOIN CitaEntrevista c
-                   ON c.id_disponibilidad = d.id_disponibilidad
-                  AND c.estado != 'CANCELADA'
-             WHERE d.id_disponibilidad = ? AND d.id_protectora = ?
-               AND c.id_cita IS NULL"
-        );
-        $del->bind_param("ii", $id_slot, $id_protectora);
-        $del->execute();
-        $msg = $_conexion->affected_rows > 0 ? 'Franja eliminada.' : 'No se puede eliminar (tiene cita reservada).';
-        $msg_tipo = $_conexion->affected_rows > 0 ? 'ok' : 'err';
-        $del->close();
+        if ($disponibilidadModel->deleteSlot($id_slot, $id_protectora)) {
+            $msg = 'Franja eliminada.'; $msg_tipo = 'ok';
+        } else {
+            $msg = 'No se puede eliminar (tiene cita reservada).'; $msg_tipo = 'err';
+        }
     }
 
     header("Location: disponibilidad.php?mes=" . urlencode($_POST['mes'] ?? date('Y-m')) . "&msg=" . urlencode($msg) . "&tipo=" . $msg_tipo);
@@ -99,56 +71,18 @@ if (!preg_match('/^\d{4}-\d{2}$/', $mes_param)) $mes_param = date('Y-m');
 [$anyo, $mes] = explode('-', $mes_param);
 $anyo = (int)$anyo; $mes = (int)$mes;
 
-$primer_dia = mktime(0,0,0,$mes,1,$anyo);
-$ultimo_dia = mktime(0,0,0,$mes+1,0,$anyo);
-$dias_en_mes = (int)date('d', $ultimo_dia);
-$dia_semana_inicio = (int)date('N', $primer_dia); // 1=lunes
+$primer_dia        = mktime(0,0,0,$mes,1,$anyo);
+$ultimo_dia        = mktime(0,0,0,$mes+1,0,$anyo);
+$dias_en_mes       = (int)date('d', $ultimo_dia);
+$dia_semana_inicio = (int)date('N', $primer_dia);
 
-$mes_ant = date('Y-m', mktime(0,0,0,$mes-1,1,$anyo));
-$mes_sig = date('Y-m', mktime(0,0,0,$mes+1,1,$anyo));
-
+$mes_ant  = date('Y-m', mktime(0,0,0,$mes-1,1,$anyo));
+$mes_sig  = date('Y-m', mktime(0,0,0,$mes+1,1,$anyo));
 $meses_es = ['','Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
 
-// ── SLOTS DEL MES ─────────────────────────────────────────────
-$fecha_ini_mes = "$anyo-" . str_pad($mes,2,'0',STR_PAD_LEFT) . "-01";
-$fecha_fin_mes = "$anyo-" . str_pad($mes,2,'0',STR_PAD_LEFT) . "-$dias_en_mes";
-
-$st = $_conexion->prepare(
-    "SELECT d.*, c.id_cita, c.estado AS estado_cita,
-            s.nombre AS nombre_adoptante, s.apellido,
-            a.nombre AS nombre_animal
-     FROM DisponibilidadProtectora d
-     LEFT JOIN CitaEntrevista c ON c.id_disponibilidad = d.id_disponibilidad AND c.estado != 'CANCELADA'
-     LEFT JOIN SolicitudAdopcion s ON c.id_solicitud = s.id_solicitud
-     LEFT JOIN Animales a ON s.id_animal = a.id_animal
-     WHERE d.id_protectora = ? AND d.fecha BETWEEN ? AND ?
-     ORDER BY d.fecha, d.hora_inicio"
-);
-$st->bind_param("iss", $id_protectora, $fecha_ini_mes, $fecha_fin_mes);
-$st->execute();
-$res = $st->get_result();
-$slots_por_dia = [];
-while ($row = $res->fetch_assoc()) {
-    $slots_por_dia[$row['fecha']][] = $row;
-}
-$st->close();
-
-// ── PRÓXIMAS CITAS (panel lateral) ───────────────────────────
-$prox = $_conexion->prepare(
-    "SELECT d.fecha, d.hora_inicio, d.hora_fin,
-            s.nombre AS nombre_adoptante, s.apellido, s.email, s.telefono,
-            a.nombre AS nombre_animal, c.estado AS estado_cita, c.id_cita
-     FROM CitaEntrevista c
-     JOIN DisponibilidadProtectora d ON c.id_disponibilidad = d.id_disponibilidad
-     JOIN SolicitudAdopcion s ON c.id_solicitud = s.id_solicitud
-     JOIN Animales a ON s.id_animal = a.id_animal
-     WHERE d.id_protectora = ? AND d.fecha >= CURDATE() AND c.estado != 'CANCELADA'
-     ORDER BY d.fecha, d.hora_inicio LIMIT 10"
-);
-$prox->bind_param("i", $id_protectora);
-$prox->execute();
-$proximas_citas = $prox->get_result()->fetch_all(MYSQLI_ASSOC);
-$prox->close();
+// ── SLOTS Y CITAS ─────────────────────────────────────────────
+$slots_por_dia  = $disponibilidadModel->getSlotsByMes($id_protectora, $anyo, $mes, $dias_en_mes);
+$proximas_citas = $adopcionModel->getProximasCitasPerfilProtectora($id_protectora, 10);
 ?>
 <!DOCTYPE html>
 <html lang="es">

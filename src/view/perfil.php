@@ -1,58 +1,36 @@
 <?php
 session_start();
 require "../sesion/conexion.php";
-
-error_reporting(E_ALL);
-ini_set("display_errors", 1);
+require_once "../model/UsuarioModel.php";
+require_once "../model/ProtectoraModel.php";
+require_once "../model/AdopcionModel.php";
 
 if (!isset($_SESSION["id"])) {
     header("Location: ../../public/login.html");
     exit();
 }
 
-// ── SELECT INICIAL PARA PLACEHOLDERS ────────────────────────
+$usuarioModel    = new UsuarioModel($_conexion);
+$protectoraModel = new ProtectoraModel($_conexion);
+$adopcionModel   = new AdopcionModel($_conexion);
+
 if (isset($_SESSION["user"])) {
-    $consulta = $_conexion->prepare("SELECT * FROM Usuario WHERE id_adoptante = ?");
-    $consulta->bind_param("i", $_SESSION["id"]);
-    $consulta->execute();
-    $datos = $consulta->get_result()->fetch_assoc();
-    $consulta->close();
+    $datos = $usuarioModel->getById($_SESSION["id"]);
     $tipo = "usuario";
 } else {
-    $consulta = $_conexion->prepare("SELECT * FROM Protectora WHERE id_protectora = ?");
-    $consulta->bind_param("i", $_SESSION["id"]);
-    $consulta->execute();
-    $datos = $consulta->get_result()->fetch_assoc();
-    $consulta->close();
+    $datos = $protectoraModel->getById($_SESSION["id"]);
     $tipo = "protectora";
 }
 
 // ── CANCELAR CITA ────────────────────────────────────────────
 if ($_SERVER["REQUEST_METHOD"] === "POST" && ($_POST['action'] ?? '') === 'cancelar_cita') {
     $id_cita = (int)($_POST['id_cita'] ?? 0);
-    $tbl_ok  = $_conexion->query("SHOW TABLES LIKE 'CitaEntrevista'")->num_rows > 0;
-    if ($tbl_ok && $id_cita > 0) {
+    if ($id_cita > 0) {
         if ($tipo === 'usuario') {
-            // Adoptante solo puede cancelar sus propias citas
-            $q = $_conexion->prepare(
-                "UPDATE CitaEntrevista c
-                 JOIN SolicitudAdopcion s ON c.id_solicitud = s.id_solicitud
-                 SET c.estado = 'CANCELADA'
-                 WHERE c.id_cita = ? AND s.id_adoptante = ?"
-            );
-            $q->bind_param("ii", $id_cita, $_SESSION['id']);
+            $adopcionModel->cancelarCitaAdoptante($id_cita, $_SESSION['id']);
         } else {
-            // Protectora solo puede cancelar citas de sus animales
-            $q = $_conexion->prepare(
-                "UPDATE CitaEntrevista c
-                 JOIN DisponibilidadProtectora d ON c.id_disponibilidad = d.id_disponibilidad
-                 SET c.estado = 'CANCELADA'
-                 WHERE c.id_cita = ? AND d.id_protectora = ?"
-            );
-            $q->bind_param("ii", $id_cita, $_SESSION['id']);
+            $adopcionModel->cancelarCitaProtectora($id_cita, $_SESSION['id']);
         }
-        $q->execute();
-        $q->close();
     }
     header("Location: perfil.php");
     exit();
@@ -61,13 +39,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && ($_POST['action'] ?? '') === 'cance
 // ── ELIMINAR PERFIL ──────────────────────────────────────────
 if ($_SERVER["REQUEST_METHOD"] === "POST" && ($_POST['action'] ?? '') === 'eliminar') {
     if ($tipo === 'usuario') {
-        $del = $_conexion->prepare("DELETE FROM Usuario WHERE id_adoptante = ?");
+        $usuarioModel->delete($_SESSION["id"]);
     } else {
-        $del = $_conexion->prepare("DELETE FROM Protectora WHERE id_protectora = ?");
+        $protectoraModel->delete($_SESSION["id"]);
     }
-    $del->bind_param("i", $_SESSION["id"]);
-    $del->execute();
-    $del->close();
     session_destroy();
     header("Location: index.php");
     exit();
@@ -146,24 +121,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         // ────────────────────────────────────────────────────────
 
         if (!isset($err_pass) && !empty($campos)) {
-            $valores[] = $_SESSION["id"];
-            $tipos .= "i";
-            $sql = "UPDATE Usuario SET " . implode(", ", $campos) . " WHERE id_adoptante = ?";
-            $consulta = $_conexion->prepare($sql);
-            $consulta->bind_param($tipos, ...$valores);
-            if ($consulta->execute()) {
+            if ($usuarioModel->update($_SESSION["id"], $campos, $valores, $tipos)) {
                 if ($nombre != "") $_SESSION["user"] = $nombre;
                 if ($email != "")  $_SESSION["email"] = $email;
                 $ok = "Perfil actualizado correctamente";
-                $consulta2 = $_conexion->prepare("SELECT * FROM Usuario WHERE id_adoptante = ?");
-                $consulta2->bind_param("i", $_SESSION["id"]);
-                $consulta2->execute();
-                $datos = $consulta2->get_result()->fetch_assoc();
-                $consulta2->close();
+                $datos = $usuarioModel->getById($_SESSION["id"]);
             } else {
                 $err_db = "No se ha podido actualizar el perfil";
             }
-            $consulta->close();
         }
 
     } else {
@@ -248,27 +213,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         // ────────────────────────────────────────────────────────
 
         if (!isset($err_pass) && !empty($campos)) {
-            $valores[] = $_SESSION["id"];
-            $tipos .= "i";
-            $sql = "UPDATE Protectora SET " . implode(", ", $campos) . " WHERE id_protectora = ?";
-            $consulta = $_conexion->prepare($sql);
-            $consulta->bind_param($tipos, ...$valores);
-            if ($consulta->execute()) {
-                if ($nombre_protectora != ""){
+            if ($protectoraModel->update($_SESSION["id"], $campos, $valores, $tipos)) {
+                if ($nombre_protectora != "") {
                     $_SESSION["protectora"] = $nombre_protectora;
                     $_SESSION["nombre"] = $nombre_protectora;
-                } 
-                if ($email != "")            $_SESSION["email"] = $email;
+                }
+                if ($email != "") $_SESSION["email"] = $email;
                 $ok = "Perfil actualizado correctamente";
-                $consulta2 = $_conexion->prepare("SELECT * FROM Protectora WHERE id_protectora = ?");
-                $consulta2->bind_param("i", $_SESSION["id"]);
-                $consulta2->execute();
-                $datos = $consulta2->get_result()->fetch_assoc();
-                $consulta2->close();
+                $datos = $protectoraModel->getById($_SESSION["id"]);
             } else {
                 $err_db = "No se ha podido actualizar el perfil";
             }
-            $consulta->close();
         }
     }
 }
@@ -452,30 +407,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         <!-- CITAS / SOLICITUDES -->
         <?php
-        $tbl_sol = $_conexion->query("SHOW TABLES LIKE 'SolicitudAdopcion'");
-        $tbl_cit = $_conexion->query("SHOW TABLES LIKE 'CitaEntrevista'");
-        $hay_tablas = ($tbl_sol && $tbl_sol->num_rows > 0) && ($tbl_cit && $tbl_cit->num_rows > 0);
-
-        if ($hay_tablas && $tipo === 'usuario'):
-            // Solicitudes del adoptante con cita si la hay
-            $sol_q = $_conexion->prepare(
-                "SELECT s.id_solicitud, s.id_animal, s.estado_solicitud, s.fecha_solicitud,
-                        a.nombre AS nombre_animal, a.especie,
-                        p.nombre_protectora,
-                        c.id_cita, d.fecha AS fecha_cita, d.hora_inicio, d.hora_fin, c.estado AS estado_cita
-                 FROM SolicitudAdopcion s
-                 JOIN Animales a ON s.id_animal = a.id_animal
-                 JOIN Protectora p ON a.id_protectora = p.id_protectora
-                 LEFT JOIN CitaEntrevista c ON c.id_solicitud = s.id_solicitud AND c.estado != 'CANCELADA'
-                 LEFT JOIN DisponibilidadProtectora d ON c.id_disponibilidad = d.id_disponibilidad
-                 WHERE s.id_adoptante = ?
-                 ORDER BY s.fecha_solicitud DESC"
-            );
-            $sol_q->bind_param("i", $_SESSION['id']);
-            $sol_q->execute();
-            $mis_solicitudes = $sol_q->get_result()->fetch_all(MYSQLI_ASSOC);
-            $sol_q->close();
-
+        if ($tipo === 'usuario'):
+            $mis_solicitudes = $adopcionModel->getSolicitudesByAdoptante($_SESSION['id']);
             if (!empty($mis_solicitudes)):
         ?>
         <div id="perfil-solicitudes">
@@ -525,34 +458,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         </div>
         <?php endif; endif; ?>
 
-        <?php if ($hay_tablas && $tipo === 'protectora'):
-            // Citas de la protectora
-            $cit_q = $_conexion->prepare(
-                "SELECT d.fecha, d.hora_inicio, d.hora_fin,
-                        a.nombre AS nombre_animal, s.nombre AS nombre_adoptante, s.apellido, s.telefono,
-                        c.estado AS estado_cita
-                 FROM CitaEntrevista c
-                 JOIN DisponibilidadProtectora d ON c.id_disponibilidad = d.id_disponibilidad
-                 JOIN SolicitudAdopcion s ON c.id_solicitud = s.id_solicitud
-                 JOIN Animales a ON s.id_animal = a.id_animal
-                 WHERE d.id_protectora = ? AND d.fecha >= CURDATE() AND c.estado != 'CANCELADA'
-                 ORDER BY d.fecha, d.hora_inicio LIMIT 8"
-            );
-            $cit_q->bind_param("i", $_SESSION['id']);
-            $cit_q->execute();
-            $mis_citas = $cit_q->get_result()->fetch_all(MYSQLI_ASSOC);
-            $cit_q->close();
-
-            // Solicitudes pendientes count
-            $pend_q = $_conexion->prepare(
-                "SELECT COUNT(*) AS n FROM SolicitudAdopcion s
-                 JOIN Animales a ON s.id_animal = a.id_animal
-                 WHERE a.id_protectora = ? AND s.estado_solicitud = 'PENDIENTE'"
-            );
-            $pend_q->bind_param("i", $_SESSION['id']);
-            $pend_q->execute();
-            $n_pend = (int)$pend_q->get_result()->fetch_assoc()['n'];
-            $pend_q->close();
+        <?php if ($tipo === 'protectora'):
+            $mis_citas = $adopcionModel->getProximasCitasPerfilProtectora($_SESSION['id']);
+            $n_pend    = $adopcionModel->countPendientesByProtectora($_SESSION['id']);
         ?>
         <div id="perfil-solicitudes">
             <p class="seccion-label">Gestión de adopciones</p>

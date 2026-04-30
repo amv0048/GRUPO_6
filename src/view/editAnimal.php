@@ -1,9 +1,7 @@
 <?php
 session_start();
 require "../sesion/conexion.php";
-
-error_reporting(E_ALL);
-ini_set("display_errors", 1);
+require_once "../model/AnimalModel.php";
 
 if (!isset($_SESSION["id"])) { header("Location: ../../public/login.html"); exit(); }
 if (isset($_SESSION["user"])) { header("Location: index.php"); exit(); }
@@ -13,35 +11,13 @@ $id_protectora = $_SESSION["id"];
 if (!isset($_GET["id"]) || !is_numeric($_GET["id"])) {
     header("Location: listaAnimal.php"); exit();
 }
-$id_animal = (int) $_GET["id"];
+$id_animal   = (int) $_GET["id"];
+$animalModel = new AnimalModel($_conexion);
 
-// ── CARGAR DATOS DEL ANIMAL ──────────────────────────────────
-$q = $_conexion->prepare(
-    "SELECT a.*, e.id_estado AS estado_actual
-     FROM Animales a
-     LEFT JOIN EstadoAnimal e ON a.id_estado = e.id_estado
-     WHERE a.id_animal = ? AND a.id_protectora = ?"
-);
-$q->bind_param("ii", $id_animal, $id_protectora);
-$q->execute();
-$animal = $q->get_result()->fetch_assoc();
-$q->close();
-
+$animal = $animalModel->getByIdYProtectora($id_animal, $id_protectora);
 if (!$animal) { header("Location: listaAnimal.php"); exit(); }
 
-// ── CARGAR FOTOS — SIEMPRE ANTES DEL POST ────────────────────
-function cargarFotos($conexion, $id_animal) {
-    $q = $conexion->prepare(
-        "SELECT id_foto, ruta, es_principal FROM Galeria WHERE id_animal = ? ORDER BY es_principal DESC, id_foto ASC"
-    );
-    $q->bind_param("i", $id_animal);
-    $q->execute();
-    $fotos = $q->get_result()->fetch_all(MYSQLI_ASSOC);
-    $q->close();
-    return $fotos;
-}
-
-$fotos = cargarFotos($_conexion, $id_animal);
+$fotos = $animalModel->getGaleria($id_animal);
 $foto_principal = null;
 foreach ($fotos as $f) {
     if ($f['es_principal']) { $foto_principal = $f; break; }
@@ -52,50 +28,26 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     $accion = $_POST['accion'] ?? 'editar';
 
-    // ── CAMBIAR FOTO PRINCIPAL ───────────────────────────────
     if ($accion === 'set_principal' && isset($_POST['id_foto'])) {
-        $id_foto_nueva = (int)$_POST['id_foto'];
-        $upd = $_conexion->prepare("UPDATE Galeria SET es_principal = 0 WHERE id_animal = ?");
-        $upd->bind_param("i", $id_animal);
-        $upd->execute(); $upd->close();
-        $upd2 = $_conexion->prepare("UPDATE Galeria SET es_principal = 1 WHERE id_foto = ? AND id_animal = ?");
-        $upd2->bind_param("ii", $id_foto_nueva, $id_animal);
-        $upd2->execute(); $upd2->close();
+        $animalModel->setPrincipal((int)$_POST['id_foto'], $id_animal);
         header("Location: editAnimal.php?id=$id_animal&ok=principal"); exit();
     }
 
-    // ── ELIMINAR FOTO ────────────────────────────────────────
     if ($accion === 'eliminar_foto' && isset($_POST['id_foto'])) {
         $id_foto_del = (int)$_POST['id_foto'];
-        $q_del = $_conexion->prepare("SELECT ruta, es_principal FROM Galeria WHERE id_foto = ? AND id_animal = ?");
-        $q_del->bind_param("ii", $id_foto_del, $id_animal);
-        $q_del->execute();
-        $foto_del = $q_del->get_result()->fetch_assoc();
-        $q_del->close();
+        $foto_del    = $animalModel->getFoto($id_foto_del, $id_animal);
         if ($foto_del) {
             $ruta_fisica = realpath(__DIR__ . '/' . $foto_del['ruta']);
             if ($ruta_fisica && is_file($ruta_fisica)) unlink($ruta_fisica);
-            $del = $_conexion->prepare("DELETE FROM Galeria WHERE id_foto = ?");
-            $del->bind_param("i", $id_foto_del);
-            $del->execute(); $del->close();
-            // Si era la principal, pasar el badge a la siguiente
+            $animalModel->deleteFoto($id_foto_del);
             if ($foto_del['es_principal']) {
-                $sig = $_conexion->prepare("SELECT id_foto FROM Galeria WHERE id_animal = ? LIMIT 1");
-                $sig->bind_param("i", $id_animal);
-                $sig->execute();
-                $siguiente = $sig->get_result()->fetch_assoc();
-                $sig->close();
-                if ($siguiente) {
-                    $sp = $_conexion->prepare("UPDATE Galeria SET es_principal = 1 WHERE id_foto = ?");
-                    $sp->bind_param("i", $siguiente['id_foto']);
-                    $sp->execute(); $sp->close();
-                }
+                $siguiente = $animalModel->getNextFoto($id_animal);
+                if ($siguiente) $animalModel->setPrincipal($siguiente['id_foto'], $id_animal);
             }
         }
         header("Location: editAnimal.php?id=$id_animal&ok=foto_eliminada"); exit();
     }
 
-    // ── SUBIR FOTO NUEVA ─────────────────────────────────────
     if ($accion === 'subir_foto') {
         if (!empty($_FILES['foto_nueva']['name']) && $_FILES['foto_nueva']['error'] === UPLOAD_ERR_OK) {
             $ext_ok = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
@@ -105,59 +57,39 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 if (!is_dir($carpeta)) mkdir($carpeta, 0755, true);
                 $archivo = 'foto_' . time() . '.' . $ext;
                 if (move_uploaded_file($_FILES['foto_nueva']['tmp_name'], $carpeta . '/' . $archivo)) {
-                    $ruta = '../../img/protectoras/protectora_' . $id_protectora . '/animal_' . $id_animal . '/' . $archivo;
+                    $ruta         = '../../img/protectoras/protectora_' . $id_protectora . '/animal_' . $id_animal . '/' . $archivo;
                     $es_principal = empty($fotos) ? 1 : 0;
-                    $ins = $_conexion->prepare("INSERT INTO Galeria (id_animal, ruta, es_principal) VALUES (?, ?, ?)");
-                    $ins->bind_param("isi", $id_animal, $ruta, $es_principal);
-                    $ins->execute(); $ins->close();
+                    $animalModel->addFoto($id_animal, $ruta, $es_principal);
                 }
             }
         }
         header("Location: editAnimal.php?id=$id_animal&ok=foto_subida"); exit();
     }
 
-    // ── EDITAR DATOS DEL ANIMAL ──────────────────────────────
-    $nombre      = htmlspecialchars(trim($_POST["nombre"]));
-    $especie     = htmlspecialchars(trim($_POST["especie"]));
-    $raza        = htmlspecialchars(trim($_POST["raza"]));
-    $sexo        = in_array($_POST["sexo"], ["M", "H"]) ? $_POST["sexo"] : null;
-    $color       = htmlspecialchars(trim($_POST["color"]));
-    $edad        = is_numeric($_POST["edad"])  ? (int)$_POST["edad"]   : null;
-    $peso        = is_numeric($_POST["peso"])  ? (float)$_POST["peso"] : null;
-    $fecha       = !empty($_POST["fecha_entrada"]) ? $_POST["fecha_entrada"] : null;
-    $descripcion = htmlspecialchars(trim($_POST["descripcion"]));
-    $id_estado   = is_numeric($_POST["id_estado"]) ? (int)$_POST["id_estado"] : null;
+    $d = [
+        'nombre'        => htmlspecialchars(trim($_POST["nombre"])),
+        'especie'       => htmlspecialchars(trim($_POST["especie"])),
+        'raza'          => htmlspecialchars(trim($_POST["raza"])),
+        'sexo'          => in_array($_POST["sexo"], ["M", "H"]) ? $_POST["sexo"] : null,
+        'color'         => htmlspecialchars(trim($_POST["color"])),
+        'edad'          => is_numeric($_POST["edad"])  ? (int)$_POST["edad"]   : null,
+        'peso'          => is_numeric($_POST["peso"])  ? (float)$_POST["peso"] : null,
+        'fecha_entrada' => !empty($_POST["fecha_entrada"]) ? $_POST["fecha_entrada"] : null,
+        'descripcion'   => htmlspecialchars(trim($_POST["descripcion"])),
+        'id_estado'     => is_numeric($_POST["id_estado"]) ? (int)$_POST["id_estado"] : null,
+        'compat_perros' => isset($_POST["compat_perros"]) ? 1 : 0,
+        'compat_gatos'  => isset($_POST["compat_gatos"])  ? 1 : 0,
+        'compat_ninos'  => isset($_POST["compat_ninos"])  ? 1 : 0,
+    ];
 
-    $compat_perros = isset($_POST["compat_perros"]) ? 1 : 0;
-    $compat_gatos  = isset($_POST["compat_gatos"])  ? 1 : 0;
-    $compat_ninos  = isset($_POST["compat_ninos"])  ? 1 : 0;
-
-    $sql = "UPDATE Animales SET
-                id_estado = ?, nombre = ?, especie = ?, raza = ?, sexo = ?, color = ?,
-                peso = ?, edad = ?, fecha_entrada = ?, descripcion = ?,
-                compatibilidad_perros = ?, compatibilidad_gatos = ?, compatibilidad_ninos = ?
-            WHERE id_animal = ? AND id_protectora = ?";
-
-    $stmt = $_conexion->prepare($sql);
-    $stmt->bind_param(
-        "isssssdissiiiii",
-        $id_estado, $nombre, $especie, $raza, $sexo, $color,
-        $peso, $edad, $fecha, $descripcion,
-        $compat_perros, $compat_gatos, $compat_ninos,
-        $id_animal, $id_protectora
-    );
-
-    if ($stmt->execute()) {
-        $stmt->close();
+    if ($animalModel->update($d, $id_animal, $id_protectora)) {
         header("Location: listaAnimal.php?edited=1"); exit();
     } else {
         $err_db = "No se pudo actualizar el animal.";
     }
-    $stmt->close();
 }
 
-// ── ESTADOS ──────────────────────────────────────────────────
-$estados = $_conexion->query("SELECT * FROM EstadoAnimal ORDER BY id_estado")->fetch_all(MYSQLI_ASSOC);
+$estados = $animalModel->getEstados();
 
 $ok_msg = '';
 if (isset($_GET['ok'])) {

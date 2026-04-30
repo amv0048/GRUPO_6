@@ -1,11 +1,15 @@
 <?php
 session_start();
 require "../sesion/conexion.php";
+require_once "../model/AnimalModel.php";
+require_once "../model/ProtectoraModel.php";
+require_once "../model/LikeModel.php";
+require_once "../model/CrowdfundingModel.php";
 
 // ── FILTROS (GET) ──────────────────────────────────────────────
 $especie_filtro = isset($_GET['especie']) ? trim($_GET['especie']) : '';
 $ciudad_filtro  = isset($_GET['ciudad'])  ? trim($_GET['ciudad'])  : '';
-$raza_filtro    = isset($_GET['raza'])  ? trim($_GET['raza'])    : '';
+$raza_filtro    = isset($_GET['raza'])    ? trim($_GET['raza'])    : '';
 $sexo_filtro    = isset($_GET['sexo'])    ? trim($_GET['sexo'])    : '';
 $color_filtro   = isset($_GET['color'])   ? trim($_GET['color'])   : '';
 $edad_min       = (isset($_GET['edad_min']) && $_GET['edad_min'] !== '') ? (int)$_GET['edad_min'] : '';
@@ -16,96 +20,29 @@ $compat_perros  = !empty($_GET['compat_perros']);
 $compat_gatos   = !empty($_GET['compat_gatos']);
 $compat_ninos   = !empty($_GET['compat_ninos']);
 
+$animalModel       = new AnimalModel($_conexion);
+$protectoraModel   = new ProtectoraModel($_conexion);
+$likeModel         = new LikeModel($_conexion);
+$crowdfundingModel = new CrowdfundingModel($_conexion);
+
 // ── PROTECTORAS PARA EL MAPA ───────────────────────────────────
-$protectoras_arr = [];
-$res_prot = $_conexion->query(
-    "SELECT id_protectora, nombre_protectora, ciudad, localidad, direccion, telefono, logo
-     FROM Protectora ORDER BY nombre_protectora"
-);
-
-
-if ($res_prot) {
-    while ($row = $res_prot->fetch_assoc()) {
-        $protectoras_arr[] = $row;
-    }
-}
+$protectoras_arr = $protectoraModel->getAll();
 
 // ── ANIMALES DISPONIBLES ───────────────────────────────────────
-$sql = "SELECT a.id_animal, a.nombre, a.especie, a.raza, a.edad, a.sexo,
-               g.ruta AS foto,
-               p.nombre_protectora, p.ciudad
-        FROM Animales a
-        JOIN EstadoAnimal e ON a.id_estado = e.id_estado
-        JOIN Protectora p   ON a.id_protectora = p.id_protectora
-        LEFT JOIN Galeria g ON a.id_animal = g.id_animal AND g.es_principal = 1
-        WHERE e.nombre = 'DISPONIBLE'";
-
-$params = [];
-$types  = '';
-if ($especie_filtro !== '') {
-    $sql .= " AND a.especie = ?";
-    $params[] = $especie_filtro;
-    $types   .= 's';
-}
-if ($ciudad_filtro !== '') {
-    $sql .= " AND p.ciudad = ?";
-    $params[] = $ciudad_filtro;
-    $types   .= 's';
-}
-if ($raza_filtro !== '') {
-    $sql .= " AND a.raza = ?";
-    $params[] = $raza_filtro;
-    $types   .= 's';
-}
-if ($sexo_filtro !== '') {
-    $sql .= " AND a.sexo = ?";
-    $params[] = $sexo_filtro;
-    $types   .= 's';
-}
-if ($color_filtro !== '') {
-    $sql .= " AND a.color = ?";
-    $params[] = $color_filtro;
-    $types   .= 's';
-}
-if ($edad_min !== '') {
-    $sql .= " AND a.edad >= ?";
-    $params[] = $edad_min;
-    $types   .= 'i';
-}
-if ($edad_max !== '') {
-    $sql .= " AND a.edad <= ?";
-    $params[] = $edad_max;
-    $types   .= 'i';
-}
-if ($peso_min !== '') {
-    $sql .= " AND a.peso >= ?";
-    $params[] = $peso_min;
-    $types   .= 'd';
-}
-if ($peso_max !== '') {
-    $sql .= " AND a.peso <= ?";
-    $params[] = $peso_max;
-    $types   .= 'd';
-}
-if ($compat_perros) $sql .= " AND a.compatibilidad_perros = 1";
-if ($compat_gatos)  $sql .= " AND a.compatibilidad_gatos = 1";
-if ($compat_ninos)  $sql .= " AND a.compatibilidad_ninos = 1";
-$sql .= " ORDER BY a.fecha_entrada DESC LIMIT 10";
-
-$animales_arr = []; // FLAG PROBAR ANIMALES 
-if ($params) {
-    $stmt = $_conexion->prepare($sql);
-    $stmt->bind_param($types, ...$params);
-    $stmt->execute();
-    $res_anim = $stmt->get_result();
-} else {
-    $res_anim = $_conexion->query($sql);
-}
-if ($res_anim) {
-    while ($row = $res_anim->fetch_assoc()) {
-        $animales_arr[] = $row;
-    }
-}
+$animales_arr = $animalModel->getDisponibles([
+    'especie'       => $especie_filtro,
+    'ciudad'        => $ciudad_filtro,
+    'raza'          => $raza_filtro,
+    'sexo'          => $sexo_filtro,
+    'color'         => $color_filtro,
+    'edad_min'      => $edad_min,
+    'edad_max'      => $edad_max,
+    'peso_min'      => $peso_min,
+    'peso_max'      => $peso_max,
+    'compat_perros' => $compat_perros,
+    'compat_gatos'  => $compat_gatos,
+    'compat_ninos'  => $compat_ninos,
+]);
 
 
 // ── LIKES DEL USUARIO ─────────────────────────────────────────

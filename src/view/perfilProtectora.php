@@ -1,9 +1,7 @@
 <?php
 session_start();
 require "../sesion/conexion.php";
-
-error_reporting(E_ALL);
-ini_set("display_errors", 1);
+require_once "../model/ProtectoraModel.php";
 
 // ── DETERMINAR MODO: edición propia vs vista pública ─────────
 // Si llega ?id=X cualquiera puede ver; solo edita la protectora dueña.
@@ -27,11 +25,8 @@ if (isset($_GET['id']) && is_numeric($_GET['id'])) {
 }
 
 // ── CARGAR DATOS ─────────────────────────────────────────────
-$consulta = $_conexion->prepare("SELECT * FROM Protectora WHERE id_protectora = ?");
-$consulta->bind_param("i", $id_ver);
-$consulta->execute();
-$datos = $consulta->get_result()->fetch_assoc();
-$consulta->close();
+$protectoraModel = new ProtectoraModel($_conexion);
+$datos = $protectoraModel->getById($id_ver);
 
 if (!$datos) {
     header("Location: index.php");
@@ -40,10 +35,7 @@ if (!$datos) {
 
 // ── ELIMINAR PERFIL (solo propietaria) ───────────────────────
 if (!$solo_vista && $_SERVER["REQUEST_METHOD"] === "POST" && ($_POST['action'] ?? '') === 'eliminar') {
-    $del = $_conexion->prepare("DELETE FROM Protectora WHERE id_protectora = ?");
-    $del->bind_param("i", $_SESSION["id"]);
-    $del->execute();
-    $del->close();
+    $protectoraModel->delete($_SESSION["id"]);
     session_destroy();
     header("Location: index.php");
     exit();
@@ -112,25 +104,14 @@ if (!$solo_vista && $_SERVER["REQUEST_METHOD"] == "POST") {
     }
 
     if (!isset($err_pass) && !empty($campos)) {
-        $valores[] = $_SESSION["id"];
-        $tipos    .= "i";
-        $sql       = "UPDATE Protectora SET " . implode(", ", $campos) . " WHERE id_protectora = ?";
-        $consulta  = $_conexion->prepare($sql);
-        $consulta->bind_param($tipos, ...$valores);
-        if ($consulta->execute()) {
+        if ($protectoraModel->update($_SESSION["id"], $campos, $valores, $tipos)) {
             if ($nombre_protectora != "") $_SESSION["protectora"] = $nombre_protectora;
             if ($email != "")            $_SESSION["email"]       = $email;
             $ok = "Perfil actualizado correctamente";
-            // Refrescamos $datos con los nuevos valores
-            $consulta2 = $_conexion->prepare("SELECT * FROM Protectora WHERE id_protectora = ?");
-            $consulta2->bind_param("i", $_SESSION["id"]);
-            $consulta2->execute();
-            $datos = $consulta2->get_result()->fetch_assoc();
-            $consulta2->close();
+            $datos = $protectoraModel->getById($_SESSION["id"]);
         } else {
             $err_db = "No se ha podido actualizar el perfil";
         }
-        $consulta->close();
     }
 }
 

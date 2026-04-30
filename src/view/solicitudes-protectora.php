@@ -1,6 +1,7 @@
 <?php
 session_start();
 require "../sesion/conexion.php";
+require_once "../model/AdopcionModel.php";
 
 // Solo protectoras
 if (!isset($_SESSION['id']) || isset($_SESSION['user'])) {
@@ -8,80 +9,28 @@ if (!isset($_SESSION['id']) || isset($_SESSION['user'])) {
     exit();
 }
 $id_protectora = (int)$_SESSION['id'];
+$adopcionModel = new AdopcionModel($_conexion);
 
 // ── ACCIÓN: cambiar estado de solicitud ───────────────────────
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['accion'], $_POST['id_solicitud'])) {
-    $accion      = $_POST['accion'];
-    $id_sol      = (int)$_POST['id_solicitud'];
-    $estado_map  = ['aprobar' => 'APROBADA', 'rechazar' => 'RECHAZADA', 'pendiente' => 'PENDIENTE'];
+    $accion     = $_POST['accion'];
+    $id_sol     = (int)$_POST['id_solicitud'];
+    $estado_map = ['aprobar' => 'APROBADA', 'rechazar' => 'RECHAZADA', 'pendiente' => 'PENDIENTE'];
     if (isset($estado_map[$accion])) {
-        $nuevo = $estado_map[$accion];
-        // Verificar que la solicitud pertenece a un animal de esta protectora
-        $chk = $_conexion->prepare(
-            "SELECT s.id_solicitud FROM SolicitudAdopcion s
-             JOIN Animales a ON s.id_animal = a.id_animal
-             WHERE s.id_solicitud = ? AND a.id_protectora = ?"
-        );
-        $chk->bind_param("ii", $id_sol, $id_protectora);
-        $chk->execute();
-        if ($chk->get_result()->num_rows > 0) {
-            $upd = $_conexion->prepare("UPDATE SolicitudAdopcion SET estado_solicitud = ? WHERE id_solicitud = ?");
-            $upd->bind_param("si", $nuevo, $id_sol);
-            $upd->execute();
-            $upd->close();
-        }
-        $chk->close();
+        $adopcionModel->updateEstado($id_sol, $estado_map[$accion], $id_protectora);
     }
     header("Location: solicitudes-protectora.php" . (isset($_GET['estado']) ? '?estado=' . urlencode($_GET['estado']) : ''));
     exit();
 }
 
 // ── FILTRO DE ESTADO ──────────────────────────────────────────
-$estado_filtro = $_GET['estado'] ?? 'PENDIENTE';
+$estado_filtro   = $_GET['estado'] ?? 'PENDIENTE';
 $estados_validos = ['PENDIENTE', 'APROBADA', 'RECHAZADA', 'TODAS'];
 if (!in_array($estado_filtro, $estados_validos)) $estado_filtro = 'PENDIENTE';
 
-// ── OBTENER SOLICITUDES ───────────────────────────────────────
-$sql = "SELECT s.*, a.nombre AS nombre_animal, a.especie, a.raza,
-               (SELECT g.ruta FROM Galeria g WHERE g.id_animal = a.id_animal ORDER BY g.es_principal DESC LIMIT 1) AS foto_animal,
-               c.id_cita, c.estado AS estado_cita,
-               d.fecha AS fecha_cita, d.hora_inicio AS hora_cita
-        FROM SolicitudAdopcion s
-        JOIN Animales a ON s.id_animal = a.id_animal
-        LEFT JOIN CitaEntrevista c ON c.id_solicitud = s.id_solicitud
-        LEFT JOIN DisponibilidadProtectora d ON c.id_disponibilidad = d.id_disponibilidad
-        WHERE a.id_protectora = ?";
-if ($estado_filtro !== 'TODAS') {
-    $sql .= " AND s.estado_solicitud = ?";
-}
-$sql .= " ORDER BY s.fecha_solicitud DESC";
-
-$solicitudes = [];
-if ($estado_filtro !== 'TODAS') {
-    $st = $_conexion->prepare($sql);
-    $st->bind_param("is", $id_protectora, $estado_filtro);
-} else {
-    $st = $_conexion->prepare($sql);
-    $st->bind_param("i", $id_protectora);
-}
-$st->execute();
-$res = $st->get_result();
-while ($row = $res->fetch_assoc()) $solicitudes[] = $row;
-$st->close();
-
-// ── CONTADORES POR ESTADO ─────────────────────────────────────
-$contadores = ['PENDIENTE' => 0, 'APROBADA' => 0, 'RECHAZADA' => 0];
-$st2 = $_conexion->prepare(
-    "SELECT s.estado_solicitud, COUNT(*) AS total
-     FROM SolicitudAdopcion s JOIN Animales a ON s.id_animal = a.id_animal
-     WHERE a.id_protectora = ?
-     GROUP BY s.estado_solicitud"
-);
-$st2->bind_param("i", $id_protectora);
-$st2->execute();
-$r2 = $st2->get_result();
-while ($row = $r2->fetch_assoc()) $contadores[$row['estado_solicitud']] = (int)$row['total'];
-$st2->close();
+// ── OBTENER SOLICITUDES Y CONTADORES ─────────────────────────
+$solicitudes = $adopcionModel->getSolicitudesByProtectora($id_protectora, $estado_filtro);
+$contadores  = $adopcionModel->getContadoresByProtectora($id_protectora);
 
 $vivienda_labels = ['piso' => 'Piso', 'casa' => 'Casa', 'chalet' => 'Chalet', 'otro' => 'Otro'];
 ?>

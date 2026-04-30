@@ -1,160 +1,59 @@
 <?php
 session_start();
 require "../sesion/conexion.php";
+require_once "../model/AdopcionModel.php";
 
 // Solo usuarios adoptantes
 if (!isset($_SESSION['id']) || !isset($_SESSION['user'])) {
     header('Location: ../../public/login.html');
     exit();
 }
-$id_adoptante = (int)$_SESSION['id'];
+$id_adoptante  = (int)$_SESSION['id'];
+$adopcionModel = new AdopcionModel($_conexion);
 
-// ── VALIDAR SOLICITUD ─────────────────────────────────────────
 if (!isset($_GET['solicitud']) || !is_numeric($_GET['solicitud'])) {
     header('Location: index.php');
     exit();
 }
 $id_solicitud = (int)$_GET['solicitud'];
 
-// Verificar que la solicitud pertenece a este usuario y está activa
-$st = $_conexion->prepare(
-    "SELECT s.*, a.nombre AS nombre_animal, a.especie, a.id_protectora,
-            p.nombre_protectora, p.ciudad,
-            (SELECT g.ruta FROM Galeria g WHERE g.id_animal = a.id_animal ORDER BY g.es_principal DESC LIMIT 1) AS foto_animal
-     FROM SolicitudAdopcion s
-     JOIN Animales a ON s.id_animal = a.id_animal
-     JOIN Protectora p ON a.id_protectora = p.id_protectora
-     WHERE s.id_solicitud = ? AND s.id_adoptante = ?"
-);
-$st->bind_param("ii", $id_solicitud, $id_adoptante);
-$st->execute();
-$solicitud = $st->get_result()->fetch_assoc();
-$st->close();
-
+$solicitud = $adopcionModel->getSolicitudConAnimal($id_solicitud, $id_adoptante);
 if (!$solicitud) {
     header('Location: index.php');
     exit();
 }
 
-// ── COMPROBAR SI YA TIENE CITA ────────────────────────────────
-$chk = $_conexion->prepare(
-    "SELECT c.id_cita, d.fecha, d.hora_inicio, d.hora_fin
-     FROM CitaEntrevista c
-     JOIN DisponibilidadProtectora d ON c.id_disponibilidad = d.id_disponibilidad
-     WHERE c.id_solicitud = ? AND c.estado != 'CANCELADA'"
-);
-$chk->bind_param("i", $id_solicitud);
-$chk->execute();
-$cita_existente = $chk->get_result()->fetch_assoc();
-$chk->close();
+$cita_existente = $adopcionModel->getCitaExistente($id_solicitud);
 
-// ── ACCIÓN: cancelar cita ────────────────────────────────────
 $msg = ''; $msg_tipo = '';
 $reservada = false;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['accion'] ?? '') === 'cancelar' && $cita_existente) {
-    $upd = $_conexion->prepare(
-        "UPDATE CitaEntrevista SET estado = 'CANCELADA'
-         WHERE id_cita = ? AND id_solicitud = ?"
-    );
-    $upd->bind_param("ii", $cita_existente['id_cita'], $id_solicitud);
-    $upd->execute();
-    $upd->close();
+    $adopcionModel->cancelarCitaPorSolicitud($cita_existente['id_cita'], $id_solicitud);
     $cita_existente = null;
     $msg = 'La entrevista ha sido cancelada. Puedes reservar otra fecha cuando quieras.';
     $msg_tipo = 'ok';
-    // Recargar slots
-    $sl2 = $_conexion->prepare(
-        "SELECT d.*
-         FROM DisponibilidadProtectora d
-         LEFT JOIN CitaEntrevista c ON c.id_disponibilidad = d.id_disponibilidad AND c.estado != 'CANCELADA'
-         WHERE d.id_protectora = ? AND d.disponible = 1 AND d.fecha >= CURDATE() AND c.id_cita IS NULL
-         ORDER BY d.fecha, d.hora_inicio"
-    );
-    $sl2->bind_param("i", $solicitud['id_protectora']);
-    $sl2->execute();
-    $r2 = $sl2->get_result();
-    $slots_disponibles = [];
-    while ($row = $r2->fetch_assoc()) $slots_disponibles[$row['fecha']][] = $row;
-    $sl2->close();
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$cita_existente && ($_POST['accion'] ?? '') !== 'cancelar') {
     $id_slot = (int)($_POST['id_disponibilidad'] ?? 0);
 
-    // Verificar que el slot está disponible y pertenece a la protectora correcta
-    $sv = $_conexion->prepare(
-        "SELECT d.id_disponibilidad
-         FROM DisponibilidadProtectora d
-         LEFT JOIN CitaEntrevista c
-               ON c.id_disponibilidad = d.id_disponibilidad
-              AND c.estado != 'CANCELADA'
-         WHERE d.id_disponibilidad = ?
-           AND d.id_protectora     = ?
-           AND d.disponible        = 1
-           AND d.fecha            >= CURDATE()
-           AND c.id_cita           IS NULL"
-    );
-    $sv->bind_param("ii", $id_slot, $solicitud['id_protectora']);
-    $sv->execute();
-    $slot_ok = $sv->get_result()->num_rows > 0;
-    $sv->close();
-
-    if ($slot_ok) {
-        $ins = $_conexion->prepare(
-            "INSERT INTO CitaEntrevista (id_solicitud, id_disponibilidad) VALUES (?, ?)"
-        );
-        $ins->bind_param("ii", $id_solicitud, $id_slot);
-        if ($ins->execute()) {
-            // Actualizar estado solicitud a APROBADA automáticamente
-            $upd = $_conexion->prepare("UPDATE SolicitudAdopcion SET estado_solicitud = 'APROBADA' WHERE id_solicitud = ?");
-            $upd->bind_param("i", $id_solicitud);
-            $upd->execute();
-            $upd->close();
-
-            // Recargar cita
-            $chk2 = $_conexion->prepare(
-                "SELECT c.id_cita, d.fecha, d.hora_inicio, d.hora_fin
-                 FROM CitaEntrevista c
-                 JOIN DisponibilidadProtectora d ON c.id_disponibilidad = d.id_disponibilidad
-                 WHERE c.id_solicitud = ? AND c.estado != 'CANCELADA'"
-            );
-            $chk2->bind_param("i", $id_solicitud);
-            $chk2->execute();
-            $cita_existente = $chk2->get_result()->fetch_assoc();
-            $chk2->close();
+    if ($adopcionModel->verificarSlotDisponible($id_slot, $solicitud['id_protectora'])) {
+        if ($adopcionModel->reservarCita($id_solicitud, $id_slot)) {
+            $adopcionModel->updateEstado($id_solicitud, 'APROBADA', $solicitud['id_protectora']);
+            $cita_existente = $adopcionModel->getCitaExistente($id_solicitud);
             $reservada = true;
         } else {
             $msg = 'Error al reservar. Inténtalo de nuevo.'; $msg_tipo = 'err';
         }
-        $ins->close();
     } else {
         $msg = 'Ese horario ya no está disponible. Por favor elige otro.'; $msg_tipo = 'err';
     }
 }
 
-// ── CARGAR SLOTS DISPONIBLES ─────────────────────────────────
 $slots_disponibles = [];
 if (!$cita_existente) {
-    $sl = $_conexion->prepare(
-        "SELECT d.*
-         FROM DisponibilidadProtectora d
-         LEFT JOIN CitaEntrevista c
-               ON c.id_disponibilidad = d.id_disponibilidad
-              AND c.estado != 'CANCELADA'
-         WHERE d.id_protectora = ?
-           AND d.disponible    = 1
-           AND d.fecha        >= CURDATE()
-           AND c.id_cita       IS NULL
-         ORDER BY d.fecha, d.hora_inicio"
-    );
-    $sl->bind_param("i", $solicitud['id_protectora']);
-    $sl->execute();
-    $r = $sl->get_result();
-    while ($row = $r->fetch_assoc()) {
-        $slots_disponibles[$row['fecha']][] = $row;
-    }
-    $sl->close();
+    $slots_disponibles = $adopcionModel->getSlotsByProtectora($solicitud['id_protectora']);
 }
 
 $meses_es = ['','Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];

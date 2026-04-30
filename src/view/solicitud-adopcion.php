@@ -1,90 +1,59 @@
 <?php
 session_start();
 require "../sesion/conexion.php";
+require_once "../model/AnimalModel.php";
+require_once "../model/UsuarioModel.php";
+require_once "../model/AdopcionModel.php";
 
-error_reporting(E_ALL);
-ini_set("display_errors", 1);
-
-// ── VALIDAR SESIÓN ───────────────────────────────────────────
 if (!isset($_SESSION['id']) || !isset($_SESSION['user'])) {
     header("Location: ../../public/login.html?redirect=" . urlencode($_SERVER['REQUEST_URI']));
     exit();
 }
 
-// ── VALIDAR PARÁMETRO ────────────────────────────────────────
 if (!isset($_GET['id']) || !is_numeric($_GET['id'])) {
     header("Location: index.php");
     exit();
 }
 
-$id_animal = (int) $_GET['id'];
+$id_animal     = (int) $_GET['id'];
+$animalModel   = new AnimalModel($_conexion);
+$usuarioModel  = new UsuarioModel($_conexion);
+$adopcionModel = new AdopcionModel($_conexion);
 
-// ── OBTENER DATOS DEL ANIMAL ─────────────────────────────────
-$stmt = $_conexion->prepare(
-    "SELECT a.id_animal, a.nombre, a.especie, a.raza, a.sexo, a.edad, a.id_protectora,
-            a.id_estado, e.nombre AS estado,
-            p.nombre_protectora, p.email AS email_protectora, p.telefono AS tel_protectora,
-            (SELECT g.ruta FROM Galeria g WHERE g.id_animal = a.id_animal ORDER BY g.es_principal DESC, g.id_foto ASC LIMIT 1) AS foto
-     FROM Animales a
-     LEFT JOIN EstadoAnimal e ON a.id_estado = e.id_estado
-     LEFT JOIN Protectora   p ON a.id_protectora = p.id_protectora
-     WHERE a.id_animal = ?"
-);
-$stmt->bind_param("i", $id_animal);
-$stmt->execute();
-$animal = $stmt->get_result()->fetch_assoc();
-$stmt->close();
-
+$animal = $animalModel->getForSolicitud($id_animal);
 if (!$animal || $animal['estado'] !== 'DISPONIBLE') {
     header("Location: ficha-animal.php?id=" . $id_animal);
     exit();
 }
 
-// ── OBTENER DATOS DEL USUARIO ────────────────────────────────
-$stmt_u = $_conexion->prepare("SELECT nombre, apellido, email, numero FROM Usuario WHERE id_adoptante = ?");
-$stmt_u->bind_param("i", $_SESSION['id']);
-$stmt_u->execute();
-$usuario = $stmt_u->get_result()->fetch_assoc();
-$stmt_u->close();
+$usuario = $usuarioModel->getBasico((int)$_SESSION['id']);
 
-// ── PROCESAR FORMULARIO ──────────────────────────────────────
-$errores   = [];
-$enviado   = false;
+$errores = [];
+$enviado = false;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
-    // Comprobar si ya tiene solicitud pendiente para este animal
-    $chk = $_conexion->prepare(
-        "SELECT id_solicitud FROM SolicitudAdopcion WHERE id_animal = ? AND id_adoptante = ? AND estado_solicitud = 'PENDIENTE'"
-    );
-    $chk->bind_param("ii", $id_animal, $_SESSION['id']);
-    $chk->execute();
-    $ya_existe = $chk->get_result()->num_rows > 0;
-    $chk->close();
-
-    if ($ya_existe) {
+    if ($adopcionModel->existeSolicitudPendiente($id_animal, (int)$_SESSION['id'])) {
         $errores[] = "Ya tienes una solicitud pendiente para este animal.";
     } else {
-        // Recoger y sanear campos
-        $f_nombre    = trim($_POST['nombre']    ?? '');
-        $f_apellido  = trim($_POST['apellido']  ?? '');
-        $f_email     = trim($_POST['email']     ?? '');
-        $f_telefono  = trim($_POST['telefono']  ?? '');
-        $f_dni       = trim($_POST['dni']       ?? '');
-        $f_vivienda  = trim($_POST['tipo_vivienda'] ?? '');
-        $f_jardin    = isset($_POST['tiene_jardin'])   ? 1 : 0;
-        $f_metros    = trim($_POST['metros_vivienda']  ?? '');
-        $f_ninos     = isset($_POST['tiene_ninos'])    ? 1 : 0;
-        $f_edades    = trim($_POST['edades_ninos']     ?? '');
-        $f_animales  = isset($_POST['tiene_animales']) ? 1 : 0;
-        $f_desc_ani  = trim($_POST['desc_animales']    ?? '');
-        $f_horas     = (int) ($_POST['horas_solo']     ?? 0);
-        $f_exp       = isset($_POST['experiencia'])    ? 1 : 0;
-        $f_motiv     = trim($_POST['motivacion']       ?? '');
-        $f_visita    = isset($_POST['acepta_visita'])       ? 1 : 0;
-        $f_seguim    = isset($_POST['acepta_seguimiento'])  ? 1 : 0;
+        $f_nombre   = trim($_POST['nombre']    ?? '');
+        $f_apellido = trim($_POST['apellido']  ?? '');
+        $f_email    = trim($_POST['email']     ?? '');
+        $f_telefono = trim($_POST['telefono']  ?? '');
+        $f_dni      = trim($_POST['dni']       ?? '');
+        $f_vivienda = trim($_POST['tipo_vivienda'] ?? '');
+        $f_jardin   = isset($_POST['tiene_jardin'])   ? 1 : 0;
+        $f_metros   = trim($_POST['metros_vivienda']  ?? '');
+        $f_ninos    = isset($_POST['tiene_ninos'])    ? 1 : 0;
+        $f_edades   = trim($_POST['edades_ninos']     ?? '');
+        $f_animales = isset($_POST['tiene_animales']) ? 1 : 0;
+        $f_desc_ani = trim($_POST['desc_animales']    ?? '');
+        $f_horas    = (int) ($_POST['horas_solo']     ?? 0);
+        $f_exp      = isset($_POST['experiencia'])    ? 1 : 0;
+        $f_motiv    = trim($_POST['motivacion']       ?? '');
+        $f_visita   = isset($_POST['acepta_visita'])       ? 1 : 0;
+        $f_seguim   = isset($_POST['acepta_seguimiento'])  ? 1 : 0;
 
-        // Validaciones básicas
         if (empty($f_nombre))   $errores[] = "El nombre es obligatorio.";
         if (empty($f_apellido)) $errores[] = "El apellido es obligatorio.";
         if (!filter_var($f_email, FILTER_VALIDATE_EMAIL)) $errores[] = "El email no es válido.";
@@ -93,35 +62,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (!$f_visita)         $errores[] = "Debes aceptar la posible visita al domicilio.";
 
         if (empty($errores)) {
-            $ins = $_conexion->prepare(
-                "INSERT INTO SolicitudAdopcion
-                    (id_animal, id_adoptante, nombre, apellido, email, telefono, dni,
-                     tipo_vivienda, tiene_jardin, metros_vivienda,
-                     tiene_ninos, edades_ninos, tiene_animales, desc_animales,
-                     horas_solo, experiencia, motivacion, acepta_visita, acepta_seguimiento)
-                 VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
-            );
-            $ins->bind_param(
-                "iissssssisisisisisi",
-                $id_animal, $_SESSION['id'],
-                $f_nombre, $f_apellido, $f_email, $f_telefono, $f_dni,
-                $f_vivienda, $f_jardin, $f_metros,
-                $f_ninos, $f_edades, $f_animales, $f_desc_ani,
-                $f_horas, $f_exp, $f_motiv,
-                $f_visita, $f_seguim
-            );
-            if ($ins->execute()) {
-                $enviado     = true;
-                $id_nueva_solicitud = (int)$_conexion->insert_id;
+            $id_nueva_solicitud = $adopcionModel->createSolicitud([
+                'id_animal'          => $id_animal,
+                'id_adoptante'       => (int)$_SESSION['id'],
+                'nombre'             => $f_nombre,
+                'apellido'           => $f_apellido,
+                'email'              => $f_email,
+                'telefono'           => $f_telefono,
+                'dni'                => $f_dni,
+                'tipo_vivienda'      => $f_vivienda,
+                'tiene_jardin'       => $f_jardin,
+                'metros_vivienda'    => $f_metros,
+                'tiene_ninos'        => $f_ninos,
+                'edades_ninos'       => $f_edades,
+                'tiene_animales'     => $f_animales,
+                'desc_animales'      => $f_desc_ani,
+                'horas_solo'         => $f_horas,
+                'experiencia'        => $f_exp,
+                'motivacion'         => $f_motiv,
+                'acepta_visita'      => $f_visita,
+                'acepta_seguimiento' => $f_seguim,
+            ]);
+            if ($id_nueva_solicitud !== false) {
+                $enviado = true;
             } else {
                 $errores[] = "Error al guardar la solicitud. Inténtalo de nuevo.";
             }
-            $ins->close();
         }
     }
 }
 
-// Datos para pre-rellenar el formulario
 $pre_nombre   = $usuario['nombre']   ?? '';
 $pre_apellido = $usuario['apellido'] ?? '';
 $pre_email    = $usuario['email']    ?? '';

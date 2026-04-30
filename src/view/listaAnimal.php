@@ -1,9 +1,7 @@
 <?php
 session_start();
 require "../sesion/conexion.php";
-
-error_reporting(E_ALL);
-ini_set("display_errors", 1);
+require_once "../model/AnimalModel.php";
 
 // Solo protectoras pueden acceder
 if (!isset($_SESSION["id"])) {
@@ -16,49 +14,20 @@ if (isset($_SESSION["user"])) {
 }
 
 $id_protectora = $_SESSION["id"];
+$animalModel   = new AnimalModel($_conexion);
 
 // ── ELIMINAR ANIMAL ──────────────────────────────────────────
 if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["action"]) && $_POST["action"] === "eliminar") {
     $id_animal = (int) $_POST["id_animal"];
-
-    // Verificamos que el animal pertenece a esta protectora antes de borrar
-    $check = $_conexion->prepare("SELECT id_animal FROM Animales WHERE id_animal = ? AND id_protectora = ?");
-    $check->bind_param("ii", $id_animal, $id_protectora);
-    $check->execute();
-    $check->store_result();
-
-    if ($check->num_rows > 0) {
-        $del = $_conexion->prepare("DELETE FROM Animales WHERE id_animal = ?");
-        $del->bind_param("i", $id_animal);
-        if ($del->execute()) {
-            $msg_ok  = "Animal eliminado correctamente.";
-        } else {
-            $msg_err = "No se pudo eliminar el animal.";
-        }
-        $del->close();
+    if ($animalModel->delete($id_animal, $id_protectora)) {
+        $msg_ok  = "Animal eliminado correctamente.";
     } else {
-        $msg_err = "No tienes permiso para eliminar ese animal.";
+        $msg_err = "No tienes permiso para eliminar ese animal o no existe.";
     }
-    $check->close();
 }
 
 // ── CARGA DE ANIMALES ────────────────────────────────────────
-$consulta = $_conexion->prepare(
-    "SELECT a.id_animal, a.nombre, a.especie, a.raza, a.sexo, a.color, a.peso, a.edad,
-            a.fecha_entrada, a.descripcion,
-            a.compatibilidad_perros, a.compatibilidad_gatos, a.compatibilidad_ninos,
-            e.nombre AS estado,
-            g.ruta AS foto
-     FROM Animales a
-     LEFT JOIN EstadoAnimal e ON a.id_estado = e.id_estado
-     LEFT JOIN Galeria g ON a.id_animal = g.id_animal AND g.es_principal = 1
-     WHERE a.id_protectora = ?
-     ORDER BY a.id_animal DESC"
-);
-$consulta->bind_param("i", $id_protectora);
-$consulta->execute();
-$animales = $consulta->get_result()->fetch_all(MYSQLI_ASSOC);
-$consulta->close();
+$animales = $animalModel->getAllByProtectora($id_protectora);
 ?>
 <!DOCTYPE html>
 <html lang="es">

@@ -1,6 +1,7 @@
 <?php
 session_start();
 require "../sesion/conexion.php";
+require_once "../model/UsuarioModel.php";
 
 // ── ACCESO: solo admins ──────────────────────────────────────
 if (!isset($_SESSION['user']) || !isset($_SESSION['admin']) || $_SESSION['admin'] != 1) {
@@ -9,30 +10,9 @@ if (!isset($_SESSION['user']) || !isset($_SESSION['admin']) || $_SESSION['admin'
 }
 
 // ── BÚSQUEDA ─────────────────────────────────────────────────
-$busqueda = isset($_GET['busqueda']) ? trim($_GET['busqueda']) : '';
-
-if ($busqueda !== '') {
-    $sql = "SELECT id_adoptante, nombre, apellido, email, admin, baneado
-            FROM Usuario
-            WHERE nombre LIKE ? OR apellido LIKE ? OR email LIKE ?
-            ORDER BY nombre ASC";
-    $like = "%$busqueda%";
-    $stmt = $_conexion->prepare($sql);
-    $stmt->bind_param("sss", $like, $like, $like);
-} else {
-    $sql = "SELECT id_adoptante, nombre, apellido, email, admin, baneado
-            FROM Usuario
-            ORDER BY nombre ASC";
-    $stmt = $_conexion->prepare($sql);
-}
-
-$stmt->execute();
-$result = $stmt->get_result();
-$usuarios = [];
-while ($row = $result->fetch_assoc()) {
-    $usuarios[] = $row;
-}
-$stmt->close();
+$busqueda    = isset($_GET['busqueda']) ? trim($_GET['busqueda']) : '';
+$usuarioModel = new UsuarioModel($_conexion);
+$usuarios     = $usuarioModel->buscar($busqueda);
 ?>
 <!DOCTYPE html>
 <html lang="es">

@@ -1,6 +1,8 @@
 <?php
 session_start();
 require "../sesion/conexion.php";
+require_once "../model/CrowdfundingModel.php";
+require_once "../model/ProtectoraModel.php";
 header('Content-Type: application/json');
 
 if (!isset($_SESSION['id']) || !isset($_SESSION['user'])) {
@@ -17,24 +19,17 @@ if ($id_protectora <= 0 || $cantidad <= 0) {
     exit;
 }
 
-$st = $_conexion->prepare("SELECT id_protectora FROM Protectora WHERE id_protectora = ?");
-$st->bind_param('i', $id_protectora);
-$st->execute();
-if (!$st->get_result()->fetch_assoc()) {
+$protectoraModel = new ProtectoraModel($_conexion);
+if (!$protectoraModel->verificarExiste($id_protectora)) {
     echo json_encode(['ok' => false, 'error' => 'Protectora no encontrada.']);
     exit;
 }
 
-$id_adoptante = (int)$_SESSION['id'];
-$nombre_don   = $nombre !== '' ? $nombre : ($_SESSION['nombre'] ?? 'Anónimo');
+$id_adoptante      = (int)$_SESSION['id'];
+$nombre_don        = $nombre !== '' ? $nombre : ($_SESSION['nombre'] ?? 'Anónimo');
+$crowdfundingModel = new CrowdfundingModel($_conexion);
 
-$st2 = $_conexion->prepare(
-    "INSERT INTO DonacionDirecta (id_protectora, id_adoptante, nombre_donante, cantidad)
-     VALUES (?, ?, ?, ?)"
-);
-$st2->bind_param('iisd', $id_protectora, $id_adoptante, $nombre_don, $cantidad);
-
-if ($st2->execute()) {
+if ($crowdfundingModel->addDonacionDirecta($id_protectora, $id_adoptante, $nombre_don, $cantidad)) {
     echo json_encode(['ok' => true]);
 } else {
     echo json_encode(['ok' => false, 'error' => 'Error al guardar la donación.']);
