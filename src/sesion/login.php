@@ -9,7 +9,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // ── EMAIL ────────────────────────────────────────────────
     $tmp_email = htmlspecialchars(trim($_POST["login-email"]));
     if ($tmp_email == "") {
-        header("Location: ../../public/login.html?error=email");
+        header("Location: /public/login.html?error=email");
         exit();
     } else {
         $email = $tmp_email;
@@ -18,7 +18,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // ── CONTRASEÑA ───────────────────────────────────────────
     $tmp_pass = trim($_POST["login-password"]); // HAY 
     if ($tmp_pass == "") {
-        header("Location: ../../public/login.html?error=pass");
+        header("Location: /public/login.html?error=pass");
         exit();
     } else {
         $pass = $tmp_pass;
@@ -44,7 +44,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         // Si tampoco está en Protectora, no existe
         if ($resultado->num_rows === 0) {
             $consulta->close();
-            header("Location: ../../public/login.html?error=noexiste");
+            header("Location: /public/login.html?error=noexiste");
             exit();
         }
     }
@@ -53,12 +53,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $consulta->close();
 
     if (!password_verify($pass, $info_usuario["contrasena"])) {
-        header("Location: ../../public/login.html?error=passNoCoincide");
+        header("Location: /public/login.html?error=passNoCoincide");
         exit();
     }
 
     if (!isset($info_usuario["nombre_protectora"]) && !empty($info_usuario["baneado"])) {
-        header("Location: ../../public/login.html?error=baneado");
+        header("Location: /public/login.html?error=baneado");
         exit();
     }
 
@@ -75,9 +75,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $_SESSION["email"] = $info_usuario["email"];
 
     if (isset($info_usuario["nombre_protectora"])) {
-        header("Location: ../../public/indexProtectora.php");
+        header("Location: /src/view/indexProtectora.php");
     } else {
-        header("Location: ../../public/index.php");
+        header("Location: /src/view/index.php");
     }
     exit();
 }

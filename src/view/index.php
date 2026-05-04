@@ -93,19 +93,16 @@ if ($res_col) {
 
 // ── CROWDFUNDING ACTIVO ────────────────────────────────────────
 $crowd_casos = [];
-$tbl_crowd = $_conexion->query("SHOW TABLES LIKE 'CrowdfundingCaso'");
-if ($tbl_crowd && $tbl_crowd->num_rows > 0) {
-    $res_crowd = $_conexion->query(
-        "SELECT c.id_caso, c.titulo, c.animal_nombre, c.descripcion,
-                c.meta_euros, c.recaudado, c.foto, p.nombre_protectora
-         FROM CrowdfundingCaso c
-         JOIN Protectora p ON c.id_protectora = p.id_protectora
-         WHERE c.activo = 1
-         ORDER BY c.fecha_creacion DESC
-         LIMIT 6"
-    );
-    if ($res_crowd) while ($row = $res_crowd->fetch_assoc()) $crowd_casos[] = $row;
-}
+$res_crowd = @$_conexion->query(
+    "SELECT c.id_caso, c.titulo, c.animal_nombre, c.descripcion,
+            c.meta_euros, c.recaudado, c.foto, p.nombre_protectora
+     FROM CrowdfundingCaso c
+     JOIN Protectora p ON c.id_protectora = p.id_protectora
+     WHERE c.activo = 1
+     ORDER BY c.fecha_creacion DESC
+     LIMIT 6"
+);
+if ($res_crowd) while ($row = $res_crowd->fetch_assoc()) $crowd_casos[] = $row;
 
 // ── NOMBRE DE SESIÓN ───────────────────────────────────────────
 $nombre_sesion = '';
@@ -123,8 +120,8 @@ elseif (isset($_SESSION['protectora'])) $nombre_sesion = $_SESSION['protectora']
     <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,900&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/material-design-iconic-font/2.2.0/css/material-design-iconic-font.min.css">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-    <link rel="stylesheet" href="../../public/css/header.css">
-    <link rel="stylesheet" href="../../public/css/index.css">
+    <link rel="stylesheet" href="/public/css/header.css">
+    <link rel="stylesheet" href="/public/css/index.css">
 </head>
 <body>
 
@@ -141,7 +138,7 @@ elseif (isset($_SESSION['protectora'])) $nombre_sesion = $_SESSION['protectora']
             echo "<a class='hBoton' href='listaAnimal.php'>LISTA ANIMAL</a>";
         }
         if (isset($_SESSION['admin']) && $_SESSION['admin'] == 1): ?>
-            <a class="hBoton" href="moderacion.php">
+            <a class="hBoton" href="/src/view/moderacion.php">
                 <i class="zmdi zmdi-shield-security"></i> MODERACIÓN
             </a>
         <?php endif; ?>
@@ -149,7 +146,7 @@ elseif (isset($_SESSION['protectora'])) $nombre_sesion = $_SESSION['protectora']
     </nav>
 
     <nav id="header-izq">
-        <a href="index.php" aria-label="Go Catch">
+        <a href="/src/view/index.php" aria-label="Go Catch">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="40" height="40" role="img" aria-label="Go Catch">
                 <rect x="0" y="0" width="200" height="200" rx="36" ry="36" fill="#C97041"/>
                 <text x="110" y="148"
@@ -166,16 +163,16 @@ elseif (isset($_SESSION['protectora'])) $nombre_sesion = $_SESSION['protectora']
 
 
     <nav class="hBotones">
-        <a class="hBoton" href="urgente.php">URGENTE</a>
+        <a class="hBoton" href="/src/view/urgente.php">URGENTE</a>
         <?php if (isset($_SESSION['id'])): ?>
-            <a class="hBoton" href="perfil.php">
+            <a class="hBoton" href="/src/view/perfil.php">
                 <i class="zmdi zmdi-account"></i>
                 <?= htmlspecialchars($_SESSION["nombre"]) //TODO NOMBRE?>
             </a>
-            <a href="../sesion/logout.php" id="boton-destacado">CERRAR SESIÓN</a>
+            <a href="/src/sesion/logout.php" id="boton-destacado">CERRAR SESIÓN</a>
         <?php else: ?>
-            <a class="hBoton" href="../../public/registro.html">REGÍSTRATE</a>
-            <a href="../../public/login.html" id="boton-destacado">INICIA SESIÓN</a>
+            <a class="hBoton" href="/public/registro.html">REGÍSTRATE</a>
+            <a href="/public/login.html" id="boton-destacado">INICIA SESIÓN</a>
         <?php endif; ?>
     </nav>
 </header>
@@ -190,8 +187,8 @@ elseif (isset($_SESSION['protectora'])) $nombre_sesion = $_SESSION['protectora']
         <p>Encuentra al nuevo miembro de tu familia</p>
         <div id="hero-cta">
             <a href="#animales" class="cta-btn cta-primary">Ver animales</a>
-            <a href="../../public/registro.html" class="cta-btn cta-secondary">Únete a nosotros</a>
-            <a class="cta-btn cta-primary" href="../../public/pdf/BOE-204_Codigo_de_Proteccion_y_Bienestar_Animal.pdf" target="_blank">Ver ley de bienestar animal</a>
+            <a href="/public/registro.html" class="cta-btn cta-secondary">Únete a nosotros</a>
+            <a class="cta-btn cta-primary" href="/public/pdf/BOE-204_Codigo_de_Proteccion_y_Bienestar_Animal.pdf" target="_blank">Ver ley de bienestar animal</a>
         </div>
     </div>
 </section>
@@ -345,7 +342,7 @@ elseif (isset($_SESSION['protectora'])) $nombre_sesion = $_SESSION['protectora']
                     <i class="zmdi zmdi-search"></i> Buscar
                 </button>
                 <?php if ($especie_filtro || $ciudad_filtro || $raza_filtro || $sexo_filtro || $color_filtro || $edad_min !== '' || $edad_max !== '' || $peso_min !== '' || $peso_max !== '' || $compat_perros || $compat_gatos || $compat_ninos): ?>
-                    <a href="index.php" id="filtro-reset">✕ Limpiar</a>
+                    <a href="/src/view/index.php" id="filtro-reset">✕ Limpiar</a>
                 <?php endif; ?>
             </div>
 
@@ -489,7 +486,7 @@ elseif (isset($_SESSION['protectora'])) $nombre_sesion = $_SESSION['protectora']
 
                 <?php foreach ($animales_arr as $anim): ?>
                 <a class="animal-card"
-                   href="ficha-animal.php?id=<?= (int)$anim['id_animal'] ?>">
+                   href="/src/view/ficha-animal.php?id=<?= (int)$anim['id_animal'] ?>">
 
                     <div class="animal-foto">
                         <?php if (!empty($anim['foto'])): ?>
@@ -566,7 +563,7 @@ elseif (isset($_SESSION['protectora'])) $nombre_sesion = $_SESSION['protectora']
     <div id="protectoras-grid">
         <?php foreach ($protectoras_arr as $p): ?>
         <a class="protectora-card"
-           href="perfilProtectora.php?id=<?= (int)$p['id_protectora'] ?>">
+           href="/src/view/perfilProtectora.php?id=<?= (int)$p['id_protectora'] ?>">
 
             <div class="protectora-logo">
                 <?php if (!empty($p['logo'])): ?>
@@ -713,7 +710,7 @@ document.addEventListener('click', function(e) {
 
     const id = btn.dataset.id;
 
-    fetch('../controller/like.php', {
+    fetch('/src/controller/like.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: 'id_animal=' + encodeURIComponent(id)
@@ -721,7 +718,7 @@ document.addEventListener('click', function(e) {
     .then(r => r.json())
     .then(data => {
         if (data.error === 'not_logged_in') {
-            window.location.href = 'login.html';
+            window.location.href = '/public/login.html';
             return;
         }
         // Actualiza original y clones con el mismo data-id
@@ -881,7 +878,7 @@ if (!TIENE_DB_ANIMALES) {
                     <ellipse cx="64" cy="36" rx="9"  ry="11"/>
                 </svg>
                 <p>No hay animales disponibles en este momento.</p>
-                <a href="index.php">Reintentar</a>
+                <a href="/src/view/index.php">Reintentar</a>
             </div>`;
     });
 } else {
@@ -933,7 +930,7 @@ if (donModal) {
             return;
         }
         donSubmit.disabled = true;
-        fetch('../controller/crowdfunding-donacion.php', {
+        fetch('/src/controller/crowdfunding-donacion.php', {
             method: 'POST',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
             body: `id_caso=${encodeURIComponent(donCasoId)}&cantidad=${encodeURIComponent(cantidad)}&nombre=${encodeURIComponent(donNombre.value)}`

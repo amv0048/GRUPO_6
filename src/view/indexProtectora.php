@@ -4,7 +4,7 @@ require "../sesion/conexion.php";
 
 // Solo protectoras pueden ver esta página
 if (!isset($_SESSION['id']) || isset($_SESSION['user'])) {
-    header('Location: index.php');
+    header('Location: /src/view/index.php');
     exit();
 }
 $id_protectora = (int)$_SESSION['id'];
@@ -191,8 +191,8 @@ $st_cf->close();
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,900&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/material-design-iconic-font/2.2.0/css/material-design-iconic-font.min.css">
-    <link rel="stylesheet" href="../../public/css/header.css">
-    <link rel="stylesheet" href="../../public/css/indexProtectora.css">
+    <link rel="stylesheet" href="/public/css/header.css">
+    <link rel="stylesheet" href="/public/css/indexProtectora.css">
 </head>
 <body>
 
@@ -201,22 +201,22 @@ $st_cf->close();
 ══════════════════════════════════════════ -->
 <header>
     <nav class="hBotones">
-        <a class="hBoton" href="listaAnimal.php">LISTA ANIMAL</a>
+        <a class="hBoton" href="/src/view/listaAnimal.php">LISTA ANIMAL</a>
     </nav>
 
     <nav id="header-izq">
-        <a href="indexProtectora.php">
+        <a href="/src/view/indexProtectora.php">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="40" height="40" role="img" aria-label="Go Catch"><rect x="0" y="0" width="200" height="200" rx="36" ry="36" fill="#C97041"/><text x="110" y="148" font-family="'Fraunces', serif" font-weight="900" font-size="145" fill="#FFFFFF" text-anchor="middle">gc</text></svg>
         </a>
     </nav>
 
     <nav class="hBotones">
-        <a class="hBoton" href="urgente.php">URGENTE</a>
-        <a class="hBoton" href="perfil.php">
+        <a class="hBoton" href="/src/view/urgente.php">URGENTE</a>
+        <a class="hBoton" href="/src/view/perfil.php">
             <i class="zmdi zmdi-account"></i>
             <?= htmlspecialchars($_SESSION['nombre']) ?>
         </a>
-        <a href="../sesion/logout.php" id="boton-destacado">CERRAR SESIÓN</a>
+        <a href="/src/sesion/logout.php" id="boton-destacado">CERRAR SESIÓN</a>
     </nav>
 </header>
 
@@ -230,13 +230,13 @@ $st_cf->close();
         <p>Gestiona y da visibilidad a tus animales</p>
         <div id="hero-cta">
             <a href="#animales" class="cta-btn cta-primary">Ver mis animales</a>
-            <a href="solicitudes-protectora.php" class="cta-btn cta-secondary" style="position:relative">
+            <a href="/src/view/solicitudes-protectora.php" class="cta-btn cta-secondary" style="position:relative">
                 Solicitudes de adopción
                 <?php if ($cnt_pendientes > 0): ?>
                     <span style="position:absolute;top:-8px;right:-8px;background:#CA7842;color:#fff;font-size:10px;font-weight:700;min-width:20px;height:20px;border-radius:10px;display:flex;align-items:center;justify-content:center;padding:0 4px"><?= $cnt_pendientes ?></span>
                 <?php endif; ?>
             </a>
-            <a href="disponibilidad.php" class="cta-btn cta-secondary">
+            <a href="/src/view/disponibilidad.php" class="cta-btn cta-secondary">
                 <i class="zmdi zmdi-calendar" style="margin-right:6px"></i>Disponibilidad
             </a>
         </div>
@@ -273,7 +273,7 @@ $st_cf->close();
     <div class="panel-gestion-grid">
 
         <!-- Solicitudes -->
-        <a href="solicitudes-protectora.php" class="panel-card panel-card-sol">
+        <a href="/src/view/solicitudes-protectora.php" class="panel-card panel-card-sol">
             <i class="zmdi zmdi-inbox"></i>
             <div class="panel-card-info">
                 <p class="panel-card-titulo">Solicitudes de adopción</p>
@@ -289,7 +289,7 @@ $st_cf->close();
         </a>
 
         <!-- Disponibilidad -->
-        <a href="disponibilidad.php" class="panel-card panel-card-cal">
+        <a href="/src/view/disponibilidad.php" class="panel-card panel-card-cal">
             <i class="zmdi zmdi-calendar-alt"></i>
             <div class="panel-card-info">
                 <p class="panel-card-titulo">Disponibilidad para entrevistas</p>
@@ -455,7 +455,7 @@ $st_cf->close();
                     <i class="zmdi zmdi-search"></i> Buscar
                 </button>
                 <?php if ($especie_filtro || $raza_filtro || $sexo_filtro || $color_filtro || $edad_min !== '' || $edad_max !== '' || $peso_min !== '' || $peso_max !== '' || $compat_perros || $compat_gatos || $compat_ninos): ?>
-                    <a href="indexProtectora.php" id="filtro-reset">✕ Limpiar</a>
+                    <a href="/src/view/indexProtectora.php" id="filtro-reset">✕ Limpiar</a>
                 <?php endif; ?>
             </div>
 
@@ -481,7 +481,7 @@ $st_cf->close();
 
                 <?php foreach ($animales_arr as $anim): ?>
                 <a class="animal-card"
-                   href="ficha-animal.php?id=<?= (int)$anim['id_animal'] ?>">
+                   href="/src/view/ficha-animal.php?id=<?= (int)$anim['id_animal'] ?>">
 
                     <div class="animal-foto">
                         <?php if (!empty($anim['foto'])): ?>
@@ -546,7 +546,7 @@ $st_cf->close();
             <ellipse cx="64" cy="36" rx="9"  ry="11"/>
         </svg>
         <p>Aún no has registrado ningún animal.</p>
-        <a href="listaAnimal.php">Añadir animal</a>
+        <a href="/src/view/listaAnimal.php">Añadir animal</a>
     </div>
     <?php endif; ?>
 

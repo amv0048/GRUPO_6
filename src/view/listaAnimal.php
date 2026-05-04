@@ -5,11 +5,11 @@ require_once "../model/AnimalModel.php";
 
 // Solo protectoras pueden acceder
 if (!isset($_SESSION["id"])) {
-    header("Location: ../../public/login.html");
+    header("Location: /public/login.html");
     exit();
 }
 if (isset($_SESSION["user"])) {
-    header("Location: index.php");
+    header("Location: /src/view/index.php");
     exit();
 }
 
@@ -39,8 +39,8 @@ $animales = $animalModel->getAllByProtectora($id_protectora);
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,900&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/material-design-iconic-font/2.2.0/css/material-design-iconic-font.min.css">
-    <link rel="stylesheet" href="../../public/css/header.css">
-    <link rel="stylesheet" href="../../public/css/listaAnimal.css">
+    <link rel="stylesheet" href="/public/css/header.css">
+    <link rel="stylesheet" href="/public/css/listaAnimal.css">
 </head>
 <body>
 
@@ -50,14 +50,14 @@ $animales = $animalModel->getAllByProtectora($id_protectora);
         <a class="hBoton" href="" target="_self">COLABORADORES</a>
     </nav>
     <nav id="header-izq">
-        <a href="index.php" target="_self">
+        <a href="/src/view/index.php" target="_self">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="40" height="40" role="img" aria-label="Go Catch"><rect x="0" y="0" width="200" height="200" rx="36" ry="36" fill="#C97041"/><text x="110" y="148" font-family="'Fraunces', serif" font-weight="900" font-size="145" fill="#FFFFFF" text-anchor="middle">gc</text></svg>
         </a>
     </nav>
     <nav class="hBotones">
-        <a class="hBoton" href="urgente.php" target="_self">URGENTE</a>
-        <a class="hBoton" href="perfil.php" target="_self">MI PERFIL</a>
-        <a href="listaAnimal.php" target="_self" id="boton-destacado">MIS ANIMALES</a>
+        <a class="hBoton" href="/src/view/urgente.php" target="_self">URGENTE</a>
+        <a class="hBoton" href="/src/view/perfil.php" target="_self">MI PERFIL</a>
+        <a href="/src/view/listaAnimal.php" target="_self" id="boton-destacado">MIS ANIMALES</a>
     </nav>
 </header>
 
@@ -69,7 +69,7 @@ $animales = $animalModel->getAllByProtectora($id_protectora);
             <h2>Mis Animales</h2>
             <span><?= count($animales) ?> animal<?= count($animales) !== 1 ? 'es' : '' ?> registrado<?= count($animales) !== 1 ? 's' : '' ?></span>
         </div>
-        <a href="addAnimal.php" class="btn-add">
+        <a href="/src/view/addAnimal.php" class="btn-add">
             <i class="zmdi zmdi-plus"></i> AÑADIR ANIMAL
         </a>
     </div>
@@ -89,7 +89,7 @@ $animales = $animalModel->getAllByProtectora($id_protectora);
             <div class="empty-state">
                 <i class="zmdi zmdi-collection-item-3"></i>
                 <p>Todavía no tienes ningún animal registrado.</p>
-                <a href="addAnimal.php" class="btn-add">
+                <a href="/src/view/addAnimal.php" class="btn-add">
                     <i class="zmdi zmdi-plus"></i> AÑADIR PRIMER ANIMAL
                 </a>
             </div>
@@ -165,10 +165,10 @@ $animales = $animalModel->getAllByProtectora($id_protectora);
                             </td>
                             <td>
                                 <div class="acciones">
-                                    <a href="ficha-animal.php?id=<?= $a['id_animal'] ?>" class="btn-info">
+                                    <a href="/src/view/ficha-animal.php?id=<?= $a['id_animal'] ?>" class="btn-info">
                                         <i class="zmdi zmdi-eye"></i> Info
                                     </a>
-                                    <a href="editAnimal.php?id=<?= $a['id_animal'] ?>" class="btn-editar">
+                                    <a href="/src/view/editAnimal.php?id=<?= $a['id_animal'] ?>" class="btn-editar">
                                         <i class="zmdi zmdi-edit"></i> Editar
                                     </a>
                                     <form method="POST" action="listaAnimal.php"
@@ -192,7 +192,7 @@ $animales = $animalModel->getAllByProtectora($id_protectora);
     </div>
 
     <div class="volver">
-        <a href="index.php">← Volver al inicio</a>
+        <a href="/src/view/index.php">← Volver al inicio</a>
     </div>
 
 </div>

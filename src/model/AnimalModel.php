@@ -1,6 +1,6 @@
 <?php
 class AnimalModel {
-    private mysqli $db;
+    private $db;
 
     public function __construct(mysqli $db) { $this->db = $db; }
 
@@ -127,7 +127,7 @@ class AnimalModel {
         return $stmt->get_result()->fetch_assoc() ?: null;
     }
 
-    public function create(array $d, int $id_protectora): int|false {
+    public function create(array $d, int $id_protectora) {
         $stmt = $this->db->prepare(
             "INSERT INTO Animales
                 (id_protectora, id_estado, nombre, especie, raza, sexo, color, peso, edad,
