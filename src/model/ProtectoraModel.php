@@ -1,6 +1,6 @@
 <?php
 class ProtectoraModel {
-    private mysqli $db;
+    private $db;
 
     public function __construct(mysqli $db) { $this->db = $db; }
 

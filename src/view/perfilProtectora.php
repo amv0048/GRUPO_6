@@ -13,11 +13,11 @@ if (isset($_GET['id']) && is_numeric($_GET['id'])) {
                || (int)$_SESSION['id'] !== $id_ver;
 } else {
     if (!isset($_SESSION['id'])) {
-        header("Location: ../../public/login.html");
+        header("Location: /public/login.html");
         exit();
     }
     if (isset($_SESSION['user'])) {
-        header("Location: perfil.php");
+        header("Location: /src/view/perfil.php");
         exit();
     }
     $id_ver     = (int)$_SESSION['id'];
@@ -29,7 +29,7 @@ $protectoraModel = new ProtectoraModel($_conexion);
 $datos = $protectoraModel->getById($id_ver);
 
 if (!$datos) {
-    header("Location: index.php");
+    header("Location: /src/view/index.php");
     exit();
 }
 
@@ -37,7 +37,7 @@ if (!$datos) {
 if (!$solo_vista && $_SERVER["REQUEST_METHOD"] === "POST" && ($_POST['action'] ?? '') === 'eliminar') {
     $protectoraModel->delete($_SESSION["id"]);
     session_destroy();
-    header("Location: index.php");
+    header("Location: /src/view/index.php");
     exit();
 }
 
@@ -139,9 +139,9 @@ $es_adoptante = isset($_SESSION['id']) && isset($_SESSION['user']);
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,900&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/material-design-iconic-font/2.2.0/css/material-design-iconic-font.min.css">
-    <link rel="stylesheet" href="../../public/css/header.css">
-    <link rel="stylesheet" href="../../public/css/perfil.css">
-    <link rel="stylesheet" href="../../public/css/perfilProtectora.css">
+    <link rel="stylesheet" href="/public/css/header.css">
+    <link rel="stylesheet" href="/public/css/perfil.css">
+    <link rel="stylesheet" href="/public/css/perfilProtectora.css">
 </head>
 <body>
 
@@ -151,13 +151,13 @@ $es_adoptante = isset($_SESSION['id']) && isset($_SESSION['user']);
         <a class="hBoton" href="" target="_self">COLABORADORES</a>
     </nav>
     <nav id="header-izq">
-        <a href="index.php" target="_self">
+        <a href="/src/view/index.php" target="_self">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="40" height="40" role="img" aria-label="Go Catch"><rect x="0" y="0" width="200" height="200" rx="36" ry="36" fill="#C97041"/><text x="110" y="148" font-family="'Fraunces', serif" font-weight="900" font-size="145" fill="#FFFFFF" text-anchor="middle">gc</text></svg>
         </a>
     </nav>
     <nav class="hBotones">
         <a class="hBoton" href="" target="_self">URGENTE</a>
-        <a class="hBoton" href="../../public/registro.html" target="_self">REGÍSTRATE</a>
+        <a class="hBoton" href="/public/registro.html" target="_self">REGÍSTRATE</a>
         <a href="" target="_self" id="boton-destacado">INICIA SESIÓN</a>
     </nav>
 </header>
@@ -314,7 +314,7 @@ $es_adoptante = isset($_SESSION['id']) && isset($_SESSION['user']);
 
         <!-- VOLVER -->
         <div id="perfil-volver">
-            <a href="index.php">← Volver al inicio</a>
+            <a href="/src/view/index.php">← Volver al inicio</a>
         </div>
 
         <?php if (!$solo_vista): ?>
@@ -444,7 +444,7 @@ document.getElementById('modal-eliminar').addEventListener('click', function (e)
             return;
         }
         submit.disabled = true;
-        fetch('../controller/donacion-protectora.php', {
+        fetch('/src/controller/donacion-protectora.php', {
             method: 'POST',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
             body: `id_protectora=${encodeURIComponent(protId)}&cantidad=${encodeURIComponent(cant)}&nombre=${encodeURIComponent(inputNom.value)}`

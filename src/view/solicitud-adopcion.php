@@ -6,12 +6,12 @@ require_once "../model/UsuarioModel.php";
 require_once "../model/AdopcionModel.php";
 
 if (!isset($_SESSION['id']) || !isset($_SESSION['user'])) {
-    header("Location: ../../public/login.html?redirect=" . urlencode($_SERVER['REQUEST_URI']));
+    header("Location: /public/login.html?redirect=" . urlencode($_SERVER['REQUEST_URI']));
     exit();
 }
 
 if (!isset($_GET['id']) || !is_numeric($_GET['id'])) {
-    header("Location: index.php");
+    header("Location: /src/view/index.php");
     exit();
 }
 
@@ -22,7 +22,7 @@ $adopcionModel = new AdopcionModel($_conexion);
 
 $animal = $animalModel->getForSolicitud($id_animal);
 if (!$animal || $animal['estado'] !== 'DISPONIBLE') {
-    header("Location: ficha-animal.php?id=" . $id_animal);
+    header("Location: /src/view/ficha-animal.php?id=" . $id_animal);
     exit();
 }
 
@@ -111,8 +111,8 @@ $edad_txt = $animal['edad'] !== null ? $animal['edad'] . ' año' . ($animal['eda
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,900&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/material-design-iconic-font/2.2.0/css/material-design-iconic-font.min.css">
-    <link rel="stylesheet" href="../../public/css/header.css">
-    <link rel="stylesheet" href="../../public/css/solicitud-adopcion.css">
+    <link rel="stylesheet" href="/public/css/header.css">
+    <link rel="stylesheet" href="/public/css/solicitud-adopcion.css">
 </head>
 <body>
 
@@ -123,21 +123,21 @@ $edad_txt = $animal['edad'] !== null ? $animal['edad'] . ' año' . ($animal['eda
         <a class="hBoton" href="">COLABORADORES</a>
     </nav>
     <nav id="header-izq">
-        <a href="index.php" target="_self">
+        <a href="/src/view/index.php" target="_self">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="40" height="40" role="img" aria-label="Go Catch"><rect x="0" y="0" width="200" height="200" rx="36" ry="36" fill="#C97041"/><text x="110" y="148" font-family="'Fraunces', serif" font-weight="900" font-size="145" fill="#FFFFFF" text-anchor="middle">gc</text></svg>
         </a>
     </nav>
     <nav class="hBotones">
-        <a class="hBoton" href="urgente.php">URGENTE</a>
+        <a class="hBoton" href="/src/view/urgente.php">URGENTE</a>
         <?php if (isset($_SESSION['id'])): ?>
-            <a class="hBoton" href="perfil.php">
+            <a class="hBoton" href="/src/view/perfil.php">
                 <i class="zmdi zmdi-account"></i>
                 <?= htmlspecialchars($_SESSION["nombre"] ?? '') ?>
             </a>
-            <a href="../sesion/logout.php" id="boton-destacado">CERRAR SESIÓN</a>
+            <a href="/src/sesion/logout.php" id="boton-destacado">CERRAR SESIÓN</a>
         <?php else: ?>
-            <a class="hBoton" href="../../public/registro.html">REGÍSTRATE</a>
-            <a href="../../public/login.html" id="boton-destacado">INICIA SESIÓN</a>
+            <a class="hBoton" href="/public/registro.html">REGÍSTRATE</a>
+            <a href="/public/login.html" id="boton-destacado">INICIA SESIÓN</a>
         <?php endif; ?>
     </nav>
 </header>
@@ -146,11 +146,11 @@ $edad_txt = $animal['edad'] !== null ? $animal['edad'] . ' año' . ($animal['eda
 
     <!-- BREADCRUMB -->
     <div class="breadcrumb">
-        <a href="index.php"><i class="zmdi zmdi-home"></i> Inicio</a>
+        <a href="/src/view/index.php"><i class="zmdi zmdi-home"></i> Inicio</a>
         <span>/</span>
         <a href="index.php#animales">Animales</a>
         <span>/</span>
-        <a href="ficha-animal.php?id=<?= $id_animal ?>"><?= htmlspecialchars($animal['nombre']) ?></a>
+        <a href="/src/view/ficha-animal.php?id=<?= $id_animal ?>"><?= htmlspecialchars($animal['nombre']) ?></a>
         <span>/</span>
         Solicitud de adopción
     </div>
@@ -206,16 +206,16 @@ $edad_txt = $animal['edad'] !== null ? $animal['edad'] . ' año' . ($animal['eda
                     Ahora puedes reservar una fecha para la entrevista de adopción.
                 </p>
                 <?php if (!empty($id_nueva_solicitud)): ?>
-                <a href="reservar-cita.php?solicitud=<?= $id_nueva_solicitud ?>" class="btn-primario" style="margin: 20px auto 0; max-width: 340px">
+                <a href="/src/view/reservar-cita.php?solicitud=<?= $id_nueva_solicitud ?>" class="btn-primario" style="margin: 20px auto 0; max-width: 340px">
                     <i class="zmdi zmdi-calendar-check"></i>
                     RESERVAR FECHA DE ENTREVISTA
                 </a>
                 <?php endif; ?>
                 <div class="exito-btns">
-                    <a href="ficha-animal.php?id=<?= $id_animal ?>" class="btn-secundario">
+                    <a href="/src/view/ficha-animal.php?id=<?= $id_animal ?>" class="btn-secundario">
                         <i class="zmdi zmdi-arrow-left"></i> Volver a la ficha
                     </a>
-                    <a href="index.php" class="btn-primario" style="max-width:none">
+                    <a href="/src/view/index.php" class="btn-primario" style="max-width:none">
                         <i class="zmdi zmdi-home"></i> Ir al inicio
                     </a>
                 </div>
@@ -420,7 +420,7 @@ $edad_txt = $animal['edad'] !== null ? $animal['edad'] . ' año' . ($animal['eda
     </div>
 
     <div class="volver">
-        <a href="ficha-animal.php?id=<?= $id_animal ?>">← Volver a la ficha de <?= htmlspecialchars($animal['nombre']) ?></a>
+        <a href="/src/view/ficha-animal.php?id=<?= $id_animal ?>">← Volver a la ficha de <?= htmlspecialchars($animal['nombre']) ?></a>
     </div>
 
 </div>

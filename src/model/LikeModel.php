@@ -1,6 +1,6 @@
 <?php
 class LikeModel {
-    private mysqli $db;
+    private $db;
 
     public function __construct(mysqli $db) { $this->db = $db; }
 

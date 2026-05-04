@@ -5,7 +5,7 @@ require_once "../model/UsuarioModel.php";
 
 // ── ACCESO: solo admins ──────────────────────────────────────
 if (!isset($_SESSION['user']) || !isset($_SESSION['admin']) || $_SESSION['admin'] != 1) {
-    header('Location: index.php');
+    header('Location: /src/view/index.php');
     exit();
 }
 
@@ -23,34 +23,34 @@ $usuarios     = $usuarioModel->buscar($busqueda);
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,900&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/material-design-iconic-font/2.2.0/css/material-design-iconic-font.min.css">
-    <link rel="stylesheet" href="../../public/css/header.css">
-    <link rel="stylesheet" href="../../public/css/perfil.css">
-    <link rel="stylesheet" href="../../public/css/moderacion.css">
+    <link rel="stylesheet" href="/public/css/header.css">
+    <link rel="stylesheet" href="/public/css/perfil.css">
+    <link rel="stylesheet" href="/public/css/moderacion.css">
 </head>
 <body>
 
 <!-- HEADER -->
 <header>
     <nav class="hBotones">
-        <a class="hBoton" href="index.php">INICIO</a>
+        <a class="hBoton" href="/src/view/index.php">INICIO</a>
         <a class="hBoton" href="#protectoras">PROTECTORAS</a>
     </nav>
 
     <nav id="header-izq">
-        <a href="index.php">
+        <a href="/src/view/index.php">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="40" height="40" role="img" aria-label="Go Catch"><rect x="0" y="0" width="200" height="200" rx="36" ry="36" fill="#C97041"/><text x="110" y="148" font-family="'Fraunces', serif" font-weight="900" font-size="145" fill="#FFFFFF" text-anchor="middle">gc</text></svg>
         </a>
     </nav>
 
     <nav class="hBotones">
         <?php if (isset($_SESSION['admin']) && $_SESSION['admin'] == 1): ?>
-            <a class="hBoton" href="moderacion.php"><i class="zmdi zmdi-shield-security"></i> MODERACIÓN</a>
+            <a class="hBoton" href="/src/view/moderacion.php"><i class="zmdi zmdi-shield-security"></i> MODERACIÓN</a>
         <?php endif; ?>
-        <a class="hBoton" href="perfil.php">
+        <a class="hBoton" href="/src/view/perfil.php">
             <i class="zmdi zmdi-account"></i>
             <?= htmlspecialchars($_SESSION["nombre"]) ?>
         </a>
-        <a href="../sesion/logout.php" id="boton-destacado">CERRAR SESIÓN</a>
+        <a href="/src/sesion/logout.php" id="boton-destacado">CERRAR SESIÓN</a>
     </nav>
 </header>
 
@@ -78,7 +78,7 @@ $usuarios     = $usuarioModel->buscar($busqueda);
                     <span><?= count($usuarios) ?></span>
                     resultado<?= count($usuarios) !== 1 ? 's' : '' ?> para
                     "<span><?= htmlspecialchars($busqueda) ?></span>"
-                    — <a href="moderacion.php">limpiar búsqueda</a>
+                    — <a href="/src/view/moderacion.php">limpiar búsqueda</a>
                 </p>
             <?php else: ?>
                 <p class="results-info">

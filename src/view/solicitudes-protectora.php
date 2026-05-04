@@ -5,7 +5,7 @@ require_once "../model/AdopcionModel.php";
 
 // Solo protectoras
 if (!isset($_SESSION['id']) || isset($_SESSION['user'])) {
-    header('Location: index.php');
+    header('Location: /src/view/index.php');
     exit();
 }
 $id_protectora = (int)$_SESSION['id'];
@@ -19,7 +19,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['accion'], $_POST['id_
     if (isset($estado_map[$accion])) {
         $adopcionModel->updateEstado($id_sol, $estado_map[$accion], $id_protectora);
     }
-    header("Location: solicitudes-protectora.php" . (isset($_GET['estado']) ? '?estado=' . urlencode($_GET['estado']) : ''));
+    header("Location: /src/view/solicitudes-protectora.php" . (isset($_GET['estado']) ? '?estado=' . urlencode($_GET['estado']) : ''));
     exit();
 }
 
@@ -44,34 +44,34 @@ $vivienda_labels = ['piso' => 'Piso', 'casa' => 'Casa', 'chalet' => 'Chalet', 'o
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,900&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/material-design-iconic-font/2.2.0/css/material-design-iconic-font.min.css">
-    <link rel="stylesheet" href="../../public/css/header.css">
-    <link rel="stylesheet" href="../../public/css/solicitudes-protectora.css">
+    <link rel="stylesheet" href="/public/css/header.css">
+    <link rel="stylesheet" href="/public/css/solicitudes-protectora.css">
 </head>
 <body>
 
 <header>
     <nav class="hBotones">
-        <a class="hBoton" href="indexProtectora.php">PANEL</a>
-        <a class="hBoton" href="disponibilidad.php">DISPONIBILIDAD</a>
+        <a class="hBoton" href="/src/view/indexProtectora.php">PANEL</a>
+        <a class="hBoton" href="/src/view/disponibilidad.php">DISPONIBILIDAD</a>
     </nav>
     <nav id="header-izq">
-        <a href="indexProtectora.php">
+        <a href="/src/view/indexProtectora.php">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="40" height="40" role="img" aria-label="Go Catch"><rect x="0" y="0" width="200" height="200" rx="36" ry="36" fill="#C97041"/><text x="110" y="148" font-family="'Fraunces', serif" font-weight="900" font-size="145" fill="#FFFFFF" text-anchor="middle">gc</text></svg>
         </a>
     </nav>
     <nav class="hBotones">
-        <a class="hBoton" href="perfil.php">
+        <a class="hBoton" href="/src/view/perfil.php">
             <i class="zmdi zmdi-account"></i>
             <?= htmlspecialchars($_SESSION['nombre']) ?>
         </a>
-        <a href="../sesion/logout.php" id="boton-destacado">CERRAR SESIÓN</a>
+        <a href="/src/sesion/logout.php" id="boton-destacado">CERRAR SESIÓN</a>
     </nav>
 </header>
 
 <div id="page-wrapper">
 
     <div class="breadcrumb">
-        <a href="indexProtectora.php"><i class="zmdi zmdi-home"></i> Panel</a>
+        <a href="/src/view/indexProtectora.php"><i class="zmdi zmdi-home"></i> Panel</a>
         <span>/</span> Solicitudes de adopción
     </div>
 
@@ -91,7 +91,7 @@ $vivienda_labels = ['piso' => 'Piso', 'casa' => 'Casa', 'chalet' => 'Chalet', 'o
             $activo = $estado_filtro === $est ? 'activo' : '';
             $num    = $est === 'TODAS' ? array_sum($contadores) : ($contadores[$est] ?? 0);
         ?>
-        <a href="?estado=<?= $est ?>" class="tab-btn <?= $activo ?>">
+        <a href="/src/view/solicitudes-protectora.php?estado=<?= $est ?>" class="tab-btn <?= $activo ?>">
             <i class="zmdi <?= $tab['icono'] ?>"></i>
             <?= $tab['label'] ?>
             <span class="badge-num"><?= $num ?></span>
@@ -229,7 +229,7 @@ $vivienda_labels = ['piso' => 'Piso', 'casa' => 'Casa', 'chalet' => 'Chalet', 'o
 
                 <!-- Acciones -->
                 <div class="sol-acciones">
-                    <a href="ficha-animal.php?id=<?= (int)$s['id_animal'] ?>" class="btn-accion btn-ver-ficha" target="_blank">
+                    <a href="/src/view/ficha-animal.php?id=<?= (int)$s['id_animal'] ?>" class="btn-accion btn-ver-ficha" target="_blank">
                         <i class="zmdi zmdi-eye"></i> Ver animal
                     </a>
                     <?php if ($s['estado_solicitud'] !== 'APROBADA'): ?>
