@@ -3,19 +3,19 @@ session_start();
 require "../sesion/conexion.php";
 require_once "../model/AnimalModel.php";
 
-if (!isset($_SESSION["id"])) { header("Location: ../../public/login.html"); exit(); }
-if (isset($_SESSION["user"])) { header("Location: index.php"); exit(); }
+if (!isset($_SESSION["id"])) { header("Location: /public/login.html"); exit(); }
+if (isset($_SESSION["user"])) { header("Location: /src/view/index.php"); exit(); }
 
 $id_protectora = $_SESSION["id"];
 
 if (!isset($_GET["id"]) || !is_numeric($_GET["id"])) {
-    header("Location: listaAnimal.php"); exit();
+    header("Location: /src/view/listaAnimal.php"); exit();
 }
 $id_animal   = (int) $_GET["id"];
 $animalModel = new AnimalModel($_conexion);
 
 $animal = $animalModel->getByIdYProtectora($id_animal, $id_protectora);
-if (!$animal) { header("Location: listaAnimal.php"); exit(); }
+if (!$animal) { header("Location: /src/view/listaAnimal.php"); exit(); }
 
 $fotos = $animalModel->getGaleria($id_animal);
 $foto_principal = null;
@@ -30,14 +30,14 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     if ($accion === 'set_principal' && isset($_POST['id_foto'])) {
         $animalModel->setPrincipal((int)$_POST['id_foto'], $id_animal);
-        header("Location: editAnimal.php?id=$id_animal&ok=principal"); exit();
+        header("Location: /src/view/editAnimal.php?id=$id_animal&ok=principal"); exit();
     }
 
     if ($accion === 'eliminar_foto' && isset($_POST['id_foto'])) {
         $id_foto_del = (int)$_POST['id_foto'];
         $foto_del    = $animalModel->getFoto($id_foto_del, $id_animal);
         if ($foto_del) {
-            $ruta_fisica = realpath(__DIR__ . '/' . $foto_del['ruta']);
+            $ruta_fisica = realpath(__DIR__ . '/../../' . $foto_del['ruta']);
             if ($ruta_fisica && is_file($ruta_fisica)) unlink($ruta_fisica);
             $animalModel->deleteFoto($id_foto_del);
             if ($foto_del['es_principal']) {
@@ -45,7 +45,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 if ($siguiente) $animalModel->setPrincipal($siguiente['id_foto'], $id_animal);
             }
         }
-        header("Location: editAnimal.php?id=$id_animal&ok=foto_eliminada"); exit();
+        header("Location: /src/view/editAnimal.php?id=$id_animal&ok=foto_eliminada"); exit();
     }
 
     if ($accion === 'subir_foto') {
@@ -53,17 +53,17 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             $ext_ok = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
             $ext    = strtolower(pathinfo($_FILES['foto_nueva']['name'], PATHINFO_EXTENSION));
             if (in_array($ext, $ext_ok)) {
-                $carpeta = realpath(__DIR__ . '/../img') . '/protectoras/protectora_' . $id_protectora . '/animal_' . $id_animal;
+                $carpeta = realpath(__DIR__ . '/../../img') . '/protectoras/protectora_' . $id_protectora . '/animal_' . $id_animal;
                 if (!is_dir($carpeta)) mkdir($carpeta, 0755, true);
                 $archivo = 'foto_' . time() . '.' . $ext;
                 if (move_uploaded_file($_FILES['foto_nueva']['tmp_name'], $carpeta . '/' . $archivo)) {
-                    $ruta         = '../../img/protectoras/protectora_' . $id_protectora . '/animal_' . $id_animal . '/' . $archivo;
+                    $ruta         = 'img/protectoras/protectora_' . $id_protectora . '/animal_' . $id_animal . '/' . $archivo;
                     $es_principal = empty($fotos) ? 1 : 0;
                     $animalModel->addFoto($id_animal, $ruta, $es_principal);
                 }
             }
         }
-        header("Location: editAnimal.php?id=$id_animal&ok=foto_subida"); exit();
+        header("Location: /src/view/editAnimal.php?id=$id_animal&ok=foto_subida"); exit();
     }
 
     $d = [
@@ -83,7 +83,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     ];
 
     if ($animalModel->update($d, $id_animal, $id_protectora)) {
-        header("Location: listaAnimal.php?edited=1"); exit();
+        header("Location: /src/view/listaAnimal.php?edited=1"); exit();
     } else {
         $err_db = "No se pudo actualizar el animal.";
     }
@@ -107,9 +107,9 @@ if (isset($_GET['ok'])) {
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,900&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/material-design-iconic-font/2.2.0/css/material-design-iconic-font.min.css">
-    <link rel="stylesheet" href="../../public/css/header.css">
-    <link rel="stylesheet" href="../../public/css/perfil.css">
-    <link rel="stylesheet" href="../../public/css/editAnimal.css">
+    <link rel="stylesheet" href="/public/css/header.css">
+    <link rel="stylesheet" href="/public/css/perfil.css">
+    <link rel="stylesheet" href="/public/css/editAnimal.css">
 </head>
 <body>
 
@@ -119,14 +119,14 @@ if (isset($_GET['ok'])) {
         <a class="hBoton" href="" target="_self">COLABORADORES</a>
     </nav>
     <nav id="header-izq">
-        <a href="index.php" target="_self">
+        <a href="/src/view/index.php" target="_self">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="40" height="40" role="img" aria-label="Go Catch"><rect x="0" y="0" width="200" height="200" rx="36" ry="36" fill="#C97041"/><text x="110" y="148" font-family="'Fraunces', serif" font-weight="900" font-size="145" fill="#FFFFFF" text-anchor="middle">gc</text></svg>
         </a>
     </nav>
     <nav class="hBotones">
         <a class="hBoton" href="" target="_self">URGENTE</a>
-        <a class="hBoton" href="perfil.php" target="_self">MI PERFIL</a>
-        <a href="listaAnimal.php" target="_self" id="boton-destacado">MIS ANIMALES</a>
+        <a class="hBoton" href="/src/view/perfil.php" target="_self">MI PERFIL</a>
+        <a href="/src/view/listaAnimal.php" target="_self" id="boton-destacado">MIS ANIMALES</a>
     </nav>
 </header>
 
@@ -304,7 +304,7 @@ if (isset($_GET['ok'])) {
         </div>
 
         <div id="perfil-volver">
-            <a href="listaAnimal.php">← Volver a mis animales</a>
+            <a href="/src/view/listaAnimal.php">← Volver a mis animales</a>
         </div>
     </div>
 </div>

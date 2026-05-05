@@ -1,6 +1,6 @@
 <?php
 class AdopcionModel {
-    private mysqli $db;
+    private $db;
 
     public function __construct(mysqli $db) { $this->db = $db; }
 
@@ -99,7 +99,7 @@ class AdopcionModel {
         return $stmt->num_rows > 0;
     }
 
-    public function createSolicitud(array $d): int|false {
+    public function createSolicitud(array $d) {
         $stmt = $this->db->prepare(
             "INSERT INTO SolicitudAdopcion
                 (id_animal, id_adoptante, nombre, apellido, email, telefono, dni,

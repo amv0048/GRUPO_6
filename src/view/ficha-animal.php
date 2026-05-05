@@ -5,7 +5,7 @@ require_once "../model/AnimalModel.php";
 
 // ── VALIDAR PARÁMETRO ────────────────────────────────────────
 if (!isset($_GET['id']) || !is_numeric($_GET['id'])) {
-    header("Location: index.php");
+    header("Location: /src/view/index.php");
     exit();
 }
 
@@ -14,7 +14,7 @@ $animalModel = new AnimalModel($_conexion);
 
 $animal = $animalModel->getById($id_animal);
 if (!$animal) {
-    header("Location: index.php");
+    header("Location: /src/view/index.php");
     exit();
 }
 
@@ -65,8 +65,8 @@ $tiene_necesidades  = !empty($necesidades);
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,900&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/material-design-iconic-font/2.2.0/css/material-design-iconic-font.min.css">
-    <link rel="stylesheet" href="../../public/css/header.css">
-    <link rel="stylesheet" href="../../public/css/ficha-animal.css">
+    <link rel="stylesheet" href="/public/css/header.css">
+    <link rel="stylesheet" href="/public/css/ficha-animal.css">
 </head>
 <body>
 
@@ -77,21 +77,21 @@ $tiene_necesidades  = !empty($necesidades);
         <a class="hBoton" href="">COLABORADORES</a>
     </nav>
     <nav id="header-izq">
-        <a href="index.php" target="_self">
+        <a href="/src/view/index.php" target="_self">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="40" height="40" role="img" aria-label="Go Catch"><rect x="0" y="0" width="200" height="200" rx="36" ry="36" fill="#C97041"/><text x="110" y="148" font-family="'Fraunces', serif" font-weight="900" font-size="145" fill="#FFFFFF" text-anchor="middle">gc</text></svg>
         </a>
     </nav>
     <nav class="hBotones">
-        <a class="hBoton" href="urgente.php">URGENTE</a>
+        <a class="hBoton" href="/src/view/urgente.php">URGENTE</a>
         <?php if (isset($_SESSION['id'])): ?>
-            <a class="hBoton" href="perfil.php">
+            <a class="hBoton" href="/src/view/perfil.php">
                 <i class="zmdi zmdi-account"></i>
                 <?= htmlspecialchars($_SESSION["nombre"] ?? '') ?>
             </a>
-            <a href="../sesion/logout.php" id="boton-destacado">CERRAR SESIÓN</a>
+            <a href="/src/sesion/logout.php" id="boton-destacado">CERRAR SESIÓN</a>
         <?php else: ?>
-            <a class="hBoton" href="../../public/registro.html">REGÍSTRATE</a>
-            <a href="../../public/login.html" id="boton-destacado">INICIA SESIÓN</a>
+            <a class="hBoton" href="/public/registro.html">REGÍSTRATE</a>
+            <a href="/public/login.html" id="boton-destacado">INICIA SESIÓN</a>
         <?php endif; ?>
     </nav>
 </header>
@@ -100,7 +100,7 @@ $tiene_necesidades  = !empty($necesidades);
 
     <!-- BREADCRUMB -->
     <div class="breadcrumb">
-        <a href="index.php"><i class="zmdi zmdi-home"></i> Inicio</a>
+        <a href="/src/view/index.php"><i class="zmdi zmdi-home"></i> Inicio</a>
         <span>/</span>
         <a href="index.php#animales">Animales</a>
         <span>/</span>
@@ -421,7 +421,7 @@ $tiene_necesidades  = !empty($necesidades);
             echo "<br>";
         }
         ?>
-        <a href="index.php">← Volver al inicio</a>
+        <a href="/src/view/index.php">← Volver al inicio</a>
     </div>
 
 </div><!-- #ficha-wrapper -->

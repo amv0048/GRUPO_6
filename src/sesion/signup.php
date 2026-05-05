@@ -22,10 +22,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" and $_POST["tipo"] == "usuario") {
 
     $tmp_nombre = htmlspecialchars(trim($_POST["adopt-nombre"]));
     if ($tmp_nombre == "") {
-        header("Location: ../../public/registro.html?error=nombre");
+        header("Location: /public/registro.html?error=nombre");
         exit();
     } elseif (strlen($tmp_nombre) < 2) {
-        header("Location: ../../public/registro.html?error=nombre");
+        header("Location: /public/registro.html?error=nombre");
         exit();
     } else {
         $nombre = $tmp_nombre;
@@ -33,7 +33,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" and $_POST["tipo"] == "usuario") {
 
     $tmp_apellido = htmlspecialchars(trim($_POST["adopt-apellido"]));
     if ($tmp_apellido == "") {
-        header("Location: ../../public/registro.html?error=apellido");
+        header("Location: /public/registro.html?error=apellido");
         exit();
     } else {
         $apellido = $tmp_apellido;
@@ -42,13 +42,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" and $_POST["tipo"] == "usuario") {
     $tmp_email  = htmlspecialchars(trim($_POST["adopt-email"]));
     $tmp_email2 = htmlspecialchars(trim($_POST["adopt-email2"]));
     if ($tmp_email == "") {
-        header("Location: ../../public/registro.html?error=email");
+        header("Location: /public/registro.html?error=email");
         exit();
     } elseif (!preg_match("/^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$/", $tmp_email)) {
-        header("Location: ../../public/registro.html?error=email");
+        header("Location: /public/registro.html?error=email");
         exit();
     } elseif ($tmp_email != $tmp_email2) {
-        header("Location: ../../public/registro.html?error=email");
+        header("Location: /public/registro.html?error=email");
         exit();
     } else {
         $email = $tmp_email;
@@ -57,13 +57,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" and $_POST["tipo"] == "usuario") {
     $tmp_pass  = htmlspecialchars(trim($_POST["adopt-password"]));
     $tmp_pass2 = htmlspecialchars(trim($_POST["adopt-password2"]));
     if ($tmp_pass == "") {
-        header("Location: ../../public/registro.html?error=pass");
+        header("Location: /public/registro.html?error=pass");
         exit();
     } elseif (!preg_match("/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/", $tmp_pass)) {
-        header("Location: ../../public/registro.html?error=pass");
+        header("Location: /public/registro.html?error=pass");
         exit();
     } elseif ($tmp_pass != $tmp_pass2) {
-        header("Location: ../../public/registro.html?error=pass");
+        header("Location: /public/registro.html?error=pass");
         exit();
     } else {
         $pass = $tmp_pass;
@@ -78,7 +78,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" and $_POST["tipo"] == "usuario") {
 
         if ($check->num_rows > 0) {
             $check->close();
-            header("Location: ../../public/registro.html?error=email_duplicado");
+            header("Location: /public/registro.html?error=email_duplicado");
             exit();
         }
         $check->close();
@@ -90,7 +90,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" and $_POST["tipo"] == "usuario") {
              VALUES (?, ?, ?, ?, NULL, 0, 0, ?)"
         );
         $img = rand(1,2); // CAMBIAR AQUI PARA IMG RANDOMS
-        $ruta = "../img/profile/default/".$img.".jpg";
+        $ruta = "img/profile/default/".$img.".jpg";
         $consulta->bind_param("sssss", $nombre, $apellido, $email, $pass_cifrada , $ruta);
         if ($consulta->execute()) {
             $consulta->close();
@@ -113,11 +113,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" and $_POST["tipo"] == "usuario") {
             $mail->send();
 
 
-            header("Location: ../../public/login.html?check=nice");
+            header("Location: /public/login.html?check=nice");
             exit();
         } else {
             $consulta->close();
-            header("Location: ../../public/registro.html?error=db");
+            header("Location: /public/registro.html?error=db");
             exit();
         }
     }
@@ -127,7 +127,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" and $_POST["tipo"] == "protectora") {
 
     $tmp_nombre = htmlspecialchars(trim($_POST["prote-nombre"]));
     if ($tmp_nombre == "" || strlen($tmp_nombre) < 2) {
-        header("Location: ../../public/registro.html?error=nombre");
+        header("Location: /public/registro.html?error=nombre");
         exit();
     } else {
         $nombre = $tmp_nombre;
@@ -135,7 +135,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" and $_POST["tipo"] == "protectora") {
 
     $tmp_ciudad = htmlspecialchars(trim($_POST["ciudad"]));
     if ($tmp_ciudad == "") {
-        header("Location: ../../public/registro.html?error=ciudad");
+        header("Location: /public/registro.html?error=ciudad");
         exit();
     } else {
         $ciudad = $tmp_ciudad;
@@ -143,7 +143,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" and $_POST["tipo"] == "protectora") {
 
     $tmp_localidad = htmlspecialchars(trim($_POST["prote-localidad"]));
     if ($tmp_localidad == "") {
-        header("Location: ../../public/registro.html?error=localidad");
+        header("Location: /public/registro.html?error=localidad");
         exit();
     } else {
         $localidad = $tmp_localidad;
@@ -151,7 +151,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" and $_POST["tipo"] == "protectora") {
 
     $tmp_direccion = htmlspecialchars(trim($_POST["prote-direccion"]));
     if ($tmp_direccion == "") {
-        header("Location: ../../public/registro.html?error=direccion");
+        header("Location: /public/registro.html?error=direccion");
         exit();
     } else {
         $direccion = $tmp_direccion;
@@ -160,13 +160,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" and $_POST["tipo"] == "protectora") {
     $tmp_email  = htmlspecialchars(trim($_POST["prote-email"]));
     $tmp_email2 = htmlspecialchars(trim($_POST["prote-email2"]));
     if ($tmp_email == "") {
-        header("Location: ../../public/registro.html?error=email");
+        header("Location: /public/registro.html?error=email");
         exit();
     } elseif (!preg_match("/^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$/", $tmp_email)) {
-        header("Location: ../../public/registro.html?error=email");
+        header("Location: /public/registro.html?error=email");
         exit();
     } elseif ($tmp_email != $tmp_email2) {
-        header("Location: ../../public/registro.html?error=email");
+        header("Location: /public/registro.html?error=email");
         exit();
     } else {
         $email = $tmp_email;
@@ -175,13 +175,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" and $_POST["tipo"] == "protectora") {
     $tmp_pass  = htmlspecialchars(trim($_POST["prote-password"]));
     $tmp_pass2 = htmlspecialchars(trim($_POST["prote-password2"]));
     if ($tmp_pass == "") {
-        header("Location: ../../public/registro.html?error=pass");
+        header("Location: /public/registro.html?error=pass");
         exit();
     } elseif (!preg_match("/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/", $tmp_pass)) {
-        header("Location: ../../public/registro.html?error=pass");
+        header("Location: /public/registro.html?error=pass");
         exit();
     } elseif ($tmp_pass != $tmp_pass2) {
-        header("Location: ../../public/registro.html?error=pass");
+        header("Location: /public/registro.html?error=pass");
         exit();
     } else {
         $pass = $tmp_pass;
@@ -196,7 +196,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" and $_POST["tipo"] == "protectora") {
 
         if ($check->num_rows > 0) {
             $check->close();
-            header("Location: ../../public/registro.html?error=email_duplicado");
+            header("Location: /public/registro.html?error=email_duplicado");
             exit();
         }
         $check->close();
@@ -236,11 +236,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" and $_POST["tipo"] == "protectora") {
 
             $mail->send();
 
-            header("Location: ../../public/login.html?check=nice");
+            header("Location: /public/login.html?check=nice");
             exit();
         } else {
             $consulta->close();
-            header("Location: ../../public/registro.html?error=db");
+            header("Location: /public/registro.html?error=db");
             exit();
         }
     }

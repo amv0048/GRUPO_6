@@ -5,21 +5,21 @@ require_once "../model/AdopcionModel.php";
 
 // Solo usuarios adoptantes
 if (!isset($_SESSION['id']) || !isset($_SESSION['user'])) {
-    header('Location: ../../public/login.html');
+    header('Location: /public/login.html');
     exit();
 }
 $id_adoptante  = (int)$_SESSION['id'];
 $adopcionModel = new AdopcionModel($_conexion);
 
 if (!isset($_GET['solicitud']) || !is_numeric($_GET['solicitud'])) {
-    header('Location: index.php');
+    header('Location: /src/view/index.php');
     exit();
 }
 $id_solicitud = (int)$_GET['solicitud'];
 
 $solicitud = $adopcionModel->getSolicitudConAnimal($id_solicitud, $id_adoptante);
 if (!$solicitud) {
-    header('Location: index.php');
+    header('Location: /src/view/index.php');
     exit();
 }
 
@@ -69,8 +69,8 @@ $dias_es  = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,900&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/material-design-iconic-font/2.2.0/css/material-design-iconic-font.min.css">
-    <link rel="stylesheet" href="../../public/css/header.css">
-    <link rel="stylesheet" href="../../public/css/reservar-cita.css">
+    <link rel="stylesheet" href="/public/css/header.css">
+    <link rel="stylesheet" href="/public/css/reservar-cita.css">
 </head>
 <body>
 
@@ -80,26 +80,26 @@ $dias_es  = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
         <a class="hBoton" href="">COLABORADORES</a>
     </nav>
     <nav id="header-izq">
-        <a href="index.php">
+        <a href="/src/view/index.php">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="40" height="40" role="img" aria-label="Go Catch"><rect x="0" y="0" width="200" height="200" rx="36" ry="36" fill="#C97041"/><text x="110" y="148" font-family="'Fraunces', serif" font-weight="900" font-size="145" fill="#FFFFFF" text-anchor="middle">gc</text></svg>
         </a>
     </nav>
     <nav class="hBotones">
-        <a class="hBoton" href="urgente.php">URGENTE</a>
-        <a class="hBoton" href="perfil.php">
+        <a class="hBoton" href="/src/view/urgente.php">URGENTE</a>
+        <a class="hBoton" href="/src/view/perfil.php">
             <i class="zmdi zmdi-account"></i>
             <?= htmlspecialchars($_SESSION['nombre'] ?? '') ?>
         </a>
-        <a href="../sesion/logout.php" id="boton-destacado">CERRAR SESIÓN</a>
+        <a href="/src/sesion/logout.php" id="boton-destacado">CERRAR SESIÓN</a>
     </nav>
 </header>
 
 <div id="page-wrapper">
 
     <div class="breadcrumb">
-        <a href="index.php"><i class="zmdi zmdi-home"></i> Inicio</a>
+        <a href="/src/view/index.php"><i class="zmdi zmdi-home"></i> Inicio</a>
         <span>/</span>
-        <a href="ficha-animal.php?id=<?= (int)$solicitud['id_animal'] ?>"><?= htmlspecialchars($solicitud['nombre_animal']) ?></a>
+        <a href="/src/view/ficha-animal.php?id=<?= (int)$solicitud['id_animal'] ?>"><?= htmlspecialchars($solicitud['nombre_animal']) ?></a>
         <span>/</span>
         Reservar entrevista
     </div>
@@ -139,8 +139,8 @@ $dias_es  = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
                 </div>
                 <p>La protectora <strong><?= htmlspecialchars($solicitud['nombre_protectora']) ?></strong> ha recibido tu reserva. Podrás ver todos los detalles en tu perfil.</p>
                 <div style="display:flex;gap:12px;justify-content:center;margin-top:20px;flex-wrap:wrap">
-                    <a href="perfil.php" class="btn-sec"><i class="zmdi zmdi-account"></i> Ver mi perfil</a>
-                    <a href="index.php" style="display:inline-flex;align-items:center;gap:6px;padding:10px 20px;border-radius:6px;background:#CA7842;color:#fff;font-family:'Poppins',sans-serif;font-size:12px;font-weight:700">
+                    <a href="/src/view/perfil.php" class="btn-sec"><i class="zmdi zmdi-account"></i> Ver mi perfil</a>
+                    <a href="/src/view/index.php" style="display:inline-flex;align-items:center;gap:6px;padding:10px 20px;border-radius:6px;background:#CA7842;color:#fff;font-family:'Poppins',sans-serif;font-size:12px;font-weight:700">
                         <i class="zmdi zmdi-home"></i> Ir al inicio
                     </a>
                 </div>
@@ -163,7 +163,7 @@ $dias_es  = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
                 </p>
                 <p style="margin-top:10px">Con <strong><?= htmlspecialchars($solicitud['nombre_protectora']) ?></strong></p>
                 <div style="display:flex;gap:10px;justify-content:center;margin-top:16px;flex-wrap:wrap">
-                    <a href="perfil.php" class="btn-sec" style="width:fit-content">
+                    <a href="/src/view/perfil.php" class="btn-sec" style="width:fit-content">
                         <i class="zmdi zmdi-account"></i> Ver en mi perfil
                     </a>
                     <button type="button" class="btn-cancelar-cita" onclick="document.getElementById('modal-cancelar-cita').classList.add('activo')">
@@ -257,7 +257,7 @@ $dias_es  = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
     </div>
 
     <div class="volver">
-        <a href="ficha-animal.php?id=<?= (int)$solicitud['id_animal'] ?>">← Volver a la ficha de <?= htmlspecialchars($solicitud['nombre_animal']) ?></a>
+        <a href="/src/view/ficha-animal.php?id=<?= (int)$solicitud['id_animal'] ?>">← Volver a la ficha de <?= htmlspecialchars($solicitud['nombre_animal']) ?></a>
     </div>
 
 </div>

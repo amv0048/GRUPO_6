@@ -6,7 +6,7 @@ require_once "../model/ProtectoraModel.php";
 require_once "../model/AdopcionModel.php";
 
 if (!isset($_SESSION["id"])) {
-    header("Location: ../../public/login.html");
+    header("Location: /public/login.html");
     exit();
 }
 
@@ -32,7 +32,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && ($_POST['action'] ?? '') === 'cance
             $adopcionModel->cancelarCitaProtectora($id_cita, $_SESSION['id']);
         }
     }
-    header("Location: perfil.php");
+    header("Location: /src/view/perfil.php");
     exit();
 }
 
@@ -44,7 +44,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && ($_POST['action'] ?? '') === 'elimi
         $protectoraModel->delete($_SESSION["id"]);
     }
     session_destroy();
-    header("Location: index.php");
+    header("Location: /src/view/index.php");
     exit();
 }
 
@@ -105,13 +105,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $ext_ok = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
             $ext    = strtolower(pathinfo($_FILES['foto']['name'], PATHINFO_EXTENSION));
             if (in_array($ext, $ext_ok)) {
-                $carpeta = realpath(__DIR__ . '/../img/userPerfil') . '/user_' . $_SESSION["id"];
+                $carpeta = realpath(__DIR__ . '/../../img/userPerfil') . '/user_' . $_SESSION["id"];
                 if (!is_dir($carpeta)) {
                     mkdir($carpeta, 0755, true);
                 }
                 $archivo = 'perfil_' . time() . '.' . $ext;
                 if (move_uploaded_file($_FILES['foto']['tmp_name'], $carpeta . '/' . $archivo)) {
-                    $ruta_foto = '../../img/userPerfil/user_' . $_SESSION["id"] . '/' . $archivo;
+                    $ruta_foto = 'img/userPerfil/user_' . $_SESSION["id"] . '/' . $archivo;
                     $campos[]  = "foto_perfil = ?";
                     $valores[] = $ruta_foto;
                     $tipos    .= "s";
@@ -197,13 +197,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $ext_ok = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
             $ext    = strtolower(pathinfo($_FILES['foto']['name'], PATHINFO_EXTENSION));
             if (in_array($ext, $ext_ok)) {
-                $carpeta = realpath(__DIR__ . '/../img/protectoras') . '/protectora_' . $_SESSION["id"] . '/foto_perfil';
+                $carpeta = realpath(__DIR__ . '/../../img/protectoras') . '/protectora_' . $_SESSION["id"] . '/foto_perfil';
                 if (!is_dir($carpeta)) {
                     mkdir($carpeta, 0755, true);
                 }
                 $archivo = 'perfil_' . time() . '.' . $ext;
                 if (move_uploaded_file($_FILES['foto']['tmp_name'], $carpeta . '/' . $archivo)) {
-                    $ruta_foto = '../../img/protectoras/protectora_' . $_SESSION["id"] . '/foto_perfil/' . $archivo;
+                    $ruta_foto = 'img/protectoras/protectora_' . $_SESSION["id"] . '/foto_perfil/' . $archivo;
                     $campos[]  = "logo = ?";
                     $valores[] = $ruta_foto;
                     $tipos    .= "s";
@@ -238,8 +238,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,900&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/material-design-iconic-font/2.2.0/css/material-design-iconic-font.min.css">
-    <link rel="stylesheet" href="../../public/css/header.css">
-    <link rel="stylesheet" href="../../public/css/perfil.css">
+    <link rel="stylesheet" href="/public/css/header.css">
+    <link rel="stylesheet" href="/public/css/perfil.css">
 </head>
 <body>
 
@@ -249,13 +249,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <a class="hBoton" href="" target="_self">COLABORADORES</a>
     </nav>
     <nav id="header-izq">
-        <a href="index.php" target="_self">
+        <a href="/src/view/index.php" target="_self">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="40" height="40" role="img" aria-label="Go Catch"><rect x="0" y="0" width="200" height="200" rx="36" ry="36" fill="#C97041"/><text x="110" y="148" font-family="'Fraunces', serif" font-weight="900" font-size="145" fill="#FFFFFF" text-anchor="middle">gc</text></svg>
         </a>
     </nav>
     <nav class="hBotones">
         <a class="hBoton" href="" target="_self">URGENTE</a>
-        <a class="hBoton" href="../../public/registro.html" target="_self">REGÍSTRATE</a>
+        <a class="hBoton" href="/public/registro.html" target="_self">REGÍSTRATE</a>
         <a href="" target="_self" id="boton-destacado">INICIA SESIÓN</a>
     </nav>
 </header>
@@ -422,7 +422,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <div class="sol-perfil-item">
                 <div class="sol-perfil-row">
                     <div>
-                        <a href="ficha-animal.php?id=<?= (int)$sol['id_animal'] ?>" class="sol-perfil-animal">
+                        <a href="/src/view/ficha-animal.php?id=<?= (int)$sol['id_animal'] ?>" class="sol-perfil-animal">
                             <?= htmlspecialchars($sol['nombre_animal']) ?>
                             <small><?= htmlspecialchars(ucfirst($sol['especie'] ?? '')) ?></small>
                         </a>
@@ -449,7 +449,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     </form>
                 </div>
                 <?php elseif ($sol['estado_solicitud'] !== 'RECHAZADA'): ?>
-                <a href="reservar-cita.php?solicitud=<?= (int)$sol['id_solicitud'] ?>" class="sol-perfil-btn-cita">
+                <a href="/src/view/reservar-cita.php?solicitud=<?= (int)$sol['id_solicitud'] ?>" class="sol-perfil-btn-cita">
                     <i class="zmdi zmdi-calendar-plus"></i> Reservar entrevista
                 </a>
                 <?php endif; ?>
@@ -465,11 +465,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <div id="perfil-solicitudes">
             <p class="seccion-label">Gestión de adopciones</p>
             <div class="protectora-accesos">
-                <a href="solicitudes-protectora.php" class="prot-acc-btn">
+                <a href="/src/view/solicitudes-protectora.php" class="prot-acc-btn">
                     <i class="zmdi zmdi-inbox"></i>
                     <span>Solicitudes<?php if ($n_pend > 0): ?> <strong>(<?= $n_pend ?>)</strong><?php endif; ?></span>
                 </a>
-                <a href="disponibilidad.php" class="prot-acc-btn">
+                <a href="/src/view/disponibilidad.php" class="prot-acc-btn">
                     <i class="zmdi zmdi-calendar-alt"></i>
                     <span>Disponibilidad</span>
                 </a>
@@ -511,7 +511,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         <!-- VOLVER -->
         <div id="perfil-volver">
-            <a href="index.php">← Volver al inicio</a>
+            <a href="/src/view/index.php">← Volver al inicio</a>
         </div>
 
         <!-- ELIMINAR PERFIL -->

@@ -15,7 +15,7 @@ use PHPMailer\PHPMailer\Exception;
 
 // ── ACCESO: solo admins ──────────────────────────────────────
 if (!isset($_SESSION['user']) || !isset($_SESSION['admin']) || $_SESSION['admin'] != 1) {
-    header('Location: index.php');
+    header('Location: /src/view/index.php');
     exit();
 }
 
@@ -23,7 +23,7 @@ if (!isset($_SESSION['user']) || !isset($_SESSION['admin']) || $_SESSION['admin'
 $id_objetivo  = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 
 if ($id_objetivo <= 0) {
-    header('Location: moderacion.php');
+    header('Location: /src/view/moderacion.php');
     exit();
 }
 
@@ -31,15 +31,15 @@ $usuarioModel = new UsuarioModel($_conexion);
 $usuario      = $usuarioModel->getParaBanear($id_objetivo);
 
 if (!$usuario) {
-    header('Location: moderacion.php?error=noexiste');
+    header('Location: /src/view/moderacion.php?error=noexiste');
     exit();
 }
 if ($usuario['admin']) {
-    header('Location: moderacion.php?error=admin');
+    header('Location: /src/view/moderacion.php?error=admin');
     exit();
 }
 if ($usuario['baneado']) {
-    header('Location: moderacion.php?error=yabaneado');
+    header('Location: /src/view/moderacion.php?error=yabaneado');
     exit();
 }
 
@@ -115,31 +115,31 @@ $motivos = [
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,900&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/material-design-iconic-font/2.2.0/css/material-design-iconic-font.min.css">
-    <link rel="stylesheet" href="../../public/css/header.css">
-    <link rel="stylesheet" href="../../public/css/perfil.css">
-    <link rel="stylesheet" href="../../public/css/banear.css">
+    <link rel="stylesheet" href="/public/css/header.css">
+    <link rel="stylesheet" href="/public/css/perfil.css">
+    <link rel="stylesheet" href="/public/css/banear.css">
 </head>
 <body>
 
 <!-- HEADER -->
 <header>
     <nav class="hBotones">
-        <a class="hBoton" href="index.php">INICIO</a>
-        <a class="hBoton" href="moderacion.php">MODERACIÓN</a>
+        <a class="hBoton" href="/src/view/index.php">INICIO</a>
+        <a class="hBoton" href="/src/view/moderacion.php">MODERACIÓN</a>
     </nav>
 
     <nav id="header-izq">
-        <a href="index.php">
+        <a href="/src/view/index.php">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="40" height="40" role="img" aria-label="Go Catch"><rect x="0" y="0" width="200" height="200" rx="36" ry="36" fill="#C97041"/><text x="110" y="148" font-family="'Fraunces', serif" font-weight="900" font-size="145" fill="#FFFFFF" text-anchor="middle">gc</text></svg>
         </a>
     </nav>
 
     <nav class="hBotones">
-        <a class="hBoton" href="perfil.php">
+        <a class="hBoton" href="/src/view/perfil.php">
             <i class="zmdi zmdi-account"></i>
             <?= htmlspecialchars($_SESSION["nombre"]) ?>
         </a>
-        <a href="../sesion/logout.php" id="boton-destacado">CERRAR SESIÓN</a>
+        <a href="/src/sesion/logout.php" id="boton-destacado">CERRAR SESIÓN</a>
     </nav>
 </header>
 
@@ -159,7 +159,7 @@ $motivos = [
                     <strong><?= htmlspecialchars($usuario['nombre'] . ' ' . ($usuario['apellido'] ?? '')) ?></strong>
                     ha sido baneado y no podrá iniciar sesión ni registrarse de nuevo con este email.
                 </p>
-                <a href="moderacion.php">← Volver a moderación</a>
+                <a href="/src/view/moderacion.php">← Volver a moderación</a>
             </div>
 
         <?php else: ?>
@@ -206,7 +206,7 @@ $motivos = [
                 </div>
 
                 <div class="ban-actions">
-                    <a class="btn-cancelar" href="moderacion.php">Cancelar</a>
+                    <a class="btn-cancelar" href="/src/view/moderacion.php">Cancelar</a>
                     <button type="submit" class="btn-confirmar-ban">
                         <i class="zmdi zmdi-block-alt"></i> Confirmar baneo
                     </button>

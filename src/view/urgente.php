@@ -74,7 +74,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["action"]) && $_POST["
     if ($id_pub && strlen($texto) >= 2 && strlen($nombre_aut) >= 2) {
         $urgenteModel->addComentario($id_pub, $texto, $nombre_aut);
     }
-    header("Location: urgente.php#pub-" . $id_pub);
+    header("Location: /src/view/urgente.php#pub-" . $id_pub);
     exit();
 }
 
@@ -101,8 +101,8 @@ $comentarios_map = $urgenteModel->getComentarios(array_column($pubs, 'id_publica
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,900&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/material-design-iconic-font/2.2.0/css/material-design-iconic-font.min.css">
-    <link rel="stylesheet" href="../../public/css/header.css">
-    <link rel="stylesheet" href="../../public/css/urgente.css">
+    <link rel="stylesheet" href="/public/css/header.css">
+    <link rel="stylesheet" href="/public/css/urgente.css">
 </head>
 <body>
 
@@ -113,21 +113,21 @@ $comentarios_map = $urgenteModel->getComentarios(array_column($pubs, 'id_publica
         <a class="hBoton" href="">COLABORADORES</a>
     </nav>
     <nav id="header-izq">
-        <a href="index.php" target="_self">
+        <a href="/src/view/index.php" target="_self">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="40" height="40" role="img" aria-label="Go Catch"><rect x="0" y="0" width="200" height="200" rx="36" ry="36" fill="#C97041"/><text x="110" y="148" font-family="'Fraunces', serif" font-weight="900" font-size="145" fill="#FFFFFF" text-anchor="middle">gc</text></svg>
         </a>
     </nav>
     <nav class="hBotones">
-        <a class="hBoton" href="urgente.php" style="color:#fff;">URGENTE</a>
+        <a class="hBoton" href="/src/view/urgente.php" style="color:#fff;">URGENTE</a>
         <?php if (isset($_SESSION['id'])): ?>
-            <a class="hBoton" href="perfil.php">
+            <a class="hBoton" href="/src/view/perfil.php">
                 <i class="zmdi zmdi-account"></i>
                 <?= htmlspecialchars($_SESSION["nombre"] ?? '') ?>
             </a>
-            <a href="../sesion/logout.php" id="boton-destacado">CERRAR SESIÓN</a>
+            <a href="/src/sesion/logout.php" id="boton-destacado">CERRAR SESIÓN</a>
         <?php else: ?>
-            <a class="hBoton" href="../../public/registro.html">REGÍSTRATE</a>
-            <a href="../../public/login.html" id="boton-destacado">INICIA SESIÓN</a>
+            <a class="hBoton" href="/public/registro.html">REGÍSTRATE</a>
+            <a href="/public/login.html" id="boton-destacado">INICIA SESIÓN</a>
         <?php endif; ?>
     </nav>
 </header>
@@ -151,13 +151,13 @@ $comentarios_map = $urgenteModel->getComentarios(array_column($pubs, 'id_publica
 
 <!-- FILTROS -->
 <div id="filtros-bar">
-    <a class="filtro-btn todos <?= $filtro === '' ? 'activo' : '' ?>" href="urgente.php">
+    <a class="filtro-btn todos <?= $filtro === '' ? 'activo' : '' ?>" href="/src/view/urgente.php">
         <i class="zmdi zmdi-view-list"></i> Todos
     </a>
-    <a class="filtro-btn perdidos <?= $filtro === 'PERDIDO' ? 'activo' : '' ?>" href="urgente.php?tipo=PERDIDO">
+    <a class="filtro-btn perdidos <?= $filtro === 'PERDIDO' ? 'activo' : '' ?>" href="/src/view/urgente.php?tipo=PERDIDO">
         <i class="zmdi zmdi-alert-circle"></i> Perdidos
     </a>
-    <a class="filtro-btn encontrados <?= $filtro === 'ENCONTRADO' ? 'activo' : '' ?>" href="urgente.php?tipo=ENCONTRADO">
+    <a class="filtro-btn encontrados <?= $filtro === 'ENCONTRADO' ? 'activo' : '' ?>" href="/src/view/urgente.php?tipo=ENCONTRADO">
         <i class="zmdi zmdi-check-circle"></i> Encontrados
     </a>
 </div>

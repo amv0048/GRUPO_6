@@ -5,11 +5,11 @@ require_once "../model/AnimalModel.php";
 
 // Solo protectoras
 if (!isset($_SESSION["id"])) {
-    header("Location: ../../public/login.html");
+    header("Location: /public/login.html");
     exit();
 }
 if (isset($_SESSION["user"])) {
-    header("Location: index.php");
+    header("Location: /src/view/index.php");
     exit();
 }
 
@@ -38,7 +38,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $id_nuevo = $animalModel->create($d, $id_protectora);
 
     if ($id_nuevo !== false) {
-        $carpeta_animal = realpath(__DIR__ . '/../img') . '/protectoras/protectora_' . $id_protectora . '/animal_' . $id_nuevo;
+        $carpeta_animal = realpath(__DIR__ . '/../../img') . '/protectoras/protectora_' . $id_protectora . '/animal_' . $id_nuevo;
         if (!is_dir($carpeta_animal)) mkdir($carpeta_animal, 0755, true);
 
         if (!empty($_FILES['foto']['name']) && $_FILES['foto']['error'] === UPLOAD_ERR_OK) {
@@ -47,13 +47,13 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             if (in_array($ext, $ext_ok)) {
                 $archivo = 'foto_1_' . time() . '.' . $ext;
                 if (move_uploaded_file($_FILES['foto']['tmp_name'], $carpeta_animal . '/' . $archivo)) {
-                    $ruta = '../../img/protectoras/protectora_' . $id_protectora . '/animal_' . $id_nuevo . '/' . $archivo;
+                    $ruta = 'img/protectoras/protectora_' . $id_protectora . '/animal_' . $id_nuevo . '/' . $archivo;
                     $animalModel->addFoto($id_nuevo, $ruta, 1);
                 }
             }
         }
 
-        header("Location: listaAnimal.php?added=1");
+        header("Location: /src/view/listaAnimal.php?added=1");
         exit();
     } else {
         $err_db = "No se pudo registrar el animal. Inténtalo de nuevo.";
@@ -73,9 +73,9 @@ $estados = $animalModel->getEstados();
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,900&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/material-design-iconic-font/2.2.0/css/material-design-iconic-font.min.css">
-    <link rel="stylesheet" href="../../public/css/header.css">
-    <link rel="stylesheet" href="../../public/css/perfil.css">
-    <link rel="stylesheet" href="../../public/css/addAnimal.css">
+    <link rel="stylesheet" href="/public/css/header.css">
+    <link rel="stylesheet" href="/public/css/perfil.css">
+    <link rel="stylesheet" href="/public/css/addAnimal.css">
 </head>
 <body>
 
@@ -85,14 +85,14 @@ $estados = $animalModel->getEstados();
         <a class="hBoton" href="" target="_self">COLABORADORES</a>
     </nav>
     <nav id="header-izq">
-        <a href="index.php" target="_self">
+        <a href="/src/view/index.php" target="_self">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="40" height="40" role="img" aria-label="Go Catch"><rect x="0" y="0" width="200" height="200" rx="36" ry="36" fill="#C97041"/><text x="110" y="148" font-family="'Fraunces', serif" font-weight="900" font-size="145" fill="#FFFFFF" text-anchor="middle">gc</text></svg>
         </a>
     </nav>
     <nav class="hBotones">
-        <a class="hBoton" href="urgente.php" target="_self">URGENTE</a>
-        <a class="hBoton" href="perfil.php" target="_self">MI PERFIL</a>
-        <a href="listaAnimal.php" target="_self" id="boton-destacado">MIS ANIMALES</a>
+        <a class="hBoton" href="/src/view/urgente.php" target="_self">URGENTE</a>
+        <a class="hBoton" href="/src/view/perfil.php" target="_self">MI PERFIL</a>
+        <a href="/src/view/listaAnimal.php" target="_self" id="boton-destacado">MIS ANIMALES</a>
     </nav>
 </header>
 
