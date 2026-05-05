@@ -539,3 +539,15 @@
             transition: color 0.2s;
         }
         .volver a:hover { color: #fff; }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 480px) {
+            #ficha-wrapper {
+                padding: 16px 10px 40px;
+            }
+            .btn-adoptar,
+            .btn-contactar {
+                padding: 12px;
+                font-size: 12px;
+            }
+        }

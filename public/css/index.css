@@ -673,7 +673,13 @@ input, select, button { font-family: 'Poppins', sans-serif; }
 }
 
 @media (max-width: 640px) {
+    #hero      { padding: 40px 20px 32px; }
     #hero-content h1 { font-size: 1.9rem; }
+    #objetivos { padding: 0 20px 48px; }
+    #filtro    { padding: 0 16px; }
+    #protectoras { padding: 40px 20px 48px; }
+    #mapa-label { padding: 28px 20px; }
+
     #objetivos-grid { grid-template-columns: 1fr; }
 
     #filtro-form { flex-direction: column; align-items: stretch; gap: 8px; }
@@ -683,9 +689,28 @@ input, select, button { font-family: 'Poppins', sans-serif; }
     .filtro-rango, .filtro-compat { flex: 1; min-width: 100%; }
     .filtro-acciones { margin-left: 0; }
 
-    .animal-card { flex: 0 0 calc(50% - 7px); }   /* 2 visibles en móvil */
+    .animal-card { flex: 0 0 calc(50% - 7px); }   /* 2 visibles en tablet pequeña */
 
     .protectora-card { flex: 0 0 100%; }   /* 1 por fila en móvil */
+}
+
+@media (max-width: 480px) {
+    #hero      { padding: 28px 16px 24px; }
+    #hero-content h1 { font-size: 1.5rem; }
+    #animales  { padding: 28px 0 36px; }
+
+    .carousel-btn {
+        width: 28px;
+        height: 28px;
+        font-size: 0.9rem;
+        margin: 0 3px;
+    }
+
+    /* 2 tarjetas cuadradas por fila — elimina el problema de tarjetas muy altas */
+    .animal-card {
+        flex: 0 0 calc(50% - 6px);
+        aspect-ratio: 1 / 1;
+    }
 }
 
 /* ── CROWDFUNDING PUBLIC ──────────────────────────────────── */

@@ -558,3 +558,54 @@
             color: #ccc;
             font-style: italic;
         }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 768px) {
+            #urgente-hero {
+                padding: 28px 16px 0;
+            }
+            #urgente-hero h1 { font-size: 22px; }
+            #filtros-bar {
+                padding: 16px 16px 0;
+                gap: 8px;
+            }
+            .filtro-btn {
+                padding: 7px 14px;
+                font-size: 10px;
+            }
+            #feed {
+                padding: 0 12px;
+                margin-bottom: 80px;
+            }
+            #modal-box {
+                max-width: 100%;
+                border-radius: 10px;
+            }
+            #btn-publicar-fab {
+                bottom: 20px;
+                right: 20px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            #urgente-hero h1 { font-size: 18px; }
+            #modal-overlay {
+                padding: 0;
+                align-items: flex-end;
+            }
+            #modal-box {
+                border-radius: 16px 16px 0 0;
+                max-height: 92vh;
+            }
+            .modal-grid {
+                grid-template-columns: 1fr;
+                gap: 0;
+            }
+            #btn-publicar-fab {
+                width: 48px;
+                height: 48px;
+                font-size: 22px;
+                bottom: 16px;
+                right: 16px;
+            }
+        }

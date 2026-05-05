@@ -184,3 +184,43 @@ input, textarea, select, button {
     font-size: 13px;
     text-align: center;
 }
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+    #padre-nuestro {
+        padding: 24px 16px;
+    }
+    #estructura {
+        max-width: 440px;
+    }
+    .image-holder {
+        display: none;
+    }
+    .form-area {
+        width: 100%;
+        padding: 32px 32px 28px;
+    }
+}
+
+@media (max-width: 480px) {
+    #padre-nuestro {
+        padding: 20px 12px;
+    }
+    #estructura {
+        border-radius: 10px;
+    }
+    .form-area {
+        padding: 24px 20px 20px;
+    }
+    #titulo {
+        font-size: 17px;
+        margin-bottom: 16px;
+    }
+    .form-wrapper {
+        margin-bottom: 18px;
+    }
+    #login button[type="submit"] {
+        height: 44px;
+        margin-top: 22px;
+    }
+}

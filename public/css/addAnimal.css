@@ -61,3 +61,14 @@
 
         /* cabecera azul de la tarjeta */
         #perfil-header { padding: 28px 40px 22px; }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 768px) {
+            #padre-nuestro { padding: 24px 16px; }
+            #perfil-header { padding: 20px 28px 16px; }
+        }
+
+        @media (max-width: 480px) {
+            #padre-nuestro { padding: 16px 10px; }
+            #perfil-header { padding: 16px 20px 14px; }
+        }

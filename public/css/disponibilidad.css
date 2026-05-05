@@ -159,3 +159,13 @@
         .ld-libre  { background: #c8e6c9; }
         .ld-citado { background: #bbdefb; }
         .ld-hoy    { border: 2px solid #CA7842; background: #FFF1E6; }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 480px) {
+            #page-wrapper {
+                padding: 16px 10px 40px;
+            }
+            .page-title { font-size: 18px; }
+            .cal-dia { min-height: 54px; padding: 4px; }
+            .card-body { padding: 14px 14px; }
+        }

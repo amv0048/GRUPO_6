@@ -381,3 +381,64 @@ input, textarea, select, button {
 .modal-btn-cancelar:hover { background: #e0e0e0; }
 .modal-btn-confirmar { background: #e74c3c; color: #fff; }
 .modal-btn-confirmar:hover { background: #c0392b; transform: scale(1.02); }
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+    #padre-nuestro {
+        padding: 24px 16px;
+    }
+    #perfil-header {
+        padding: 24px 28px 20px;
+    }
+    #perfil-form-area {
+        padding: 20px 28px 16px;
+    }
+    #perfil-solicitudes {
+        padding: 0 28px 16px;
+    }
+    #perfil-volver {
+        padding: 0 28px 20px;
+    }
+    #perfil-eliminar {
+        padding: 8px 28px 24px;
+    }
+    .msg-ok, .msg-error {
+        margin: 16px 28px 0;
+    }
+}
+
+@media (max-width: 480px) {
+    #padre-nuestro {
+        padding: 16px 10px;
+        align-items: flex-start;
+    }
+    #perfil-header {
+        padding: 20px 20px 16px;
+    }
+    #perfil-form-area {
+        padding: 16px 20px 12px;
+    }
+    #perfil-solicitudes {
+        padding: 0 20px 12px;
+    }
+    #perfil-volver {
+        padding: 0 20px 16px;
+    }
+    #perfil-eliminar {
+        padding: 8px 20px 20px;
+    }
+    .msg-ok, .msg-error {
+        margin: 12px 20px 0;
+    }
+    .form-grid {
+        flex-direction: column;
+        gap: 0;
+    }
+    .protectora-accesos {
+        flex-direction: column;
+    }
+    .prot-acc-btn {
+        width: 100%;
+        justify-content: center;
+    }
+}

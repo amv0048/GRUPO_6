@@ -203,3 +203,44 @@
         .ban-exito a:hover {
             background: #CA7842;
         }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 768px) {
+            #padre-banear {
+                padding: 24px 16px;
+                align-items: flex-start;
+            }
+            .ban-header {
+                padding: 22px 24px 18px;
+            }
+            .ban-user-info {
+                margin: 20px 24px 0;
+            }
+            .ban-form {
+                padding: 20px 24px 24px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            #padre-banear {
+                padding: 12px 10px;
+            }
+            .ban-header {
+                padding: 18px 18px 14px;
+            }
+            .ban-user-info {
+                margin: 16px 18px 0;
+            }
+            .ban-form {
+                padding: 16px 18px 20px;
+            }
+            .ban-actions {
+                flex-direction: column;
+            }
+            .btn-cancelar,
+            .btn-confirmar-ban {
+                width: 100%;
+                text-align: center;
+                justify-content: center;
+            }
+        }

@@ -305,3 +305,56 @@ select {
     font-size: 12px;
     text-align: center;
 }
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+    #padre-nuestro {
+        padding: 24px 16px;
+        align-items: flex-start;
+    }
+    #estructura {
+        min-height: unset;
+        max-width: 520px;
+    }
+    .image-holder {
+        display: none;
+    }
+    .form-area {
+        width: 100%;
+    }
+    #registro,
+    #registro2 {
+        padding: 20px 30px 14px;
+    }
+    #otros {
+        padding: 12px 30px 18px;
+    }
+}
+
+@media (max-width: 480px) {
+    #padre-nuestro {
+        padding: 12px 10px;
+    }
+    #registro,
+    #registro2 {
+        padding: 16px 20px 12px;
+    }
+    #otros {
+        padding: 10px 20px 16px;
+    }
+    .form-group {
+        flex-direction: column;
+        gap: 0;
+    }
+    #grupo1 {
+        flex-direction: column;
+        gap: 0;
+    }
+    .ciudad-w {
+        flex: unset;
+        width: 100%;
+    }
+    .form-title {
+        font-size: 16px;
+    }
+}

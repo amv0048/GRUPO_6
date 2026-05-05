@@ -4,10 +4,18 @@ class DisponibilidadModel {
 
     public function __construct(mysqli $db) { $this->db = $db; }
 
+    private function safePrep(string $sql): ?mysqli_stmt {
+        $st = $this->db->prepare($sql);
+        if ($st === false) {
+            error_log("DisponibilidadModel::prepare() failed — " . $this->db->error . " — SQL: " . $sql);
+        }
+        return $st !== false ? $st : null;
+    }
+
     public function getSlotsByMes(int $id_protectora, int $anyo, int $mes, int $dias_en_mes): array {
         $fecha_ini = "$anyo-" . str_pad($mes, 2, '0', STR_PAD_LEFT) . "-01";
         $fecha_fin = "$anyo-" . str_pad($mes, 2, '0', STR_PAD_LEFT) . "-$dias_en_mes";
-        $st = $this->db->prepare(
+        $st = $this->safePrep(
             "SELECT d.*, c.id_cita, c.estado AS estado_cita,
                     s.nombre AS nombre_adoptante, s.apellido,
                     a.nombre AS nombre_animal
@@ -19,6 +27,7 @@ class DisponibilidadModel {
              WHERE d.id_protectora = ? AND d.fecha BETWEEN ? AND ?
              ORDER BY d.fecha, d.hora_inicio"
         );
+        if (!$st) return [];
         $st->bind_param("iss", $id_protectora, $fecha_ini, $fecha_fin);
         $st->execute();
         $res = $st->get_result();
@@ -28,10 +37,11 @@ class DisponibilidadModel {
     }
 
     public function addSlot(int $id_protectora, string $fecha, string $hora_ini, string $hora_fin): bool {
-        $ins = $this->db->prepare(
+        $ins = $this->safePrep(
             "INSERT IGNORE INTO DisponibilidadProtectora
                 (id_protectora, fecha, hora_inicio, hora_fin) VALUES (?, ?, ?, ?)"
         );
+        if (!$ins) return false;
         $ins->bind_param("isss", $id_protectora, $fecha, $hora_ini, $hora_fin);
         $ins->execute();
         return $this->db->affected_rows > 0;
@@ -40,10 +50,11 @@ class DisponibilidadModel {
     public function addBloque(int $id_protectora, string $fecha, string $desde, string $hasta, int $duracion): int {
         $t_ini = strtotime("$fecha $desde");
         $t_fin = strtotime("$fecha $hasta");
-        $ins = $this->db->prepare(
+        $ins = $this->safePrep(
             "INSERT IGNORE INTO DisponibilidadProtectora
                 (id_protectora, fecha, hora_inicio, hora_fin) VALUES (?, ?, ?, ?)"
         );
+        if (!$ins) return 0;
         $added = 0;
         while ($t_ini + $duracion * 60 <= $t_fin) {
             $hi = date('H:i:s', $t_ini);
@@ -57,12 +68,13 @@ class DisponibilidadModel {
     }
 
     public function deleteSlot(int $id_slot, int $id_protectora): bool {
-        $del = $this->db->prepare(
+        $del = $this->safePrep(
             "DELETE d FROM DisponibilidadProtectora d
              LEFT JOIN CitaEntrevista c
                    ON c.id_disponibilidad = d.id_disponibilidad AND c.estado != 'CANCELADA'
              WHERE d.id_disponibilidad = ? AND d.id_protectora = ? AND c.id_cita IS NULL"
         );
+        if (!$del) return false;
         $del->bind_param("ii", $id_slot, $id_protectora);
         $del->execute();
         return $this->db->affected_rows > 0;

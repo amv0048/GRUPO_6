@@ -211,3 +211,28 @@
             transition: color 0.2s;
         }
         .volver a:hover { color: #fff; }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 768px) {
+            #main-wrapper {
+                padding: 24px 16px 40px;
+            }
+            .section-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 12px;
+            }
+            .btn-add {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+
+        @media (max-width: 480px) {
+            #main-wrapper {
+                padding: 16px 10px 32px;
+            }
+            .section-header h2 { font-size: 16px; }
+            thead th:nth-child(n+4) { display: none; }
+            tbody td:nth-child(n+4) { display: none; }
+        }

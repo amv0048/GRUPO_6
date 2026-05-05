@@ -177,3 +177,47 @@
 .don-prot-btns button:hover { opacity: .85; }
 #don-prot-cancel { background: rgba(255,255,255,.1); color: #fff; }
 #don-prot-submit { background: #CA7842; color: #fff; }
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+    .info-publica {
+        padding: 8px 24px 20px;
+    }
+    #perfil-eliminar {
+        padding: 8px 24px 24px;
+    }
+    .don-prot-cta {
+        margin: 4px 16px 20px;
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    #btn-donar-protectora {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .info-publica {
+        padding: 8px 16px 16px;
+    }
+    #perfil-eliminar {
+        padding: 8px 16px 20px;
+    }
+    .don-prot-cta {
+        margin: 4px 10px 16px;
+        padding: 14px 16px;
+    }
+    .don-prot-modal {
+        max-width: 100%;
+        border-radius: 10px;
+        padding: 20px 18px;
+    }
+    .don-prot-btns {
+        flex-direction: column;
+    }
+    .don-prot-btns button {
+        width: 100%;
+        justify-content: center;
+    }
+}
