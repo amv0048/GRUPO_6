@@ -24,6 +24,30 @@ class ColaboradorModel {
         return $row ?: null;
     }
 
+    public function create(array $d): int|false {
+        $stmt = $this->conexion->prepare(
+            "INSERT INTO Colaborador (nombre, telefono, web, profesion, suscripcion, ubicacion, foto)
+             VALUES (?, ?, ?, ?, ?, ?, ?)"
+        );
+        $stmt->bind_param("sssssss",
+            $d['nombre'], $d['telefono'], $d['web'],
+            $d['profesion'], $d['suscripcion'], $d['ubicacion'], $d['foto']
+        );
+        if (!$stmt->execute()) { $stmt->close(); return false; }
+        $id = $stmt->insert_id;
+        $stmt->close();
+        return $id;
+    }
+
+    public function updateFoto(int $id, string $ruta): void {
+        $stmt = $this->conexion->prepare(
+            "UPDATE Colaborador SET foto = ? WHERE id_colaborador = ?"
+        );
+        $stmt->bind_param("si", $ruta, $id);
+        $stmt->execute();
+        $stmt->close();
+    }
+
     public function getDestacados(int $limit = 4): array {
         $stmt = $this->conexion->prepare(
             "SELECT * FROM Colaborador

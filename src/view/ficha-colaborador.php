@@ -84,7 +84,13 @@ if (!$colab) {
     <div id="ficha-colab-card">
 
         <div id="ficha-colab-avatar">
-            <i class="zmdi zmdi-account"></i>
+            <?php if (!empty($colab['foto'])): ?>
+                <img src="<?= htmlspecialchars($colab['foto']) ?>"
+                     alt="<?= htmlspecialchars($colab['nombre']) ?>"
+                     style="width:100%;height:100%;object-fit:cover;border-radius:50%">
+            <?php else: ?>
+                <i class="zmdi zmdi-account"></i>
+            <?php endif; ?>
         </div>
 
         <div id="ficha-colab-info">

@@ -68,7 +68,8 @@ CREATE TABLE Colaborador (
     web            VARCHAR(255),
     profesion      VARCHAR(100),
     suscripcion    VARCHAR(50),
-    ubicacion      VARCHAR(255)
+    ubicacion      VARCHAR(255),
+    foto           VARCHAR(255)
 );
 
 

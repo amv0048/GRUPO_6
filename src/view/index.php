@@ -589,7 +589,13 @@ elseif (isset($_SESSION['protectora'])) $nombre_sesion = $_SESSION['protectora']
            href="/src/view/ficha-colaborador.php?id=<?= (int)$c['id_colaborador'] ?>">
 
             <div class="colab-preview-avatar">
-                <i class="zmdi zmdi-account"></i>
+                <?php if (!empty($c['foto'])): ?>
+                    <img src="<?= htmlspecialchars($c['foto']) ?>"
+                         alt="<?= htmlspecialchars($c['nombre']) ?>"
+                         style="width:100%;height:100%;object-fit:cover;border-radius:50%">
+                <?php else: ?>
+                    <i class="zmdi zmdi-account"></i>
+                <?php endif; ?>
             </div>
 
             <?php if ($c['suscripcion'] === 'premium'): ?>

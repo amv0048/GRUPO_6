@@ -72,6 +72,11 @@ $colaboradores    = $colaboradorModel->getAll();
     <div id="colab-hero-content">
         <h1>Nuestros <span>Colaboradores</span></h1>
         <p>Veterinarios, adiestradores, peluquerías y más profesionales comprometidos<br>con el bienestar animal que puedes encontrar en nuestra red</p>
+        <?php if (isset($_SESSION['admin']) && $_SESSION['admin'] == 1): ?>
+        <a href="/src/view/add-colaborador.php" class="cta-btn cta-primary" style="margin-top:24px;display:inline-flex">
+            <i class="zmdi zmdi-account-add"></i> Añadir colaborador
+        </a>
+        <?php endif; ?>
     </div>
 </section>
 
@@ -88,7 +93,13 @@ $colaboradores    = $colaboradorModel->getAll();
            href="/src/view/ficha-colaborador.php?id=<?= (int)$c['id_colaborador'] ?>">
 
             <div class="colab-avatar">
-                <i class="zmdi zmdi-account"></i>
+                <?php if (!empty($c['foto'])): ?>
+                    <img src="<?= htmlspecialchars($c['foto']) ?>"
+                         alt="<?= htmlspecialchars($c['nombre']) ?>"
+                         style="width:100%;height:100%;object-fit:cover;border-radius:50%">
+                <?php else: ?>
+                    <i class="zmdi zmdi-account"></i>
+                <?php endif; ?>
             </div>
 
             <div class="colab-body">

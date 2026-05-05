@@ -1,0 +1,245 @@
+/* ================================================================
+   ADD-COLABORADOR.CSS  —  Go Catch
+   ================================================================ */
+
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+    font-family: 'Poppins', sans-serif;
+    margin: 0;
+    background: #0D2D51;
+    color: #333;
+    font-size: 13px;
+}
+
+a { text-decoration: none; }
+img { max-width: 100%; display: block; }
+p, h1, h2, h3, h4, h5, h6 { margin: 0; }
+input, select, textarea, button { font-family: 'Poppins', sans-serif; font-size: 13px; }
+
+/* ── PAGE WRAPPER ─────────────────────────────────────────────── */
+#add-colab-page {
+    min-height: calc(100vh - 85px);
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 48px 20px 80px;
+}
+
+/* ── CARD ─────────────────────────────────────────────────────── */
+#add-colab-card {
+    width: 100%;
+    max-width: 680px;
+    background: #fff;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+}
+
+/* ── CARD HEADER ──────────────────────────────────────────────── */
+#add-colab-header {
+    background: #0D2D51;
+    padding: 32px 40px 26px;
+}
+
+#add-colab-header h1 {
+    color: #fff;
+    font-size: 20px;
+    font-weight: 800;
+    letter-spacing: -0.3px;
+    margin-bottom: 4px;
+}
+
+#add-colab-header p {
+    color: #EDA677;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+}
+
+/* ── CARD BODY ────────────────────────────────────────────────── */
+#add-colab-body {
+    padding: 32px 40px 40px;
+}
+
+/* ── SECTION TITLES ───────────────────────────────────────────── */
+.form-section-title {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #aaa;
+    margin: 28px 0 14px;
+    border-top: 1px solid #f0f0f0;
+    padding-top: 22px;
+}
+.form-section-title:first-child {
+    margin-top: 0;
+    border-top: none;
+    padding-top: 0;
+}
+
+/* ── GRID 2 COLS ─────────────────────────────────────────────── */
+.form-grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+/* ── FIELD ───────────────────────────────────────────────────── */
+.campo {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.campo label {
+    font-size: 11px;
+    font-weight: 600;
+    color: #777;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.campo input,
+.campo select,
+.campo textarea {
+    border: 1.5px solid #ddd;
+    border-radius: 6px;
+    padding: 9px 13px;
+    color: #333;
+    outline: none;
+    background: #fff;
+    width: 100%;
+    transition: border-color 0.2s;
+}
+.campo input:focus,
+.campo select:focus,
+.campo textarea:focus { border-color: #CA7842; }
+
+.campo select {
+    appearance: none;
+    cursor: pointer;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23aaa' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    padding-right: 34px;
+}
+
+.campo textarea {
+    resize: vertical;
+    min-height: 80px;
+    line-height: 1.5;
+}
+
+.req { color: #CA7842; }
+
+/* ── FOTO PREVIEW ────────────────────────────────────────────── */
+#foto-preview-wrapper {
+    display: none;
+    text-align: center;
+    margin-bottom: 16px;
+}
+
+#foto-preview-wrapper img {
+    width: 120px;
+    height: 120px;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 3px solid #CA7842;
+    margin: 0 auto;
+}
+
+/* ── UPLOAD AREA ─────────────────────────────────────────────── */
+.upload-area {
+    border: 2px dashed #ddd;
+    border-radius: 8px;
+    padding: 28px 20px;
+    text-align: center;
+    cursor: pointer;
+    position: relative;
+    transition: border-color 0.2s, background 0.2s;
+}
+.upload-area:hover { border-color: #CA7842; background: #fdf8f5; }
+
+.upload-area input[type="file"] {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    cursor: pointer;
+    width: 100%;
+    height: 100%;
+}
+
+.upload-area i {
+    font-size: 28px;
+    color: #CA7842;
+    display: block;
+    margin-bottom: 8px;
+}
+
+.upload-area p {
+    font-size: 12px;
+    color: #aaa;
+    line-height: 1.5;
+}
+
+/* ── MESSAGES ────────────────────────────────────────────────── */
+.msg-ok,
+.msg-err {
+    padding: 10px 16px;
+    border-radius: 6px;
+    font-size: 12px;
+    margin-bottom: 20px;
+}
+.msg-ok  { background: #EAF3DE; border: 1px solid #97C459; color: #173404; }
+.msg-err { background: #FCEBEB; border: 1px solid #F09595; color: #7a0000; }
+
+/* ── SUBMIT ──────────────────────────────────────────────────── */
+.btn-submit {
+    width: 100%;
+    padding: 14px;
+    background: #CA7842;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    cursor: pointer;
+    margin-top: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: background 0.2s, transform 0.15s;
+}
+.btn-submit:hover { background: #b56a32; transform: translateY(-1px); }
+
+/* ── VOLVER LINK ─────────────────────────────────────────────── */
+.add-colab-volver {
+    padding: 0 40px 36px;
+}
+.add-colab-volver a {
+    color: #a8b8cc;
+    font-size: 13px;
+    font-weight: 500;
+    transition: color 0.2s;
+}
+.add-colab-volver a:hover { color: #EDA677; }
+
+/* ── RESPONSIVE ──────────────────────────────────────────────── */
+@media (max-width: 720px) {
+    #add-colab-header { padding: 24px 28px 20px; }
+    #add-colab-body   { padding: 24px 28px 32px; }
+    .add-colab-volver { padding: 0 28px 28px; }
+}
+
+@media (max-width: 480px) {
+    #add-colab-page   { padding: 32px 12px 60px; }
+    #add-colab-header { padding: 20px 20px 16px; }
+    #add-colab-body   { padding: 20px 20px 28px; }
+    .form-grid-2      { grid-template-columns: 1fr; }
+    .add-colab-volver { padding: 0 20px 24px; }
+}

@@ -149,6 +149,7 @@ input, select, button { font-family: 'Poppins', sans-serif; }
     color: #CA7842;
     flex-shrink: 0;
     margin-bottom: 2px;
+    overflow: hidden;
 }
 
 .colab-preview-nombre {
@@ -250,6 +251,7 @@ input, select, button { font-family: 'Poppins', sans-serif; }
     font-size: 24px;
     color: #CA7842;
     flex-shrink: 0;
+    overflow: hidden;
 }
 
 .colab-body {
@@ -357,6 +359,7 @@ input, select, button { font-family: 'Poppins', sans-serif; }
     font-size: 44px;
     color: #CA7842;
     flex-shrink: 0;
+    overflow: hidden;
 }
 
 #ficha-colab-info {
