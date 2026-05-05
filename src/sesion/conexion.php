@@ -1,4 +1,6 @@
 <?php
+    require_once __DIR__ . '/../helpers/url.php';
+    app_start_output_buffer();
 
     // PRODUCCION
     //$_servidor  = "sql306.infinityfree.com";

@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/url.php';
 
 function media_normalize_url(?string $path, ?string $fallback = null): string
 {
@@ -22,7 +23,7 @@ function media_normalize_url(?string $path, ?string $fallback = null): string
         $path = substr($path, 2);
     }
 
-    return '/' . ltrim($path, '/');
+    return app_url($path);
 }
 
 function media_storage_path(?string $path): ?string
