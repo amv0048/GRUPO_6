@@ -54,6 +54,27 @@ $tiene_compats = !empty($compats);
 $historia           = null; // $animal['historia'] ?? null;
 $necesidades        = null; // $animal['necesidades_especiales'] ?? null;
 $tiene_necesidades  = !empty($necesidades);
+
+// ── URL PARA COMPARTIR ───────────────────────────────────────
+$share_scheme = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') ? 'https' : 'http';
+$share_host   = $_SERVER['HTTP_HOST'] ?? 'localhost';
+$share_url    = $share_scheme . '://' . $share_host . '/src/view/ficha-animal.php?id=' . $id_animal;
+$share_title  = $animal['nombre'] . ' busca un hogar · Go Catch';
+$share_desc   = trim(
+    ucfirst($animal['especie'] ?? 'Animal')
+    . (!empty($animal['raza']) ? ' · ' . $animal['raza'] : '')
+    . ' · ' . $edad_txt
+    . (!empty($animal['ciudad']) ? ' · ' . $animal['ciudad'] : '')
+);
+$share_img    = $total_fotos > 0 ? $fotos[0]['ruta'] : '';
+
+if ($share_img !== '' && preg_match('#^https?://#i', $share_img)) {
+    $share_img_abs = $share_img;
+} elseif ($share_img !== '') {
+    $share_img_abs = $share_scheme . '://' . $share_host . '/' . ltrim($share_img, '/');
+} else {
+    $share_img_abs = '';
+}
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -61,6 +82,20 @@ $tiene_necesidades  = !empty($necesidades);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= htmlspecialchars($animal['nombre']) ?> · Go Catch</title>
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="<?= htmlspecialchars($share_title) ?>">
+    <meta property="og:description" content="<?= htmlspecialchars($share_desc) ?>">
+    <meta property="og:url" content="<?= htmlspecialchars($share_url) ?>">
+    <meta property="og:site_name" content="Go Catch">
+    <?php if ($share_img_abs !== ''): ?>
+    <meta property="og:image" content="<?= htmlspecialchars($share_img_abs) ?>">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content="<?= htmlspecialchars($share_img_abs) ?>">
+    <?php else: ?>
+    <meta name="twitter:card" content="summary">
+    <?php endif; ?>
+    <meta name="twitter:title" content="<?= htmlspecialchars($share_title) ?>">
+    <meta name="twitter:description" content="<?= htmlspecialchars($share_desc) ?>">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,900&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -361,6 +396,11 @@ $tiene_necesidades  = !empty($necesidades);
                             CONTACTAR CON LA PROTECTORA
                         </a>
                     <?php endif; ?>
+
+                    <button type="button" class="btn-compartir" id="btn-compartir">
+                        <i class="zmdi zmdi-share"></i>
+                        COMPARTIR
+                    </button>
                 </div>
 
             </div><!-- .info-body -->
@@ -425,6 +465,88 @@ $tiene_necesidades  = !empty($necesidades);
     </div>
 
 </div><!-- #ficha-wrapper -->
+
+
+<!-- ══ MODAL COMPARTIR ══════════════════════════════════════ -->
+<div class="share-modal" id="share-modal">
+    <div class="share-modal-backdrop" onclick="cerrarCompartir()"></div>
+    <div class="share-modal-dialog">
+
+        <button class="share-modal-cerrar" onclick="cerrarCompartir()" aria-label="Cerrar">
+            <i class="zmdi zmdi-close"></i>
+        </button>
+
+        <p class="share-modal-titulo">Comparte a <?= htmlspecialchars($animal['nombre']) ?></p>
+        <p class="share-modal-sub">Ayúdale a encontrar un hogar difundiéndolo en tus redes</p>
+
+        <div class="share-redes" id="share-redes-main">
+            <a class="share-red whatsapp" id="link-whatsapp" href="#" target="_blank" rel="noopener noreferrer">
+                <i class="zmdi zmdi-whatsapp"></i>
+                <span>WhatsApp</span>
+            </a>
+            <a class="share-red facebook" id="link-facebook" href="#" target="_blank" rel="noopener noreferrer">
+                <i class="zmdi zmdi-facebook"></i>
+                <span>Facebook</span>
+            </a>
+            <a class="share-red twitter" id="link-twitter" href="#" target="_blank" rel="noopener noreferrer">
+                <i class="zmdi zmdi-twitter"></i>
+                <span>X / Twitter</span>
+            </a>
+            <a class="share-red telegram" id="link-telegram" href="#" target="_blank" rel="noopener noreferrer">
+                <i class="zmdi zmdi-airplane-alt"></i>
+                <span>Telegram</span>
+            </a>
+            <a class="share-red email" id="link-email" href="#">
+                <i class="zmdi zmdi-email"></i>
+                <span>Email</span>
+            </a>
+            <button class="share-red copiar" onclick="copiarEnlace()">
+                <i class="zmdi zmdi-link"></i>
+                <span>Copiar</span>
+            </button>
+            <button class="share-red stories" onclick="mostrarStories()">
+                <i class="zmdi zmdi-collection-image"></i>
+                <span>Stories</span>
+            </button>
+        </div>
+
+        <!-- Sección Stories (oculta por defecto) -->
+        <div class="share-stories-section" id="stories-section" style="display:none">
+            <div class="share-stories-preview-wrap">
+                <canvas id="stories-canvas" style="display:block;width:100%;height:100%"></canvas>
+                <div class="share-stories-loading" id="stories-loading">
+                    <i class="zmdi zmdi-spinner zmdi-spin"></i>&nbsp; Generando imagen…
+                </div>
+            </div>
+            <div class="share-stories-acciones">
+                <a id="btn-descargar-story" class="btn-stories-descargar" href="#"
+                   download="<?= htmlspecialchars($animal['nombre']) ?>-gocatch.png">
+                    <i class="zmdi zmdi-download"></i> Descargar imagen
+                </a>
+                <button class="btn-stories-volver" onclick="volverDesdeStories()">
+                    ← Volver
+                </button>
+            </div>
+            <p class="share-stories-ayuda">
+                Descarga esta imagen y compártela en tus Stories de Instagram, WhatsApp o Facebook para dar más visibilidad a <strong><?= htmlspecialchars($animal['nombre']) ?></strong>.
+            </p>
+        </div>
+
+        <div class="share-toast" id="share-toast">¡Enlace copiado! ✓</div>
+
+    </div>
+</div>
+<!-- ════════════════════════════════════════════════════════ -->
+
+<script id="share-data" type="application/json"><?= json_encode([
+    'url' => $share_url,
+    'title' => $share_title,
+    'description' => $share_desc,
+    'name' => $animal['nombre'],
+    'species' => $animal['especie'] ?? '',
+    'status' => $estado,
+    'photo' => $share_img,
+], JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT) ?></script>
 
 
 <script>
@@ -548,6 +670,236 @@ document.querySelectorAll('.accordion-trigger').forEach(btn => {
         }
     });
 });
+</script>
+
+
+<script>
+/* ══════════════════════════════════════════════════
+   COMPARTIR — modal + redes + stories
+══════════════════════════════════════════════════ */
+(function () {
+
+    const URL_PAG = <?= json_encode($share_url) ?>;
+    const NOMBRE  = <?= json_encode($animal['nombre']) ?>;
+    const ESPECIE = <?= json_encode($animal['especie'] ?? '') ?>;
+    const ESTADO  = <?= json_encode($estado) ?>;
+    const FOTO    = <?= json_encode($total_fotos > 0 ? $fotos[0]['ruta'] : '') ?>;
+    const TEXTO   = `¡${NOMBRE} necesita un hogar! ${ESPECIE ? '(' + ESPECIE + ')' : ''} 🐾 Encuéntralo en Go Catch`;
+
+    /* ── Rellenar hrefs al abrir ── */
+    function rellenarLinks() {
+        const u   = encodeURIComponent(URL_PAG);
+        const txt = encodeURIComponent(TEXTO);
+
+        document.getElementById('link-whatsapp').href = `https://wa.me/?text=${encodeURIComponent(TEXTO + '\n\n' + URL_PAG)}`;
+        document.getElementById('link-facebook').href = `https://www.facebook.com/sharer/sharer.php?u=${u}`;
+        document.getElementById('link-twitter').href  = `https://twitter.com/intent/tweet?text=${txt}&url=${u}`;
+        document.getElementById('link-telegram').href = `https://t.me/share/url?url=${u}&text=${txt}`;
+        document.getElementById('link-email').href    =
+            `mailto:?subject=${encodeURIComponent('¡Adopta a ' + NOMBRE + '! - Go Catch')}` +
+            `&body=${encodeURIComponent(TEXTO + '\n\n' + URL_PAG)}`;
+    }
+
+    /* ── Abrir / cerrar modal ── */
+    window.abrirCompartir = function () {
+        rellenarLinks();
+        document.getElementById('share-modal').classList.add('abierto');
+        document.body.style.overflow = 'hidden';
+    };
+
+    window.cerrarCompartir = function () {
+        document.getElementById('share-modal').classList.remove('abierto');
+        document.body.style.overflow = '';
+        volverDesdeStories();
+    };
+
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') cerrarCompartir(); });
+
+    /* ── Conectar el botón al modal ── */
+    document.getElementById('btn-compartir')
+        ?.addEventListener('click', abrirCompartir);
+
+    /* ── Copiar enlace ── */
+    window.copiarEnlace = function () {
+        const ok = () => mostrarToast('¡Enlace copiado! ✓');
+        if (navigator.clipboard) {
+            navigator.clipboard.writeText(URL_PAG).then(ok).catch(fallbackCopy);
+        } else {
+            fallbackCopy();
+        }
+    };
+
+    function fallbackCopy() {
+        const el = document.createElement('input');
+        el.value = URL_PAG;
+        document.body.appendChild(el);
+        el.select();
+        document.execCommand('copy');
+        document.body.removeChild(el);
+        mostrarToast('¡Enlace copiado! ✓');
+    }
+
+    function mostrarToast(msg) {
+        const t = document.getElementById('share-toast');
+        t.textContent = msg;
+        t.classList.add('visible');
+        setTimeout(() => t.classList.remove('visible'), 2400);
+    }
+
+    /* ── Stories ── */
+    window.mostrarStories = function () {
+        document.getElementById('share-redes-main').style.display = 'none';
+        document.getElementById('stories-section').style.display  = 'block';
+        document.getElementById('stories-loading').style.display  = 'flex';
+        dibujarStory();
+    };
+
+    window.volverDesdeStories = function () {
+        const r = document.getElementById('share-redes-main');
+        const s = document.getElementById('stories-section');
+        if (r) r.style.display = 'grid';
+        if (s) s.style.display = 'none';
+        const l = document.getElementById('stories-loading');
+        if (l) l.style.display = 'flex';
+    };
+
+    /* ── Polyfill roundRect ── */
+    if (!CanvasRenderingContext2D.prototype.roundRect) {
+        CanvasRenderingContext2D.prototype.roundRect = function (x, y, w, h, r) {
+            this.beginPath();
+            this.moveTo(x + r, y);
+            this.lineTo(x + w - r, y);
+            this.quadraticCurveTo(x + w, y, x + w, y + r);
+            this.lineTo(x + w, y + h - r);
+            this.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+            this.lineTo(x + r, y + h);
+            this.quadraticCurveTo(x, y + h, x, y + h - r);
+            this.lineTo(x, y + r);
+            this.quadraticCurveTo(x, y, x + r, y);
+            this.closePath();
+        };
+    }
+
+    function dibujarStory() {
+        const canvas  = document.getElementById('stories-canvas');
+        const loading = document.getElementById('stories-loading');
+        const btnDl   = document.getElementById('btn-descargar-story');
+        const ctx     = canvas.getContext('2d');
+
+        canvas.width  = 540;
+        canvas.height = 960;
+
+        function render(fotoImg) {
+            /* fondo navy */
+            ctx.fillStyle = '#0D2D51';
+            ctx.fillRect(0, 0, 540, 960);
+
+            /* gradiente decorativo terracota (esquina superior izquierda) */
+            const gDec = ctx.createRadialGradient(0, 0, 0, 0, 0, 320);
+            gDec.addColorStop(0, 'rgba(202,120,66,0.45)');
+            gDec.addColorStop(1, 'rgba(202,120,66,0)');
+            ctx.fillStyle = gDec;
+            ctx.fillRect(0, 0, 540, 960);
+
+            /* círculo decorativo (esquina inferior derecha) */
+            ctx.beginPath();
+            ctx.arc(500, 900, 200, 0, Math.PI * 2);
+            ctx.fillStyle = 'rgba(18,64,118,0.55)';
+            ctx.fill();
+
+            if (fotoImg) {
+                /* foto centrada en la zona superior */
+                const zoneY = 110, zoneH = 500;
+                const ratio = Math.max(540 / fotoImg.width, zoneH / fotoImg.height);
+                const dw    = fotoImg.width  * ratio;
+                const dh    = fotoImg.height * ratio;
+                ctx.save();
+                ctx.beginPath();
+                ctx.rect(0, zoneY, 540, zoneH);
+                ctx.clip();
+                ctx.drawImage(fotoImg, (540 - dw) / 2, zoneY + (zoneH - dh) / 2, dw, dh);
+                ctx.restore();
+
+                /* gradiente de fusión foto → fondo */
+                const gFade = ctx.createLinearGradient(0, zoneY + zoneH * 0.5, 0, zoneY + zoneH);
+                gFade.addColorStop(0, 'rgba(13,45,81,0)');
+                gFade.addColorStop(1, 'rgba(13,45,81,1)');
+                ctx.fillStyle = gFade;
+                ctx.fillRect(0, zoneY + zoneH * 0.5, 540, zoneH * 0.5);
+            } else {
+                /* pata decorativa cuando no hay foto */
+                ctx.font      = '240px serif';
+                ctx.textAlign = 'center';
+                ctx.fillStyle = 'rgba(202,120,66,0.15)';
+                ctx.fillText('🐾', 270, 490);
+            }
+
+            ctx.textAlign = 'center';
+
+            /* nombre del animal */
+            ctx.font      = 'bold 62px Georgia, serif';
+            ctx.fillStyle = '#fff';
+            ctx.shadowColor = 'rgba(0,0,0,0.4)';
+            ctx.shadowBlur  = 8;
+            ctx.fillText(NOMBRE, 270, fotoImg ? 680 : 540);
+            ctx.shadowBlur = 0;
+
+            /* especie */
+            if (ESPECIE) {
+                ctx.font      = '600 26px Arial, sans-serif';
+                ctx.fillStyle = '#EDA677';
+                ctx.fillText(ESPECIE.toUpperCase(), 270, fotoImg ? 718 : 580);
+            }
+
+            /* badge estado */
+            const bY  = fotoImg ? 762 : 626;
+            const bTx = ESTADO || 'DISPONIBLE';
+            ctx.font = 'bold 17px Arial, sans-serif';
+            const bW = ctx.measureText(bTx).width + 40;
+            ctx.fillStyle = '#1a7a3a';
+            ctx.beginPath();
+            ctx.roundRect(270 - bW / 2, bY - 26, bW, 36, 18);
+            ctx.fill();
+            ctx.fillStyle = '#fff';
+            ctx.fillText(bTx, 270, bY);
+
+            /* separador */
+            ctx.strokeStyle = 'rgba(202,120,66,0.4)';
+            ctx.lineWidth   = 1;
+            ctx.beginPath();
+            ctx.moveTo(80, 860);
+            ctx.lineTo(460, 860);
+            ctx.stroke();
+
+            /* logo Go Catch */
+            ctx.font      = 'bold 28px Georgia, serif';
+            ctx.fillStyle = '#fff';
+            ctx.fillText('Go Catch', 270, 896);
+
+            ctx.font      = '600 14px Arial, sans-serif';
+            ctx.fillStyle = 'rgba(237,166,119,0.9)';
+            ctx.fillText('Adopción responsable', 270, 918);
+
+            ctx.font      = '13px Arial, sans-serif';
+            ctx.fillStyle = 'rgba(255,255,255,0.38)';
+            ctx.fillText('¡Comparte y ayuda a este animal a encontrar un hogar!', 270, 944);
+
+            loading.style.display = 'none';
+            btnDl.href = canvas.toDataURL('image/png');
+        }
+
+        if (FOTO) {
+            const img       = new Image();
+            img.crossOrigin = 'anonymous';
+            img.onload      = () => render(img);
+            img.onerror     = () => render(null);
+            img.src         = FOTO;
+        } else {
+            render(null);
+        }
+    }
+
+})();
 </script>
 
 </body>
