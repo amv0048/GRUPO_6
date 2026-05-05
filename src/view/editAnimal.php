@@ -2,6 +2,7 @@
 session_start();
 require "../sesion/conexion.php";
 require_once "../model/AnimalModel.php";
+require_once "../helpers/media.php";
 
 if (!isset($_SESSION["id"])) { header("Location: /public/login.html"); exit(); }
 if (isset($_SESSION["user"])) { header("Location: /src/view/index.php"); exit(); }
@@ -37,7 +38,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $id_foto_del = (int)$_POST['id_foto'];
         $foto_del    = $animalModel->getFoto($id_foto_del, $id_animal);
         if ($foto_del) {
-            $ruta_fisica = realpath(__DIR__ . '/../../' . $foto_del['ruta']);
+            $ruta_fisica = media_storage_path($foto_del['ruta']);
             if ($ruta_fisica && is_file($ruta_fisica)) unlink($ruta_fisica);
             $animalModel->deleteFoto($id_foto_del);
             if ($foto_del['es_principal']) {
@@ -53,11 +54,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             $ext_ok = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
             $ext    = strtolower(pathinfo($_FILES['foto_nueva']['name'], PATHINFO_EXTENSION));
             if (in_array($ext, $ext_ok)) {
-                $carpeta = realpath(__DIR__ . '/../../img') . '/protectoras/protectora_' . $id_protectora . '/animal_' . $id_animal;
+                $carpeta = media_animal_dir($id_protectora, $id_animal);
                 if (!is_dir($carpeta)) mkdir($carpeta, 0755, true);
                 $archivo = 'foto_' . time() . '.' . $ext;
                 if (move_uploaded_file($_FILES['foto_nueva']['tmp_name'], $carpeta . '/' . $archivo)) {
-                    $ruta         = 'img/protectoras/protectora_' . $id_protectora . '/animal_' . $id_animal . '/' . $archivo;
+                    $ruta         = media_animal_url($id_protectora, $id_animal, $archivo);
                     $es_principal = empty($fotos) ? 1 : 0;
                     $animalModel->addFoto($id_animal, $ruta, $es_principal);
                 }

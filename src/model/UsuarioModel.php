@@ -1,4 +1,6 @@
 <?php
+require_once __DIR__ . '/../helpers/media.php';
+
 class UsuarioModel {
     private $db;
 
@@ -8,7 +10,11 @@ class UsuarioModel {
         $stmt = $this->db->prepare("SELECT * FROM Usuario WHERE id_adoptante = ?");
         $stmt->bind_param("i", $id);
         $stmt->execute();
-        return $stmt->get_result()->fetch_assoc() ?: null;
+        $row = $stmt->get_result()->fetch_assoc() ?: null;
+        if ($row && array_key_exists('foto_perfil', $row)) {
+            $row['foto_perfil'] = media_normalize_url($row['foto_perfil']);
+        }
+        return $row;
     }
 
     public function getBasico(int $id): ?array {

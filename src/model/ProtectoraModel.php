@@ -1,4 +1,6 @@
 <?php
+require_once __DIR__ . '/../helpers/media.php';
+
 class ProtectoraModel {
     private $db;
 
@@ -9,14 +11,27 @@ class ProtectoraModel {
             "SELECT id_protectora, nombre_protectora, ciudad, localidad, direccion, telefono, logo
              FROM Protectora ORDER BY nombre_protectora"
         );
-        return $res ? $res->fetch_all(MYSQLI_ASSOC) : [];
+        if (!$res) {
+            return [];
+        }
+
+        $rows = $res->fetch_all(MYSQLI_ASSOC);
+        foreach ($rows as &$row) {
+            $row['logo'] = media_normalize_url($row['logo']);
+        }
+        unset($row);
+        return $rows;
     }
 
     public function getById(int $id): ?array {
         $stmt = $this->db->prepare("SELECT * FROM Protectora WHERE id_protectora = ?");
         $stmt->bind_param("i", $id);
         $stmt->execute();
-        return $stmt->get_result()->fetch_assoc() ?: null;
+        $row = $stmt->get_result()->fetch_assoc() ?: null;
+        if ($row && array_key_exists('logo', $row)) {
+            $row['logo'] = media_normalize_url($row['logo']);
+        }
+        return $row;
     }
 
     public function update(int $id, array $campos, array $valores, string $tipos): bool {

@@ -1,8 +1,21 @@
 <?php
+require_once __DIR__ . '/../helpers/media.php';
+
 class AdopcionModel {
     private $db;
 
     public function __construct(mysqli $db) { $this->db = $db; }
+
+    private function normalizeFotoAnimalRows(array $rows): array
+    {
+        foreach ($rows as &$row) {
+            if (array_key_exists('foto_animal', $row)) {
+                $row['foto_animal'] = media_normalize_url($row['foto_animal']);
+            }
+        }
+        unset($row);
+        return $rows;
+    }
 
     public function getSolicitudesByProtectora(int $id_protectora, string $estado = 'PENDIENTE'): array {
         $sql = "SELECT s.*, a.nombre AS nombre_animal, a.especie, a.raza,
@@ -25,7 +38,7 @@ class AdopcionModel {
             $st->bind_param("i", $id_protectora);
         }
         $st->execute();
-        return $st->get_result()->fetch_all(MYSQLI_ASSOC);
+        return $this->normalizeFotoAnimalRows($st->get_result()->fetch_all(MYSQLI_ASSOC));
     }
 
     public function getContadoresByProtectora(int $id_protectora): array {
@@ -132,7 +145,11 @@ class AdopcionModel {
         );
         $st->bind_param("ii", $id_solicitud, $id_adoptante);
         $st->execute();
-        return $st->get_result()->fetch_assoc() ?: null;
+        $row = $st->get_result()->fetch_assoc() ?: null;
+        if ($row && array_key_exists('foto_animal', $row)) {
+            $row['foto_animal'] = media_normalize_url($row['foto_animal']);
+        }
+        return $row;
     }
 
     public function getCitaExistente(int $id_solicitud): ?array {

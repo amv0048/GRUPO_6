@@ -2,9 +2,10 @@
 session_start();
 require "../sesion/conexion.php";
 require_once "../model/UrgenteModel.php";
+require_once "../helpers/media.php";
 
 // ── DIRECTORIO DE UPLOADS ────────────────────────────────────
-$upload_dir = "../../img/urgente/";
+$upload_dir = media_img_root() . "/urgente/";
 if (!is_dir($upload_dir)) {
     mkdir($upload_dir, 0755, true);
 }
@@ -41,7 +42,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["action"]) && $_POST["
                 $nombre_archivo = uniqid("urg_", true) . "." . $ext;
                 $ruta_destino   = $upload_dir . $nombre_archivo;
                 if (move_uploaded_file($_FILES["foto"]["tmp_name"], $ruta_destino)) {
-                    $foto_ruta = "../../img/urgente/" . $nombre_archivo;
+                    $foto_ruta = "/img/urgente/" . $nombre_archivo;
                 } else {
                     $msg_err = "No se pudo guardar la imagen. Inténtalo de nuevo.";
                 }

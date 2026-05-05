@@ -4,6 +4,7 @@ require "../sesion/conexion.php";
 require_once "../model/UsuarioModel.php";
 require_once "../model/ProtectoraModel.php";
 require_once "../model/AdopcionModel.php";
+require_once "../helpers/media.php";
 
 if (!isset($_SESSION["id"])) {
     header("Location: /public/login.html");
@@ -105,13 +106,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $ext_ok = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
             $ext    = strtolower(pathinfo($_FILES['foto']['name'], PATHINFO_EXTENSION));
             if (in_array($ext, $ext_ok)) {
-                $carpeta = realpath(__DIR__ . '/../../img/userPerfil') . '/user_' . $_SESSION["id"];
+                $carpeta = media_user_profile_dir((int)$_SESSION["id"]);
                 if (!is_dir($carpeta)) {
                     mkdir($carpeta, 0755, true);
                 }
                 $archivo = 'perfil_' . time() . '.' . $ext;
                 if (move_uploaded_file($_FILES['foto']['tmp_name'], $carpeta . '/' . $archivo)) {
-                    $ruta_foto = 'img/userPerfil/user_' . $_SESSION["id"] . '/' . $archivo;
+                    $ruta_foto = media_user_profile_url((int)$_SESSION["id"], $archivo);
                     $campos[]  = "foto_perfil = ?";
                     $valores[] = $ruta_foto;
                     $tipos    .= "s";
@@ -197,13 +198,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $ext_ok = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
             $ext    = strtolower(pathinfo($_FILES['foto']['name'], PATHINFO_EXTENSION));
             if (in_array($ext, $ext_ok)) {
-                $carpeta = realpath(__DIR__ . '/../../img/protectoras') . '/protectora_' . $_SESSION["id"] . '/foto_perfil';
+                $carpeta = media_protectora_profile_dir((int)$_SESSION["id"]);
                 if (!is_dir($carpeta)) {
                     mkdir($carpeta, 0755, true);
                 }
                 $archivo = 'perfil_' . time() . '.' . $ext;
                 if (move_uploaded_file($_FILES['foto']['tmp_name'], $carpeta . '/' . $archivo)) {
-                    $ruta_foto = 'img/protectoras/protectora_' . $_SESSION["id"] . '/foto_perfil/' . $archivo;
+                    $ruta_foto = media_protectora_profile_url((int)$_SESSION["id"], $archivo);
                     $campos[]  = "logo = ?";
                     $valores[] = $ruta_foto;
                     $tipos    .= "s";
@@ -269,9 +270,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 <div id="foto-perfil">
                 <img src="<?php
                     if ($tipo == 'usuario') {
-                        echo isset($datos["foto_perfil"]) && $datos["foto_perfil"] ? htmlspecialchars($datos["foto_perfil"]) : '../../img/profile/default/1.jpg';
+                        echo htmlspecialchars(media_normalize_url($datos["foto_perfil"] ?? null, '/img/profile/default/oficiales/1.jpg'));
                     } else {
-                        echo isset($datos["logo"]) && $datos["logo"] ? htmlspecialchars($datos["logo"]) : '../../img/profile/default/1.jpg';
+                        echo htmlspecialchars(media_normalize_url($datos["logo"] ?? null, '/img/profile/default/oficiales/1.jpg'));
                     }
                 ?>" alt="Foto de perfil" id="foto-img">
                 </div>

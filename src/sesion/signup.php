@@ -4,6 +4,7 @@ require '../PHPMailer.php';
 require '../SMTP.php';
 require '../Exception.php';
 require '../config1.php';
+require_once __DIR__ . '/../helpers/media.php';
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\SMTP;
 use PHPMailer\PHPMailer\Exception;
@@ -90,7 +91,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" and $_POST["tipo"] == "usuario") {
              VALUES (?, ?, ?, ?, NULL, 0, 0, ?)"
         );
         $img = rand(1,2); // CAMBIAR AQUI PARA IMG RANDOMS
-        $ruta = "img/profile/default/".$img.".jpg";
+        $ruta = "/img/profile/default/oficiales/".$img.".jpg";
         $consulta->bind_param("sssss", $nombre, $apellido, $email, $pass_cifrada , $ruta);
         if ($consulta->execute()) {
             $consulta->close();
@@ -213,7 +214,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" and $_POST["tipo"] == "protectora") {
             $consulta->close();
 
             // ── CREAR CARPETA DE LA PROTECTORA ──────────────────────
-            $carpeta_protectora = realpath(__DIR__ . '/../../public/../img') . '/protectoras/protectora_' . $id_nueva_protectora;
+            $carpeta_protectora = media_img_root() . '/protectoras/protectora_' . $id_nueva_protectora;
             if (!is_dir($carpeta_protectora)) {
                 mkdir($carpeta_protectora, 0755, true);
             }

@@ -2,6 +2,7 @@
 session_start();
 require "../sesion/conexion.php";
 require_once "../model/AnimalModel.php";
+require_once "../helpers/media.php";
 
 // Solo protectoras
 if (!isset($_SESSION["id"])) {
@@ -38,7 +39,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $id_nuevo = $animalModel->create($d, $id_protectora);
 
     if ($id_nuevo !== false) {
-        $carpeta_animal = realpath(__DIR__ . '/../../img') . '/protectoras/protectora_' . $id_protectora . '/animal_' . $id_nuevo;
+        $carpeta_animal = media_animal_dir($id_protectora, $id_nuevo);
         if (!is_dir($carpeta_animal)) mkdir($carpeta_animal, 0755, true);
 
         if (!empty($_FILES['foto']['name']) && $_FILES['foto']['error'] === UPLOAD_ERR_OK) {
@@ -47,7 +48,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             if (in_array($ext, $ext_ok)) {
                 $archivo = 'foto_1_' . time() . '.' . $ext;
                 if (move_uploaded_file($_FILES['foto']['tmp_name'], $carpeta_animal . '/' . $archivo)) {
-                    $ruta = 'img/protectoras/protectora_' . $id_protectora . '/animal_' . $id_nuevo . '/' . $archivo;
+                    $ruta = media_animal_url($id_protectora, $id_nuevo, $archivo);
                     $animalModel->addFoto($id_nuevo, $ruta, 1);
                 }
             }

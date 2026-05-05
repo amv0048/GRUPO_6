@@ -1,8 +1,29 @@
 <?php
+require_once __DIR__ . '/../helpers/media.php';
+
 class AnimalModel {
     private $db;
 
     public function __construct(mysqli $db) { $this->db = $db; }
+
+    private function normalizeAnimalRow(array $row): array
+    {
+        if (array_key_exists('foto', $row)) {
+            $row['foto'] = media_normalize_url($row['foto']);
+        }
+        if (array_key_exists('logo', $row)) {
+            $row['logo'] = media_normalize_url($row['logo']);
+        }
+        return $row;
+    }
+
+    private function normalizeGaleriaRow(array $row): array
+    {
+        if (array_key_exists('ruta', $row)) {
+            $row['ruta'] = media_normalize_url($row['ruta']);
+        }
+        return $row;
+    }
 
     public function getDisponibles(array $f): array {
         $sql = "SELECT a.id_animal, a.nombre, a.especie, a.raza, a.edad, a.sexo,
@@ -30,10 +51,10 @@ class AnimalModel {
             $stmt = $this->db->prepare($sql);
             $stmt->bind_param($types, ...$params);
             $stmt->execute();
-            return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+            return array_map([$this, 'normalizeAnimalRow'], $stmt->get_result()->fetch_all(MYSQLI_ASSOC));
         }
         $res = $this->db->query($sql);
-        return $res ? $res->fetch_all(MYSQLI_ASSOC) : [];
+        return $res ? array_map([$this, 'normalizeAnimalRow'], $res->fetch_all(MYSQLI_ASSOC)) : [];
     }
 
     public function getByProtectora(int $id_protectora, array $f): array {
@@ -60,7 +81,7 @@ class AnimalModel {
         $stmt = $this->db->prepare($sql);
         $stmt->bind_param($types, ...$params);
         $stmt->execute();
-        return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+        return array_map([$this, 'normalizeAnimalRow'], $stmt->get_result()->fetch_all(MYSQLI_ASSOC));
     }
 
     public function getById(int $id): ?array {
@@ -78,7 +99,8 @@ class AnimalModel {
         );
         $stmt->bind_param("i", $id);
         $stmt->execute();
-        return $stmt->get_result()->fetch_assoc() ?: null;
+        $row = $stmt->get_result()->fetch_assoc() ?: null;
+        return $row ? $this->normalizeAnimalRow($row) : null;
     }
 
     public function getForSolicitud(int $id): ?array {
@@ -95,7 +117,8 @@ class AnimalModel {
         );
         $stmt->bind_param("i", $id);
         $stmt->execute();
-        return $stmt->get_result()->fetch_assoc() ?: null;
+        $row = $stmt->get_result()->fetch_assoc() ?: null;
+        return $row ? $this->normalizeAnimalRow($row) : null;
     }
 
     public function getAllByProtectora(int $id_protectora): array {
@@ -112,7 +135,7 @@ class AnimalModel {
         );
         $stmt->bind_param("i", $id_protectora);
         $stmt->execute();
-        return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+        return array_map([$this, 'normalizeAnimalRow'], $stmt->get_result()->fetch_all(MYSQLI_ASSOC));
     }
 
     public function getByIdYProtectora(int $id_animal, int $id_protectora): ?array {
@@ -186,7 +209,7 @@ class AnimalModel {
         );
         $stmt->bind_param("i", $id_animal);
         $stmt->execute();
-        return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+        return array_map([$this, 'normalizeGaleriaRow'], $stmt->get_result()->fetch_all(MYSQLI_ASSOC));
     }
 
     public function getFoto(int $id_foto, int $id_animal): ?array {
@@ -195,7 +218,8 @@ class AnimalModel {
         );
         $stmt->bind_param("ii", $id_foto, $id_animal);
         $stmt->execute();
-        return $stmt->get_result()->fetch_assoc() ?: null;
+        $row = $stmt->get_result()->fetch_assoc() ?: null;
+        return $row ? $this->normalizeGaleriaRow($row) : null;
     }
 
     public function addFoto(int $id_animal, string $ruta, int $es_principal): bool {

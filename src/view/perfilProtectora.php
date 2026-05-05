@@ -2,6 +2,7 @@
 session_start();
 require "../sesion/conexion.php";
 require_once "../model/ProtectoraModel.php";
+require_once "../helpers/media.php";
 
 // ── DETERMINAR MODO: edición propia vs vista pública ─────────
 // Si llega ?id=X cualquiera puede ver; solo edita la protectora dueña.
@@ -103,6 +104,23 @@ if (!$solo_vista && $_SERVER["REQUEST_METHOD"] == "POST") {
         }
     }
 
+    if (!empty($_FILES['foto']['name']) && $_FILES['foto']['error'] === UPLOAD_ERR_OK) {
+        $ext_ok = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+        $ext    = strtolower(pathinfo($_FILES['foto']['name'], PATHINFO_EXTENSION));
+        if (in_array($ext, $ext_ok, true)) {
+            $carpeta = media_protectora_profile_dir((int)$_SESSION['id']);
+            if (!is_dir($carpeta)) {
+                mkdir($carpeta, 0755, true);
+            }
+            $archivo = 'perfil_' . time() . '.' . $ext;
+            if (move_uploaded_file($_FILES['foto']['tmp_name'], $carpeta . '/' . $archivo)) {
+                $campos[]  = "logo = ?";
+                $valores[] = media_protectora_profile_url((int)$_SESSION['id'], $archivo);
+                $tipos    .= "s";
+            }
+        }
+    }
+
     if (!isset($err_pass) && !empty($campos)) {
         if ($protectoraModel->update($_SESSION["id"], $campos, $valores, $tipos)) {
             if ($nombre_protectora != "") $_SESSION["protectora"] = $nombre_protectora;
@@ -169,7 +187,7 @@ $es_adoptante = isset($_SESSION['id']) && isset($_SESSION['user']);
         <div id="perfil-header">
             <div id="foto-perfil-container">
                 <div id="foto-perfil">
-                    <img src="<?= isset($datos["logo"]) && $datos["logo"] ? htmlspecialchars($datos["logo"]) : '../../img/profile/default/oficiales/1.jpg' ?>"
+                    <img src="<?= htmlspecialchars(media_normalize_url($datos["logo"] ?? null, '/img/profile/default/oficiales/1.jpg')) ?>"
                          alt="Logo de la protectora" id="foto-img">
                 </div>
                 <?php if (!$solo_vista): ?>
@@ -247,7 +265,7 @@ $es_adoptante = isset($_SESSION['id']) && isset($_SESSION['user']);
         <?php else: ?>
 
             <!-- ── FORMULARIO EDICIÓN (propietaria) ── -->
-            <form action="perfilProtectora.php" method="POST" id="registro">
+            <form action="perfilProtectora.php" method="POST" id="registro" enctype="multipart/form-data">
 
                 <div class="form-wrapper">
                     <input type="text" name="nombre_protectora" class="form-control"
