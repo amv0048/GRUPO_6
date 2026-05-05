@@ -247,7 +247,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <header>
     <nav class="hBotones">
         <a class="hBoton" href="" target="_self">PROTECTORAS</a>
-        <a class="hBoton" href="" target="_self">COLABORADORES</a>
+        <a class="hBoton" href="/src/view/colaboradores.php" target="_self">COLABORADORES</a>
     </nav>
     <nav id="header-izq">
         <a href="/src/view/index.php" target="_self">

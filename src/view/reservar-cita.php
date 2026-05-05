@@ -77,7 +77,7 @@ $dias_es  = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
 <header>
     <nav class="hBotones">
         <a class="hBoton" href="#protectoras">PROTECTORAS</a>
-        <a class="hBoton" href="">COLABORADORES</a>
+        <a class="hBoton" href="/src/view/colaboradores.php">COLABORADORES</a>
     </nav>
     <nav id="header-izq">
         <a href="/src/view/index.php">

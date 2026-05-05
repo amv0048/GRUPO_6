@@ -5,6 +5,7 @@ require_once "../model/AnimalModel.php";
 require_once "../model/ProtectoraModel.php";
 require_once "../model/LikeModel.php";
 require_once "../model/CrowdfundingModel.php";
+require_once "../model/ColaboradorModel.php";
 
 // ── FILTROS (GET) ──────────────────────────────────────────────
 $especie_filtro = isset($_GET['especie']) ? trim($_GET['especie']) : '';
@@ -23,7 +24,8 @@ $compat_ninos   = !empty($_GET['compat_ninos']);
 $animalModel       = new AnimalModel($_conexion);
 $protectoraModel   = new ProtectoraModel($_conexion);
 $likeModel         = new LikeModel($_conexion);
-$crowdfundingModel = new CrowdfundingModel($_conexion);
+$crowdfundingModel  = new CrowdfundingModel($_conexion);
+$colaboradorModel   = new ColaboradorModel($_conexion);
 
 // ── PROTECTORAS PARA EL MAPA ───────────────────────────────────
 $protectoras_arr = $protectoraModel->getAll();
@@ -61,6 +63,9 @@ $colores  = $filter_opts['colores'];
 // ── CROWDFUNDING ACTIVO ────────────────────────────────────────
 $crowd_casos = $crowdfundingModel->getCasosActivos(6);
 
+// ── COLABORADORES DESTACADOS ───────────────────────────────────
+$colaboradores_preview = $colaboradorModel->getDestacados(4);
+
 // ── NOMBRE DE SESIÓN ───────────────────────────────────────────
 $nombre_sesion = '';
 if (isset($_SESSION['user']))       $nombre_sesion = $_SESSION['user'];
@@ -79,6 +84,7 @@ elseif (isset($_SESSION['protectora'])) $nombre_sesion = $_SESSION['protectora']
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
     <link rel="stylesheet" href="/public/css/header.css">
     <link rel="stylesheet" href="/public/css/index.css">
+    <link rel="stylesheet" href="/public/css/colaboradores.css">
 </head>
 <body>
 
@@ -88,9 +94,9 @@ elseif (isset($_SESSION['protectora'])) $nombre_sesion = $_SESSION['protectora']
 <header>
     <nav class="hBotones">
         <a class="hBoton" href="#protectoras">PROTECTORAS</a>
-        <a class="hBoton" href="">COLABORADORES</a>
+        <a class="hBoton" href="/src/view/colaboradores.php">COLABORADORES</a>
         <!--FUMADA MIA -->
-        <?php  
+        <?php
         if(!isset($_SESSION["user"]) and isset($_SESSION["nombre"])){
             echo "<a class='hBoton' href='listaAnimal.php'>LISTA ANIMAL</a>";
         }
@@ -564,6 +570,58 @@ elseif (isset($_SESSION['protectora'])) $nombre_sesion = $_SESSION['protectora']
     <?php endif; ?>
 
 </section>
+
+
+<!-- ══════════════════════════════════════════
+     COLABORADORES
+══════════════════════════════════════════ -->
+<?php if (!empty($colaboradores_preview)): ?>
+<section id="colaboradores-preview">
+    <p class="seccion-etiqueta">Nuestros colaboradores</p>
+    <h2 class="seccion-titulo">Profesionales que apoyan la causa</h2>
+    <p class="seccion-subtitulo">
+        Veterinarios, adiestradores y más profesionales comprometidos con el bienestar animal
+    </p>
+
+    <div id="colab-grid-preview">
+        <?php foreach ($colaboradores_preview as $c): ?>
+        <a class="colab-preview-card"
+           href="/src/view/ficha-colaborador.php?id=<?= (int)$c['id_colaborador'] ?>">
+
+            <div class="colab-preview-avatar">
+                <i class="zmdi zmdi-account"></i>
+            </div>
+
+            <?php if ($c['suscripcion'] === 'premium'): ?>
+            <span class="colab-badge colab-badge-premium">
+                <i class="zmdi zmdi-star"></i> Premium
+            </span>
+            <?php endif; ?>
+
+            <p class="colab-preview-nombre"><?= htmlspecialchars($c['nombre']) ?></p>
+
+            <?php if ($c['profesion']): ?>
+            <p class="colab-preview-profesion"><?= htmlspecialchars($c['profesion']) ?></p>
+            <?php endif; ?>
+
+            <?php if ($c['ubicacion']): ?>
+            <p class="colab-preview-dato">
+                <i class="zmdi zmdi-pin"></i>
+                <?= htmlspecialchars($c['ubicacion']) ?>
+            </p>
+            <?php endif; ?>
+
+        </a>
+        <?php endforeach; ?>
+    </div>
+
+    <div class="colaboradores-ver-todos">
+        <a href="/src/view/colaboradores.php" class="cta-btn cta-secondary">
+            Ver todos los colaboradores &nbsp;<i class="zmdi zmdi-arrow-right"></i>
+        </a>
+    </div>
+</section>
+<?php endif; ?>
 
 
 <!-- ══════════════════════════════════════════

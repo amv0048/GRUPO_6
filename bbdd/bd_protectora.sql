@@ -285,6 +285,15 @@ INSERT INTO Protectora (nombre_protectora, email, contrasena, telefono, ciudad, 
 INSERT INTO Usuario (nombre, apellido, contrasena, email, admin) VALUES
     ('Admin', 'Go Catch', '$2y$10$qLN1KwouQRfabjOqpXlgkui3Xoi7zYMauDH7cSvBrA7LUJu5P8bjO', 'admin@gocatch.es', TRUE);
 
+-- Colaboradores de prueba
+INSERT INTO Colaborador (nombre, telefono, web, profesion, suscripcion, ubicacion) VALUES
+    ('Clínica Veterinaria Huella Verde',        '600100201', 'https://huellaverde.es',           'Veterinaria',            'premium', 'Sevilla'),
+    ('Carlos López – Adiestramiento Canino',    '600100202', 'https://carlosadiestramiento.es',  'Adiestramiento',         'premium', 'Madrid'),
+    ('Peluquería Animal Bigotes',               '600100203', NULL,                               'Peluquería canina',      'basica',  'Valencia'),
+    ('Guardería Pet Paradise',                  '600100204', 'https://petparadise.es',           'Guardería de animales',  'basica',  'Barcelona'),
+    ('Dra. Ana García – Medicina Holística',    '600100205', NULL,                               'Medicina alternativa',   'basica',  'Granada'),
+    ('Pablo Ruiz – Fotografía de Mascotas',     '600100206', 'https://fotopablo.es',             'Fotografía de animales', 'basica',  'Málaga');
+
 -- Animales de prueba
 -- id_estado: 1=DISPONIBLE  2=ADOPTADO  3=RESERVADO  4=EN_ACOGIDA
 -- id_protectora: 1=Patitas Felices  2=Huellas del Sur
