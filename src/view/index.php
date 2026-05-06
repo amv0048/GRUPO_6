@@ -179,10 +179,130 @@ elseif (isset($_SESSION['protectora'])) $nombre_sesion = $_SESSION['protectora']
 
 
 <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+     MAPA
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+<section id="mapa-section">
+
+    <div id="mapa-wrapper">
+        <div id="mapa"></div>
+    </div>
+
+    <div id="mapa-label">
+        <div id="mapa-label-content">
+            <i class="zmdi zmdi-pin"></i>
+            <h2>Mascotas<br>Cerca De Ti</h2>
+            <p>Activa tu ubicación para ver las protectoras más cercanas a ti</p>
+            <button id="btn-localizar" type="button">
+                <i class="zmdi zmdi-my-location"></i> Usar mi ubicación
+            </button>
+        </div>
+    </div>
+
+</section>
+
+
+<!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+     CROWDFUNDING (PÚBLICO)
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+<?php if (!empty($crowd_casos)): ?>
+<section id="crowdfunding-public">
+    <p class="seccion-etiqueta">Ayuda a cambiar vidas</p>
+    <h2 class="seccion-titulo">Casos que necesitan tu apoyo</h2>
+
+    <div class="crowd-pub-grid">
+        <?php foreach ($crowd_casos as $caso):
+            $pct = $caso['meta_euros'] > 0
+                ? min(100, round($caso['recaudado'] / $caso['meta_euros'] * 100))
+                : 0;
+        ?>
+        <div class="crowd-pub-card">
+            <?php if (!empty($caso['foto'])): ?>
+            <div class="crowd-pub-foto">
+                <img src="<?= htmlspecialchars($caso['foto']) ?>" alt="<?= htmlspecialchars($caso['titulo']) ?>">
+            </div>
+            <?php else: ?>
+            <div class="crowd-pub-foto crowd-pub-foto-placeholder">
+                <i class="zmdi zmdi-money-box"></i>
+            </div>
+            <?php endif; ?>
+            <div class="crowd-pub-body">
+                <p class="crowd-pub-protectora"><?= htmlspecialchars($caso['nombre_protectora']) ?></p>
+                <h3 class="crowd-pub-titulo"><?= htmlspecialchars($caso['titulo']) ?></h3>
+                <?php if (!empty($caso['animal_nombre'])): ?>
+                <p class="crowd-pub-animal">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80" width="12" height="12" fill="currentColor" style="vertical-align:middle;margin-right:4px"><ellipse cx="40" cy="54" rx="18" ry="15"/><ellipse cx="20" cy="36" rx="9" ry="11"/><ellipse cx="34" cy="27" rx="9" ry="11"/><ellipse cx="50" cy="27" rx="9" ry="11"/><ellipse cx="64" cy="36" rx="9" ry="11"/></svg>
+                    <?= htmlspecialchars($caso['animal_nombre']) ?>
+                </p>
+                <?php endif; ?>
+                <p class="crowd-pub-desc">
+                    <?= htmlspecialchars(mb_substr($caso['descripcion'], 0, 120)) ?><?= mb_strlen($caso['descripcion']) > 120 ? 'â€¦' : '' ?>
+                </p>
+                <div class="crowd-pub-progress">
+                    <div class="crowd-pub-bar">
+                        <div class="crowd-pub-fill" style="width:<?= $pct ?>%"></div>
+                    </div>
+                    <div class="crowd-pub-nums">
+                        <span><?= number_format($caso['recaudado'], 0, ',', '.') ?> â‚¬</span>
+                        <span><?= $pct ?>% de <?= number_format($caso['meta_euros'], 0, ',', '.') ?> â‚¬</span>
+                    </div>
+                </div>
+                <button class="crowd-btn-donar" type="button"
+                    data-id="<?= $caso['id_caso'] ?>"
+                    data-titulo="<?= htmlspecialchars($caso['titulo'], ENT_QUOTES) ?>">
+                    <i class="zmdi zmdi-money"></i> Donar
+                </button>
+            </div>
+        </div>
+        <?php endforeach; ?>
+    </div>
+</section>
+
+<!-- Modal Donación -->
+<div id="don-modal" class="don-modal-overlay" style="display:none" role="dialog" aria-modal="true">
+    <div class="don-modal">
+        <div class="don-modal-header">
+            <h3>Apoya este caso</h3>
+            <button id="don-modal-close" type="button" aria-label="Cerrar">
+                <i class="zmdi zmdi-close"></i>
+            </button>
+        </div>
+        <p id="don-modal-titulo" style="color:#EDA677;font-size:13px;margin-bottom:16px;font-weight:600"></p>
+        <div class="don-form-group">
+            <label>Tu nombre <span style="color:#a8b8cc;font-weight:400">(opcional)</span></label>
+            <input type="text" id="don-nombre" placeholder="Anónimo">
+        </div>
+        <div class="don-form-group">
+            <label>Cantidad a donar (â‚¬)</label>
+            <div class="don-quick-amounts">
+                <button type="button" class="don-quick" data-v="5">5 â‚¬</button>
+                <button type="button" class="don-quick" data-v="10">10 â‚¬</button>
+                <button type="button" class="don-quick" data-v="25">25 â‚¬</button>
+                <button type="button" class="don-quick" data-v="50">50 â‚¬</button>
+            </div>
+            <input type="number" id="don-cantidad" min="1" step="0.01" placeholder="Otra cantidadâ€¦">
+        </div>
+        <p class="don-aviso">
+            <i class="zmdi zmdi-info-outline"></i>
+            La pasarela de pago estará disponible próximamente. Tu intención de donación quedará registrada.
+        </p>
+        <div class="don-acciones">
+            <button type="button" id="don-cancel">Cancelar</button>
+            <button type="button" id="don-submit"><i class="zmdi zmdi-money"></i> Confirmar donación</button>
+        </div>
+        <div id="don-feedback" style="display:none;margin-top:12px;padding:10px 14px;border-radius:6px;font-size:13px"></div>
+    </div>
+</div>
+
+<?php endif; ?>
+
+
+<!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
      FILTRO
 â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
 <section id="filtro">
-    <form method="GET" action="index.php" id="filtro-form">
+    <p class="seccion-etiqueta">Adopta</p>
+    <h2 class="seccion-titulo" style="margin-bottom:20px">Encuentra tu compañero ideal</h2>
+    <form method="GET" action="/src/view/index.php" id="filtro-form">
 
         <!-- Fila 1: selects -->
         <div class="filtro-fila">
@@ -312,124 +432,6 @@ elseif (isset($_SESSION['protectora'])) $nombre_sesion = $_SESSION['protectora']
 
     </form>
 </section>
-
-
-<!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-     MAPA
-â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
-<section id="mapa-section">
-
-    <div id="mapa-wrapper">
-        <div id="mapa"></div>
-    </div>
-
-    <div id="mapa-label">
-        <div id="mapa-label-content">
-            <i class="zmdi zmdi-pin"></i>
-            <h2>Mascotas<br>Cerca De Ti</h2>
-            <p>Activa tu ubicación para ver las protectoras más cercanas a ti</p>
-            <button id="btn-localizar" type="button">
-                <i class="zmdi zmdi-my-location"></i> Usar mi ubicación
-            </button>
-        </div>
-    </div>
-
-</section>
-
-
-<!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-     CROWDFUNDING (PÚBLICO)
-â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
-<?php if (!empty($crowd_casos)): ?>
-<section id="crowdfunding-public">
-    <p class="seccion-etiqueta">Ayuda a cambiar vidas</p>
-    <h2 class="seccion-titulo">Casos que necesitan tu apoyo</h2>
-
-    <div class="crowd-pub-grid">
-        <?php foreach ($crowd_casos as $caso):
-            $pct = $caso['meta_euros'] > 0
-                ? min(100, round($caso['recaudado'] / $caso['meta_euros'] * 100))
-                : 0;
-        ?>
-        <div class="crowd-pub-card">
-            <?php if (!empty($caso['foto'])): ?>
-            <div class="crowd-pub-foto">
-                <img src="<?= htmlspecialchars($caso['foto']) ?>" alt="<?= htmlspecialchars($caso['titulo']) ?>">
-            </div>
-            <?php else: ?>
-            <div class="crowd-pub-foto crowd-pub-foto-placeholder">
-                <i class="zmdi zmdi-money-box"></i>
-            </div>
-            <?php endif; ?>
-            <div class="crowd-pub-body">
-                <p class="crowd-pub-protectora"><?= htmlspecialchars($caso['nombre_protectora']) ?></p>
-                <h3 class="crowd-pub-titulo"><?= htmlspecialchars($caso['titulo']) ?></h3>
-                <?php if (!empty($caso['animal_nombre'])): ?>
-                <p class="crowd-pub-animal">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80" width="12" height="12" fill="currentColor" style="vertical-align:middle;margin-right:4px"><ellipse cx="40" cy="54" rx="18" ry="15"/><ellipse cx="20" cy="36" rx="9" ry="11"/><ellipse cx="34" cy="27" rx="9" ry="11"/><ellipse cx="50" cy="27" rx="9" ry="11"/><ellipse cx="64" cy="36" rx="9" ry="11"/></svg>
-                    <?= htmlspecialchars($caso['animal_nombre']) ?>
-                </p>
-                <?php endif; ?>
-                <p class="crowd-pub-desc">
-                    <?= htmlspecialchars(mb_substr($caso['descripcion'], 0, 120)) ?><?= mb_strlen($caso['descripcion']) > 120 ? 'â€¦' : '' ?>
-                </p>
-                <div class="crowd-pub-progress">
-                    <div class="crowd-pub-bar">
-                        <div class="crowd-pub-fill" style="width:<?= $pct ?>%"></div>
-                    </div>
-                    <div class="crowd-pub-nums">
-                        <span><?= number_format($caso['recaudado'], 0, ',', '.') ?> â‚¬</span>
-                        <span><?= $pct ?>% de <?= number_format($caso['meta_euros'], 0, ',', '.') ?> â‚¬</span>
-                    </div>
-                </div>
-                <button class="crowd-btn-donar" type="button"
-                    data-id="<?= $caso['id_caso'] ?>"
-                    data-titulo="<?= htmlspecialchars($caso['titulo'], ENT_QUOTES) ?>">
-                    <i class="zmdi zmdi-money"></i> Donar
-                </button>
-            </div>
-        </div>
-        <?php endforeach; ?>
-    </div>
-</section>
-
-<!-- Modal Donación -->
-<div id="don-modal" class="don-modal-overlay" style="display:none" role="dialog" aria-modal="true">
-    <div class="don-modal">
-        <div class="don-modal-header">
-            <h3>Apoya este caso</h3>
-            <button id="don-modal-close" type="button" aria-label="Cerrar">
-                <i class="zmdi zmdi-close"></i>
-            </button>
-        </div>
-        <p id="don-modal-titulo" style="color:#EDA677;font-size:13px;margin-bottom:16px;font-weight:600"></p>
-        <div class="don-form-group">
-            <label>Tu nombre <span style="color:#a8b8cc;font-weight:400">(opcional)</span></label>
-            <input type="text" id="don-nombre" placeholder="Anónimo">
-        </div>
-        <div class="don-form-group">
-            <label>Cantidad a donar (â‚¬)</label>
-            <div class="don-quick-amounts">
-                <button type="button" class="don-quick" data-v="5">5 â‚¬</button>
-                <button type="button" class="don-quick" data-v="10">10 â‚¬</button>
-                <button type="button" class="don-quick" data-v="25">25 â‚¬</button>
-                <button type="button" class="don-quick" data-v="50">50 â‚¬</button>
-            </div>
-            <input type="number" id="don-cantidad" min="1" step="0.01" placeholder="Otra cantidadâ€¦">
-        </div>
-        <p class="don-aviso">
-            <i class="zmdi zmdi-info-outline"></i>
-            La pasarela de pago estará disponible próximamente. Tu intención de donación quedará registrada.
-        </p>
-        <div class="don-acciones">
-            <button type="button" id="don-cancel">Cancelar</button>
-            <button type="button" id="don-submit"><i class="zmdi zmdi-money"></i> Confirmar donación</button>
-        </div>
-        <div id="don-feedback" style="display:none;margin-top:12px;padding:10px 14px;border-radius:6px;font-size:13px"></div>
-    </div>
-</div>
-
-<?php endif; ?>
 
 
 <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
