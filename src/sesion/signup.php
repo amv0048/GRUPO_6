@@ -204,11 +204,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" and $_POST["tipo"] == "protectora") {
 //////////////////////////////////
 
         $pass_cifrada = password_hash($pass, PASSWORD_DEFAULT);
+        $img_default  = rand(1, 2);
+        $logo_default = "/img/profile/default/oficiales/" . $img_default . ".jpg";
         $consulta = $_conexion->prepare(
             "INSERT INTO Protectora (nombre_protectora, ciudad, localidad, direccion, email, contrasena, telefono, logo)
-             VALUES (?, ?, ?, ?, ?, ?, NULL, NULL)"
+             VALUES (?, ?, ?, ?, ?, ?, NULL, ?)"
         );
-        $consulta->bind_param("ssssss", $nombre, $ciudad, $localidad, $direccion, $email, $pass_cifrada);
+        $consulta->bind_param("sssssss", $nombre, $ciudad, $localidad, $direccion, $email, $pass_cifrada, $logo_default);
         if ($consulta->execute()) {
             $id_nueva_protectora = $_conexion->insert_id;
             $consulta->close();

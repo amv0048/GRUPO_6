@@ -1,6 +1,7 @@
 ﻿<?php
 session_start();
 require "../sesion/conexion.php";
+require_once "../helpers/media.php";
 require_once "../model/AnimalModel.php";
 require_once "../model/ProtectoraModel.php";
 require_once "../model/LikeModel.php";
@@ -527,10 +528,11 @@ elseif (isset($_SESSION['protectora'])) $nombre_sesion = $_SESSION['protectora']
            href="/src/view/perfilProtectora.php?id=<?= (int)$p['id_protectora'] ?>">
 
             <div class="protectora-logo">
-                <?php if (!empty($p['logo'])): ?>
-                    <img src="<?= htmlspecialchars($p['logo']) ?>"
-                         alt="<?= htmlspecialchars($p['nombre_protectora']) ?>">
-                <?php endif; ?>
+                <?php
+                $logo_url = media_normalize_url($p['logo'] ?? null, '/img/profile/default/oficiales/1.jpg');
+                ?>
+                <img src="<?= htmlspecialchars($logo_url) ?>"
+                     alt="<?= htmlspecialchars($p['nombre_protectora']) ?>">
             </div>
 
             <div class="protectora-info">
