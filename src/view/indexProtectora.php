@@ -1,6 +1,7 @@
 <?php
 session_start();
 require "../sesion/conexion.php";
+require_once "../helpers/media.php";
 require_once "../model/AnimalModel.php";
 require_once "../model/AdopcionModel.php";
 require_once "../model/CrowdfundingModel.php";
@@ -68,21 +69,77 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['crowd_action'])) {
         $cf_animal = trim($_POST['animal_nombre'] ?? '');
         $cf_desc   = trim($_POST['descripcion']   ?? '');
         $cf_meta   = (float)($_POST['meta_euros'] ?? 0);
-        $cf_foto   = trim($_POST['foto']          ?? '');
+        $cf_foto   = '';
+
         if ($cf_titulo === '' || $cf_desc === '' || $cf_meta <= 0) {
             $crowd_error = 'Completa los campos obligatorios (título, descripción y meta).';
         } elseif ($act === 'crear') {
-            $crowdfundingModel->crear($id_protectora, $cf_titulo, $cf_animal, $cf_desc, $cf_meta, $cf_foto)
-                ? $crowd_ok = 'Caso publicado correctamente.'
-                : $crowd_error = 'Error al guardar.';
+            // Procesar subida de foto
+            if (!empty($_FILES['foto']['name']) && $_FILES['foto']['error'] === UPLOAD_ERR_OK) {
+                $ext_ok = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+                $ext = strtolower(pathinfo($_FILES['foto']['name'], PATHINFO_EXTENSION));
+                if (in_array($ext, $ext_ok, true)) {
+                    // Crear caso primero para tener ID
+                    $tmp_id = $crowdfundingModel->crearTemp($id_protectora, $cf_titulo, $cf_animal, $cf_desc, $cf_meta);
+                    if ($tmp_id) {
+                        $carpeta = media_img_root() . '/crowdfunding/caso_' . $tmp_id;
+                        if (!is_dir($carpeta)) mkdir($carpeta, 0755, true);
+                        $archivo = 'foto_' . time() . '.' . $ext;
+                        if (move_uploaded_file($_FILES['foto']['tmp_name'], $carpeta . '/' . $archivo)) {
+                            $cf_foto = '/img/crowdfunding/caso_' . $tmp_id . '/' . $archivo;
+                        }
+                    }
+                }
+            }
+            // Actualizar con la foto
+            if ($tmp_id) {
+                $crowdfundingModel->actualizarFoto($tmp_id, $id_protectora, $cf_foto)
+                    ? $crowd_ok = 'Caso publicado correctamente.'
+                    : $crowd_error = 'Error al guardar.';
+            } else {
+                $crowd_error = 'Error al crear el caso.';
+            }
         } else {
             $cf_id = (int)($_POST['id_caso'] ?? 0);
+            
+            // Procesar subida de foto (opcional, mantener la anterior si no se sube nueva)
+            if (!empty($_FILES['foto']['name']) && $_FILES['foto']['error'] === UPLOAD_ERR_OK) {
+                $ext_ok = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+                $ext = strtolower(pathinfo($_FILES['foto']['name'], PATHINFO_EXTENSION));
+                if (in_array($ext, $ext_ok, true)) {
+                    $carpeta = media_img_root() . '/crowdfunding/caso_' . $cf_id;
+                    if (!is_dir($carpeta)) mkdir($carpeta, 0755, true);
+                    // Eliminar foto anterior si existe
+                    $caso_actual = $crowdfundingModel->getCasoById($cf_id);
+                    if ($caso_actual && !empty($caso_actual['foto'])) {
+                        $foto_antigua = media_img_root() . ltrim($caso_actual['foto'], '/');
+                        if (file_exists($foto_antigua)) unlink($foto_antigua);
+                    }
+                    $archivo = 'foto_' . time() . '.' . $ext;
+                    if (move_uploaded_file($_FILES['foto']['tmp_name'], $carpeta . '/' . $archivo)) {
+                        $cf_foto = '/img/crowdfunding/caso_' . $cf_id . '/' . $archivo;
+                    } else {
+                        $cf_foto = $caso_actual['foto'] ?? '';
+                    }
+                }
+            } else {
+                // Mantener foto anterior
+                $caso_actual = $crowdfundingModel->getCasoById($cf_id);
+                $cf_foto = $caso_actual['foto'] ?? '';
+            }
+            
             $crowdfundingModel->actualizar($cf_id, $id_protectora, $cf_titulo, $cf_animal, $cf_desc, $cf_meta, $cf_foto)
                 ? $crowd_ok = 'Caso actualizado.'
                 : $crowd_error = 'Error al actualizar.';
         }
     } elseif ($act === 'eliminar') {
         $cf_id = (int)($_POST['id_caso'] ?? 0);
+        // Eliminar foto del disco
+        $caso = $crowdfundingModel->getCasoById($cf_id);
+        if ($caso && !empty($caso['foto'])) {
+            $foto_path = media_img_root() . ltrim($caso['foto'], '/');
+            if (file_exists($foto_path)) unlink($foto_path);
+        }
         $crowdfundingModel->eliminar($cf_id, $id_protectora)
             ? $crowd_ok = 'Caso eliminado.'
             : $crowd_error = 'Error al eliminar.';
@@ -569,7 +626,7 @@ $casos_arr = $crowdfundingModel->getCasosByProtectora($id_protectora);
                 <i class="zmdi zmdi-close"></i>
             </button>
         </div>
-        <form method="POST" id="crowd-form">
+        <form method="POST" id="crowd-form" enctype="multipart/form-data">
             <input type="hidden" name="crowd_action" id="crowd-form-action" value="crear">
             <input type="hidden" name="id_caso"      id="crowd-form-id"     value="">
 
@@ -594,9 +651,13 @@ $casos_arr = $crowdfundingModel->getCasosByProtectora($id_protectora);
                        min="1" step="0.01" placeholder="Ej: 2000">
             </div>
             <div class="crowd-form-group">
-                <label>URL de la foto (opcional)</label>
-                <input type="url" name="foto" id="cf-foto"
-                       placeholder="https://...">
+                <label>Foto del caso (opcional)</label>
+                <input type="file" name="foto" id="cf-foto"
+                       accept="image/jpeg,image/png,image/gif,image/webp">
+                <div id="cf-foto-preview" style="display:none;margin-top:8px">
+                    <img src="" alt="Foto actual" style="max-width:200px;border-radius:6px">
+                    <p style="font-size:12px;color:#666;margin-top:4px">Foto actual — sube una nueva para reemplazarla</p>
+                </div>
             </div>
             <div class="crowd-form-actions">
                 <button type="button" id="crowd-modal-cancel">Cancelar</button>
@@ -692,6 +753,7 @@ const crowdSubmit = document.getElementById('crowd-form-submit');
 function openCrowdModal(mode, data) {
     crowdModal.style.display = 'flex';
     document.getElementById('crowd-form').reset();
+    document.getElementById('cf-foto-preview').style.display = 'none';
     if (mode === 'crear') {
         crowdAction.value = 'crear';
         crowdMTitle.textContent = 'Nuevo caso de crowdfunding';
@@ -706,7 +768,14 @@ function openCrowdModal(mode, data) {
         document.getElementById('cf-animal').value = data.animal;
         document.getElementById('cf-desc').value   = data.desc;
         document.getElementById('cf-meta').value   = data.meta;
-        document.getElementById('cf-foto').value   = data.foto;
+        // Mostrar preview de la foto actual si existe
+        const preview = document.getElementById('cf-foto-preview');
+        if (data.foto && preview) {
+            preview.querySelector('img').src = data.foto;
+            preview.style.display = 'block';
+        } else if (preview) {
+            preview.style.display = 'none';
+        }
     }
 }
 

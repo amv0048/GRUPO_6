@@ -55,6 +55,28 @@ class CrowdfundingModel {
         return $st->execute();
     }
 
+    public function crearTemp(int $id_protectora, string $titulo, string $animal, string $desc, float $meta) {
+        $st = $this->safePrep(
+            "INSERT INTO CrowdfundingCaso
+                (id_protectora, titulo, animal_nombre, descripcion, meta_euros, foto)
+             VALUES (?,?,?,?,?,?)"
+        );
+        if (!$st) return false;
+        $foto = '';
+        $st->bind_param('isssds', $id_protectora, $titulo, $animal, $desc, $meta, $foto);
+        if (!$st->execute()) return false;
+        return $this->db->insert_id;
+    }
+
+    public function actualizarFoto(int $id_caso, int $id_protectora, string $foto): bool {
+        $st = $this->safePrep(
+            "UPDATE CrowdfundingCaso SET foto=? WHERE id_caso=? AND id_protectora=?"
+        );
+        if (!$st) return false;
+        $st->bind_param('sii', $foto, $id_caso, $id_protectora);
+        return $st->execute();
+    }
+
     public function actualizar(int $id_caso, int $id_protectora, string $titulo, string $animal, string $desc, float $meta, string $foto): bool {
         $st = $this->safePrep(
             "UPDATE CrowdfundingCaso
