@@ -509,7 +509,7 @@ if ($share_img !== '' && preg_match('#^https?://#i', $share_img)) {
         <!-- Sección Stories (oculta por defecto) -->
         <div class="share-stories-section" id="share-stories-section" hidden>
             <div class="share-stories-preview-wrap">
-                <canvas id="story-canvas" style="display:block;width:100%;height:100%"></canvas>
+                <canvas id="story-canvas" width="1080" height="1920" style="display:block;width:100%;height:auto"></canvas>
                 <div class="share-stories-loading" id="story-loading">
                     <i class="zmdi zmdi-spinner zmdi-spin"></i>&nbsp; Generando imagen…
                 </div>

@@ -99,23 +99,11 @@
         setTimeout(() => toast.classList.remove('visible'), 2200);
     }
 
-    // ── 6. Stories: intentar compartir directo (Web Share API con file)
-    //       y, si no se puede, mostrar la sección con descarga manual.
+    // ── 6. Stories: web = descarga, móvil = descarga + abrir Instagram
     let storyGenerada = false;
-
-    /** Detecta si el navegador puede compartir un PNG generado al vuelo.
-     *  Lo soportan iOS Safari 16.4+, Android Chrome y la mayoría de móviles
-     *  modernos. NO lo soporta el escritorio (Chrome/Firefox) en general. */
-    function puedeCompartirImagen() {
-        if (!navigator.canShare) return false;
-        try {
-            const probe = new File([new Blob()], 'p.png', { type: 'image/png' });
-            return navigator.canShare({ files: [probe] });
-        } catch { return false; }
-    }
+    const esMovil = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
 
     btnStory.addEventListener('click', async () => {
-        // Generamos el canvas siempre (también para fallback desktop)
         secStory.hidden = false;
         secStory.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         if (!storyGenerada) {
@@ -123,34 +111,47 @@
             storyGenerada = true;
         }
 
-        // Si el navegador permite compartir archivos directamente, lo intentamos
-        if (puedeCompartirImagen()) {
-            try {
-                const blob = await new Promise(res =>
-                    canvas.toBlob(res, 'image/png', 0.95));
-                if (!blob) throw new Error('Canvas vacío');
-                const file = new File(
-                    [blob],
-                    `gocatch-${SHARE.nombre.toLowerCase().replace(/\s+/g, '-')}.png`,
-                    { type: 'image/png' }
-                );
-                await navigator.share({
-                    files: [file],
-                    title: SHARE.title,
-                    text:  `${SHARE.nombre} busca un hogar 🐾  ${URL_PUB}`
-                });
-                // Compartido con éxito → cerrar todo el modal
-                cerrar();
-                return;
-            } catch (err) {
-                // El usuario canceló o falló: dejamos visible la sección
-                // de descarga como fallback silencioso
-                if (err && err.name !== 'AbortError') {
-                    console.warn('share() falló:', err);
+        if (esMovil) {
+            // En móvil: descargar la imagen y abrir Instagram
+            const blob = await new Promise(res =>
+                canvas.toBlob(res, 'image/png', 0.95));
+            if (!blob) return;
+            const file = new File(
+                [blob],
+                `gocatch-${SHARE.nombre.toLowerCase().replace(/\s+/g, '-')}.png`,
+                { type: 'image/png' }
+            );
+
+            // Intentar Web Share API primero (permige elegir Instagram)
+            if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                try {
+                    await navigator.share({
+                        files: [file],
+                        title: SHARE.title,
+                        text:  `${SHARE.nombre} busca un hogar 🐾  ${URL_PUB}`
+                    });
+                    cerrar();
+                    return;
+                } catch (err) {
+                    if (err && err.name !== 'AbortError') {
+                        console.warn('share() falló:', err);
+                    }
                 }
             }
+
+            // Fallback móvil: descargar + abrir Instagram
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = file.name;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            setTimeout(() => {
+                window.location.href = 'instagram://camera';
+            }, 800);
+            cerrar();
         }
-        // Fallback: ya está visible la sección de descarga
+        // En web ya se muestra la sección de descarga
     });
     btnVolver.addEventListener('click', () => {
         secStory.hidden = true;
