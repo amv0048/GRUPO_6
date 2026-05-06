@@ -99,7 +99,7 @@
         setTimeout(() => toast.classList.remove('visible'), 2200);
     }
 
-    // ── 6. Stories: web = descarga, móvil = descarga + abrir Instagram
+    // ── 6. Stories: web = descarga, móvil = Web Share API → si falla descarga + aviso
     let storyGenerada = false;
     const esMovil = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
 
@@ -112,7 +112,6 @@
         }
 
         if (esMovil) {
-            // En móvil: descargar la imagen y abrir Instagram
             const blob = await new Promise(res =>
                 canvas.toBlob(res, 'image/png', 0.95));
             if (!blob) return;
@@ -122,7 +121,7 @@
                 { type: 'image/png' }
             );
 
-            // Intentar Web Share API primero (permige elegir Instagram)
+            // Intentar Web Share API (el usuario elige Instagram desde el menú nativo)
             if (navigator.canShare && navigator.canShare({ files: [file] })) {
                 try {
                     await navigator.share({
@@ -133,22 +132,18 @@
                     cerrar();
                     return;
                 } catch (err) {
-                    if (err && err.name !== 'AbortError') {
-                        console.warn('share() falló:', err);
-                    }
+                    if (err && err.name === 'AbortError') return; // canceló
                 }
             }
 
-            // Fallback móvil: descargar + abrir Instagram
+            // Fallback: descargar + instruir al usuario
             const a = document.createElement('a');
             a.href = URL.createObjectURL(blob);
             a.download = file.name;
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
-            setTimeout(() => {
-                window.location.href = 'instagram://camera';
-            }, 800);
+            mostrarToast('Imagen descargada · Pégala en Instagram > Tu historia');
             cerrar();
         }
         // En web ya se muestra la sección de descarga
