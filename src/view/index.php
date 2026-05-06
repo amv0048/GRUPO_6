@@ -76,7 +76,7 @@ elseif (isset($_SESSION['protectora'])) $nombre_sesion = $_SESSION['protectora']
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Go Catch Â· Adopta, conecta, cambia una vida</title>
+    <title>Go Catch · Adopta, conecta, cambia una vida</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,900&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -102,7 +102,7 @@ elseif (isset($_SESSION['protectora'])) $nombre_sesion = $_SESSION['protectora']
         }
         if (isset($_SESSION['admin']) && $_SESSION['admin'] == 1): ?>
             <a class="hBoton" href="/src/view/moderacion.php">
-                <i class="zmdi zmdi-shield-security"></i> MODERACIÃ“N
+                <i class="zmdi zmdi-shield-security"></i> MODERACIÓN
             </a>
         <?php endif; ?>
 
@@ -134,8 +134,8 @@ elseif (isset($_SESSION['protectora'])) $nombre_sesion = $_SESSION['protectora']
             </a>
             <a href="/src/sesion/logout.php" id="boton-destacado">CERRAR SESION</a>
         <?php else: ?>
-            <a class="hBoton" href="/public/registro.html">REGÃSTRATE</a>
-            <a href="/public/login.html" id="boton-destacado">INICIA SESIÃ“N</a>
+            <a class="hBoton" href="/public/registro.html">REGÍSTRATE</a>
+            <a href="/public/login.html" id="boton-destacado">INICIA SESIÓN</a>
         <?php endif; ?>
     </nav>
 </header>
@@ -148,7 +148,7 @@ elseif (isset($_SESSION['protectora'])) $nombre_sesion = $_SESSION['protectora']
         <p>Encuentra al nuevo miembro de tu familia</p>
         <div id="hero-cta">
             <a href="#animales" class="cta-btn cta-primary">Ver animales</a>
-            <a href="/public/registro.html" class="cta-btn cta-secondary">Ãšnete a nosotros</a>
+            <a href="/public/registro.html" class="cta-btn cta-secondary">Únete a nosotros</a>
             <a class="cta-btn cta-primary" href="/public/pdf/BOE-204_Codigo_de_Proteccion_y_Bienestar_Animal.pdf" target="_blank">Ver ley de bienestar animal</a>
         </div>
     </div>
@@ -257,13 +257,13 @@ elseif (isset($_SESSION['protectora'])) $nombre_sesion = $_SESSION['protectora']
                     <i class="zmdi zmdi-time"></i> Edad
                 </span>
                 <input type="number" name="edad_min" class="filtro-input"
-                       placeholder="MÃ­n" min="0" max="30"
+                       placeholder="Mín" min="0" max="30"
                        value="<?= htmlspecialchars($edad_min) ?>">
                 <span class="filtro-sep">â€”</span>
                 <input type="number" name="edad_max" class="filtro-input"
-                       placeholder="MÃ¡x" min="0" max="30"
+                       placeholder="Máx" min="0" max="30"
                        value="<?= htmlspecialchars($edad_max) ?>">
-                <span class="filtro-rango-unit">aÃ±os</span>
+                <span class="filtro-rango-unit">años</span>
             </div>
 
             <div class="filtro-rango">
@@ -271,11 +271,11 @@ elseif (isset($_SESSION['protectora'])) $nombre_sesion = $_SESSION['protectora']
                     <i class="zmdi zmdi-balance"></i> Peso
                 </span>
                 <input type="number" name="peso_min" class="filtro-input"
-                       placeholder="MÃ­n" min="0" max="200" step="0.1"
+                       placeholder="Mín" min="0" max="200" step="0.1"
                        value="<?= htmlspecialchars($peso_min) ?>">
                 <span class="filtro-sep">â€”</span>
                 <input type="number" name="peso_max" class="filtro-input"
-                       placeholder="MÃ¡x" min="0" max="200" step="0.1"
+                       placeholder="Máx" min="0" max="200" step="0.1"
                        value="<?= htmlspecialchars($peso_max) ?>">
                 <span class="filtro-rango-unit">kg</span>
             </div>
@@ -294,7 +294,7 @@ elseif (isset($_SESSION['protectora'])) $nombre_sesion = $_SESSION['protectora']
                 </label>
                 <label class="filtro-check">
                     <input type="checkbox" name="compat_ninos" value="1"
-                           <?= $compat_ninos ? 'checked' : '' ?>> NiÃ±os
+                           <?= $compat_ninos ? 'checked' : '' ?>> Niños
                 </label>
             </div>
 
@@ -326,9 +326,9 @@ elseif (isset($_SESSION['protectora'])) $nombre_sesion = $_SESSION['protectora']
         <div id="mapa-label-content">
             <i class="zmdi zmdi-pin"></i>
             <h2>Mascotas<br>Cerca De Ti</h2>
-            <p>Activa tu ubicaciÃ³n para ver las protectoras mÃ¡s cercanas a ti</p>
+            <p>Activa tu ubicación para ver las protectoras más cercanas a ti</p>
             <button id="btn-localizar" type="button">
-                <i class="zmdi zmdi-my-location"></i> Usar mi ubicaciÃ³n
+                <i class="zmdi zmdi-my-location"></i> Usar mi ubicación
             </button>
         </div>
     </div>
@@ -337,7 +337,7 @@ elseif (isset($_SESSION['protectora'])) $nombre_sesion = $_SESSION['protectora']
 
 
 <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-     CROWDFUNDING (PÃšBLICO)
+     CROWDFUNDING (PÚBLICO)
 â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
 <?php if (!empty($crowd_casos)): ?>
 <section id="crowdfunding-public">
@@ -392,7 +392,7 @@ elseif (isset($_SESSION['protectora'])) $nombre_sesion = $_SESSION['protectora']
     </div>
 </section>
 
-<!-- Modal DonaciÃ³n -->
+<!-- Modal Donación -->
 <div id="don-modal" class="don-modal-overlay" style="display:none" role="dialog" aria-modal="true">
     <div class="don-modal">
         <div class="don-modal-header">
@@ -404,7 +404,7 @@ elseif (isset($_SESSION['protectora'])) $nombre_sesion = $_SESSION['protectora']
         <p id="don-modal-titulo" style="color:#EDA677;font-size:13px;margin-bottom:16px;font-weight:600"></p>
         <div class="don-form-group">
             <label>Tu nombre <span style="color:#a8b8cc;font-weight:400">(opcional)</span></label>
-            <input type="text" id="don-nombre" placeholder="AnÃ³nimo">
+            <input type="text" id="don-nombre" placeholder="Anónimo">
         </div>
         <div class="don-form-group">
             <label>Cantidad a donar (â‚¬)</label>
@@ -418,11 +418,11 @@ elseif (isset($_SESSION['protectora'])) $nombre_sesion = $_SESSION['protectora']
         </div>
         <p class="don-aviso">
             <i class="zmdi zmdi-info-outline"></i>
-            La pasarela de pago estarÃ¡ disponible prÃ³ximamente. Tu intenciÃ³n de donaciÃ³n quedarÃ¡ registrada.
+            La pasarela de pago estará disponible próximamente. Tu intención de donación quedará registrada.
         </p>
         <div class="don-acciones">
             <button type="button" id="don-cancel">Cancelar</button>
-            <button type="button" id="don-submit"><i class="zmdi zmdi-money"></i> Confirmar donaciÃ³n</button>
+            <button type="button" id="don-submit"><i class="zmdi zmdi-money"></i> Confirmar donación</button>
         </div>
         <div id="don-feedback" style="display:none;margin-top:12px;padding:10px 14px;border-radius:6px;font-size:13px"></div>
     </div>
@@ -484,12 +484,12 @@ elseif (isset($_SESSION['protectora'])) $nombre_sesion = $_SESSION['protectora']
                         <p class="animal-detalle">
                             <?php
                             $detalle = ucfirst($anim['especie'] ?? '');
-                            if ($anim['raza']) $detalle .= ' Â· ' . $anim['raza'];
+                            if ($anim['raza']) $detalle .= ' · ' . $anim['raza'];
                             $edad_txt = $anim['edad']
-                                ? $anim['edad'] . ' aÃ±o' . ($anim['edad'] != 1 ? 's' : '')
+                                ? $anim['edad'] . ' año' . ($anim['edad'] != 1 ? 's' : '')
                                 : 'Edad desconocida';
-                            $detalle .= ' Â· ' . $edad_txt;
-                            if ($anim['ciudad']) $detalle .= ' Â· ' . $anim['ciudad'];
+                            $detalle .= ' · ' . $edad_txt;
+                            if ($anim['ciudad']) $detalle .= ' · ' . $anim['ciudad'];
                             echo htmlspecialchars($detalle);
                             ?>
                         </p>
@@ -515,9 +515,9 @@ elseif (isset($_SESSION['protectora'])) $nombre_sesion = $_SESSION['protectora']
 â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
 <section id="protectoras">
     <p class="seccion-etiqueta">Nuestras protectoras</p>
-    <h2 class="seccion-titulo">Organizaciones que confÃ­an en nosotros</h2>
+    <h2 class="seccion-titulo">Organizaciones que confían en nosotros</h2>
     <p class="seccion-subtitulo">
-        Trabajamos con protectoras de toda EspaÃ±a para encontrar hogar a cada animal
+        Trabajamos con protectoras de toda España para encontrar hogar a cada animal
     </p>
 
     <?php if (!empty($protectoras_arr)): ?>
@@ -564,7 +564,7 @@ elseif (isset($_SESSION['protectora'])) $nombre_sesion = $_SESSION['protectora']
         <?php endforeach; ?>
     </div>
     <?php else: ?>
-    <p class="protectoras-vacio">AÃºn no hay protectoras registradas.</p>
+    <p class="protectoras-vacio">Aún no hay protectoras registradas.</p>
     <?php endif; ?>
 
 </section>
@@ -578,7 +578,7 @@ elseif (isset($_SESSION['protectora'])) $nombre_sesion = $_SESSION['protectora']
     <p class="seccion-etiqueta">Nuestros colaboradores</p>
     <h2 class="seccion-titulo">Profesionales que apoyan la causa</h2>
     <p class="seccion-subtitulo">
-        Veterinarios, adiestradores y mÃ¡s profesionales comprometidos con el bienestar animal
+        Veterinarios, adiestradores y más profesionales comprometidos con el bienestar animal
     </p>
 
     <div id="colab-grid-preview">

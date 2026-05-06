@@ -119,22 +119,50 @@
             return [coords[0] + latOffset, coords[1] + lngOffset];
         }
 
-        async function geocodeProtectora(protectora) {
-            const query = buildGeoQuery(protectora);
-            if (!query) return null;
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
 
+        async function geocodeQuery(query) {
+            if (!query) return null;
             try {
-                const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=1`, {
-                    headers: { "Accept-Language": "es" }
-                });
+                const response = await fetch(
+                    `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&countrycodes=es&limit=1`,
+                    { headers: { "Accept-Language": "es" } }
+                );
                 if (!response.ok) return null;
                 const data = await response.json();
                 if (!Array.isArray(data) || !data.length) return null;
-
                 return [parseFloat(data[0].lat), parseFloat(data[0].lon)];
-            } catch (error) {
+            } catch {
                 return null;
             }
+        }
+
+        async function resolveAllCoords() {
+            const resolved = [];
+            for (const protectora of PROTECTORAS) {
+                // 1. Intentar diccionario local (sin petición de red)
+                let coords = resolveCoords(protectora);
+
+                if (!coords) {
+                    // 2. Geocodificar con dirección + localidad + ciudad
+                    const queryCompleta = buildGeoQuery(protectora);
+                    coords = await geocodeQuery(queryCompleta);
+                    await sleep(1100); // respetar rate limit Nominatim (1 req/s)
+                }
+
+                if (!coords && protectora.ciudad) {
+                    // 3. Fallback: solo ciudad/provincia
+                    coords = await geocodeQuery(protectora.ciudad + ", España");
+                    await sleep(1100);
+                }
+
+                if (coords) {
+                    resolved.push({ protectora, coords });
+                }
+            }
+            return resolved;
         }
 
         function buildProtectoraUrl(protectora) {
@@ -167,21 +195,12 @@
             });
         }
 
-        async function resolveAllCoords() {
-            const resolved = [];
-            for (const protectora of PROTECTORAS) {
-                let coords = resolveCoords(protectora);
-                if (!coords) {
-                    coords = await geocodeProtectora(protectora);
-                }
-                if (coords) {
-                    resolved.push({ protectora, coords });
-                }
-            }
-            return resolved;
-        }
+        let markersRendered = false;
 
         async function renderStableMarkers() {
+            if (markersRendered) return;
+            markersRendered = true;
+
             clearDynamicLayers();
 
             const markerCoords = [];
@@ -224,7 +243,6 @@
 
             navigator.geolocation.getCurrentPosition(
                 (pos) => {
-                    renderStableMarkers();
                     if (userCircle) {
                         map.removeLayer(userCircle);
                     }
@@ -242,7 +260,6 @@
         });
 
         renderStableMarkers();
-        window.addEventListener("load", () => setTimeout(renderStableMarkers, 150));
         window.addEventListener("resize", () => map.invalidateSize());
     }
 
