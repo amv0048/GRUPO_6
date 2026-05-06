@@ -375,7 +375,7 @@ if ($share_img !== '' && preg_match('#^https?://#i', $share_img)) {
                     <?php if ($estado === 'DISPONIBLE'): ?>
                         <a href="<?= isset($_SESSION['id']) && isset($_SESSION['user'])
                                         ? "solicitud-adopcion.php?id=$id_animal"
-                                        : 'login.html?redirect=' . urlencode("solicitud-adopcion.php?id=$id_animal") ?>"
+                                        : '/public/login.html' ?>"
                            class="btn-adoptar">
                             <i class="zmdi zmdi-home"></i>
                             QUIERO ADOPTARLO
