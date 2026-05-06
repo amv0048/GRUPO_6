@@ -382,18 +382,19 @@
         if (!originals.length) return;
 
         const total = originals.length;
-        const cloneCount = Math.min(5, total);
+        const minCloneBuffer = 6;
+        const cloneCount = Math.max(minCloneBuffer, total);
         const fragBefore = document.createDocumentFragment();
         const fragAfter = document.createDocumentFragment();
 
-        originals.slice(-cloneCount).forEach((card) => {
+        buildClones(originals, cloneCount, true).forEach((card) => {
             const clone = card.cloneNode(true);
             clone.setAttribute("aria-hidden", "true");
             fragBefore.appendChild(clone);
         });
         track.insertBefore(fragBefore, track.firstChild);
 
-        originals.slice(0, cloneCount).forEach((card) => {
+        buildClones(originals, cloneCount, false).forEach((card) => {
             const clone = card.cloneNode(true);
             clone.setAttribute("aria-hidden", "true");
             fragAfter.appendChild(clone);
@@ -406,6 +407,17 @@
         function cardWidth() {
             const gap = parseFloat(getComputedStyle(track).gap) || 0;
             return track.children[0].offsetWidth + gap;
+        }
+
+        function buildClones(cards, count, fromEnd) {
+            const clones = [];
+            for (let i = 0; i < count; i += 1) {
+                const sourceIndex = fromEnd
+                    ? (cards.length - (count - i) % cards.length) % cards.length
+                    : i % cards.length;
+                clones.push(cards[sourceIndex]);
+            }
+            return clones;
         }
 
         function moveTo(index, animate) {

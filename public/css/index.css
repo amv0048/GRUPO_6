@@ -419,6 +419,8 @@ input, select, button { font-family: 'Poppins', sans-serif; }
 /* Botones prev/next — misma paleta que el resto */
 .carousel-btn {
     flex-shrink: 0;
+    position: relative;
+    z-index: 5;
     width: 42px;
     height: 42px;
     background: rgba(255, 255, 255, 0.1);
