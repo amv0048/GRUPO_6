@@ -1,13 +1,14 @@
-<?php
+﻿<?php
 session_start();
 require "../sesion/conexion.php";
+require_once "../helpers/media.php";
 require_once "../model/AnimalModel.php";
 require_once "../model/ProtectoraModel.php";
 require_once "../model/LikeModel.php";
 require_once "../model/CrowdfundingModel.php";
 require_once "../model/ColaboradorModel.php";
 
-// ── FILTROS (GET) ──────────────────────────────────────────────
+// â”€â”€ FILTROS (GET) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 $especie_filtro = isset($_GET['especie']) ? trim($_GET['especie']) : '';
 $ciudad_filtro  = isset($_GET['ciudad'])  ? trim($_GET['ciudad'])  : '';
 $raza_filtro    = isset($_GET['raza'])    ? trim($_GET['raza'])    : '';
@@ -27,10 +28,10 @@ $likeModel         = new LikeModel($_conexion);
 $crowdfundingModel  = new CrowdfundingModel($_conexion);
 $colaboradorModel   = new ColaboradorModel($_conexion);
 
-// ── PROTECTORAS PARA EL MAPA ───────────────────────────────────
+// â”€â”€ PROTECTORAS PARA EL MAPA â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 $protectoras_arr = $protectoraModel->getAll();
 
-// ── ANIMALES DISPONIBLES ───────────────────────────────────────
+// â”€â”€ ANIMALES DISPONIBLES â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 $animales_arr = $animalModel->getDisponibles([
     'especie'       => $especie_filtro,
     'ciudad'        => $ciudad_filtro,
@@ -47,26 +48,26 @@ $animales_arr = $animalModel->getDisponibles([
 ]);
 
 
-// ── LIKES DEL USUARIO ─────────────────────────────────────────
+// â”€â”€ LIKES DEL USUARIO â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 $liked_ids = [];
 if (isset($_SESSION['id']) && isset($_SESSION['user'])) {
     $liked_ids = $likeModel->getLikesByAdoptante((int)$_SESSION['id']);
 }
 
-// ── OPCIONES DE FILTRO ─────────────────────────────────────────
+// â”€â”€ OPCIONES DE FILTRO â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 $filter_opts = $animalModel->getFilterOptions();
 $especies = $filter_opts['especies'];
 $ciudades = $filter_opts['ciudades'];
 $razas    = $filter_opts['razas'];
 $colores  = $filter_opts['colores'];
 
-// ── CROWDFUNDING ACTIVO ────────────────────────────────────────
+// â”€â”€ CROWDFUNDING ACTIVO â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 $crowd_casos = $crowdfundingModel->getCasosActivos(6);
 
-// ── COLABORADORES DESTACADOS ───────────────────────────────────
+// â”€â”€ COLABORADORES DESTACADOS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 $colaboradores_preview = $colaboradorModel->getDestacados(4);
 
-// ── NOMBRE DE SESIÓN ───────────────────────────────────────────
+// â”€â”€ NOMBRE DE SESIÃ“N â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 $nombre_sesion = '';
 if (isset($_SESSION['user']))       $nombre_sesion = $_SESSION['user'];
 elseif (isset($_SESSION['protectora'])) $nombre_sesion = $_SESSION['protectora'];
@@ -88,9 +89,9 @@ elseif (isset($_SESSION['protectora'])) $nombre_sesion = $_SESSION['protectora']
 </head>
 <body>
 
-<!-- ══════════════════════════════════════════
+<!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
      HEADER
-══════════════════════════════════════════ -->
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
 <header>
     <nav class="hBotones">
         <a class="hBoton" href="#protectoras">PROTECTORAS</a>
@@ -132,7 +133,7 @@ elseif (isset($_SESSION['protectora'])) $nombre_sesion = $_SESSION['protectora']
                 <i class="zmdi zmdi-account"></i>
                 <?= htmlspecialchars($_SESSION["nombre"]) //TODO NOMBRE?>
             </a>
-            <a href="/src/sesion/logout.php" id="boton-destacado">CERRAR SESIÓN</a>
+            <a href="/src/sesion/logout.php" id="boton-destacado">CERRAR SESION</a>
         <?php else: ?>
             <a class="hBoton" href="/public/registro.html">REGÍSTRATE</a>
             <a href="/public/login.html" id="boton-destacado">INICIA SESIÓN</a>
@@ -141,9 +142,7 @@ elseif (isset($_SESSION['protectora'])) $nombre_sesion = $_SESSION['protectora']
 </header>
 
 
-<!-- ══════════════════════════════════════════
-     HERO
-══════════════════════════════════════════ -->
+
 <section id="hero">
     <div id="hero-content">
         <h1>Adopta. Conecta.<br><span>Cambia Una Vida</span></h1>
@@ -157,9 +156,9 @@ elseif (isset($_SESSION['protectora'])) $nombre_sesion = $_SESSION['protectora']
 </section>
 
 
-<!-- ══════════════════════════════════════════
+<!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
      OBJETIVOS
-══════════════════════════════════════════ -->
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
 <section id="objetivos">
     <p class="seccion-etiqueta">Nuestros objetivos</p>
     <div id="objetivos-grid">
@@ -179,11 +178,131 @@ elseif (isset($_SESSION['protectora'])) $nombre_sesion = $_SESSION['protectora']
 </section>
 
 
-<!-- ══════════════════════════════════════════
+<!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+     MAPA
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+<section id="mapa-section">
+
+    <div id="mapa-wrapper">
+        <div id="mapa"></div>
+    </div>
+
+    <div id="mapa-label">
+        <div id="mapa-label-content">
+            <i class="zmdi zmdi-pin"></i>
+            <h2>Mascotas<br>Cerca De Ti</h2>
+            <p>Activa tu ubicación para ver las protectoras más cercanas a ti</p>
+            <button id="btn-localizar" type="button">
+                <i class="zmdi zmdi-my-location"></i> Usar mi ubicación
+            </button>
+        </div>
+    </div>
+
+</section>
+
+
+<!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+     CROWDFUNDING (PÚBLICO)
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+<?php if (!empty($crowd_casos)): ?>
+<section id="crowdfunding-public">
+    <p class="seccion-etiqueta">Ayuda a cambiar vidas</p>
+    <h2 class="seccion-titulo">Casos que necesitan tu apoyo</h2>
+
+    <div class="crowd-pub-grid">
+        <?php foreach ($crowd_casos as $caso):
+            $pct = $caso['meta_euros'] > 0
+                ? min(100, round($caso['recaudado'] / $caso['meta_euros'] * 100))
+                : 0;
+        ?>
+        <div class="crowd-pub-card">
+            <?php if (!empty($caso['foto'])): ?>
+            <div class="crowd-pub-foto">
+                <img src="<?= htmlspecialchars($caso['foto']) ?>" alt="<?= htmlspecialchars($caso['titulo']) ?>">
+            </div>
+            <?php else: ?>
+            <div class="crowd-pub-foto crowd-pub-foto-placeholder">
+                <i class="zmdi zmdi-money-box"></i>
+            </div>
+            <?php endif; ?>
+            <div class="crowd-pub-body">
+                <p class="crowd-pub-protectora"><?= htmlspecialchars($caso['nombre_protectora']) ?></p>
+                <h3 class="crowd-pub-titulo"><?= htmlspecialchars($caso['titulo']) ?></h3>
+                <?php if (!empty($caso['animal_nombre'])): ?>
+                <p class="crowd-pub-animal">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80" width="12" height="12" fill="currentColor" style="vertical-align:middle;margin-right:4px"><ellipse cx="40" cy="54" rx="18" ry="15"/><ellipse cx="20" cy="36" rx="9" ry="11"/><ellipse cx="34" cy="27" rx="9" ry="11"/><ellipse cx="50" cy="27" rx="9" ry="11"/><ellipse cx="64" cy="36" rx="9" ry="11"/></svg>
+                    <?= htmlspecialchars($caso['animal_nombre']) ?>
+                </p>
+                <?php endif; ?>
+                <p class="crowd-pub-desc">
+                    <?= htmlspecialchars(mb_substr($caso['descripcion'], 0, 120)) ?><?= mb_strlen($caso['descripcion']) > 120 ? 'â€¦' : '' ?>
+                </p>
+                <div class="crowd-pub-progress">
+                    <div class="crowd-pub-bar">
+                        <div class="crowd-pub-fill" style="width:<?= $pct ?>%"></div>
+                    </div>
+                    <div class="crowd-pub-nums">
+                        <span><?= number_format($caso['recaudado'], 0, ',', '.') ?> â‚¬</span>
+                        <span><?= $pct ?>% de <?= number_format($caso['meta_euros'], 0, ',', '.') ?> â‚¬</span>
+                    </div>
+                </div>
+                <button class="crowd-btn-donar" type="button"
+                    data-id="<?= $caso['id_caso'] ?>"
+                    data-titulo="<?= htmlspecialchars($caso['titulo'], ENT_QUOTES) ?>">
+                    <i class="zmdi zmdi-money"></i> Donar
+                </button>
+            </div>
+        </div>
+        <?php endforeach; ?>
+    </div>
+</section>
+
+<!-- Modal Donación -->
+<div id="don-modal" class="don-modal-overlay" style="display:none" role="dialog" aria-modal="true">
+    <div class="don-modal">
+        <div class="don-modal-header">
+            <h3>Apoya este caso</h3>
+            <button id="don-modal-close" type="button" aria-label="Cerrar">
+                <i class="zmdi zmdi-close"></i>
+            </button>
+        </div>
+        <p id="don-modal-titulo" style="color:#EDA677;font-size:13px;margin-bottom:16px;font-weight:600"></p>
+        <div class="don-form-group">
+            <label>Tu nombre <span style="color:#a8b8cc;font-weight:400">(opcional)</span></label>
+            <input type="text" id="don-nombre" placeholder="Anónimo">
+        </div>
+        <div class="don-form-group">
+            <label>Cantidad a donar (â‚¬)</label>
+            <div class="don-quick-amounts">
+                <button type="button" class="don-quick" data-v="5">5 â‚¬</button>
+                <button type="button" class="don-quick" data-v="10">10 â‚¬</button>
+                <button type="button" class="don-quick" data-v="25">25 â‚¬</button>
+                <button type="button" class="don-quick" data-v="50">50 â‚¬</button>
+            </div>
+            <input type="number" id="don-cantidad" min="1" step="0.01" placeholder="Otra cantidadâ€¦">
+        </div>
+        <p class="don-aviso">
+            <i class="zmdi zmdi-info-outline"></i>
+            La pasarela de pago estará disponible próximamente. Tu intención de donación quedará registrada.
+        </p>
+        <div class="don-acciones">
+            <button type="button" id="don-cancel">Cancelar</button>
+            <button type="button" id="don-submit"><i class="zmdi zmdi-money"></i> Confirmar donación</button>
+        </div>
+        <div id="don-feedback" style="display:none;margin-top:12px;padding:10px 14px;border-radius:6px;font-size:13px"></div>
+    </div>
+</div>
+
+<?php endif; ?>
+
+
+<!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
      FILTRO
-══════════════════════════════════════════ -->
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
 <section id="filtro">
-    <form method="GET" action="index.php" id="filtro-form">
+    <p class="seccion-etiqueta">Adopta</p>
+    <h2 class="seccion-titulo" style="margin-bottom:20px">Encuentra tu compañero ideal</h2>
+    <form method="GET" action="/src/view/index.php" id="filtro-form">
 
         <!-- Fila 1: selects -->
         <div class="filtro-fila">
@@ -261,7 +380,7 @@ elseif (isset($_SESSION['protectora'])) $nombre_sesion = $_SESSION['protectora']
                 <input type="number" name="edad_min" class="filtro-input"
                        placeholder="Mín" min="0" max="30"
                        value="<?= htmlspecialchars($edad_min) ?>">
-                <span class="filtro-sep">—</span>
+                <span class="filtro-sep">â€”</span>
                 <input type="number" name="edad_max" class="filtro-input"
                        placeholder="Máx" min="0" max="30"
                        value="<?= htmlspecialchars($edad_max) ?>">
@@ -275,7 +394,7 @@ elseif (isset($_SESSION['protectora'])) $nombre_sesion = $_SESSION['protectora']
                 <input type="number" name="peso_min" class="filtro-input"
                        placeholder="Mín" min="0" max="200" step="0.1"
                        value="<?= htmlspecialchars($peso_min) ?>">
-                <span class="filtro-sep">—</span>
+                <span class="filtro-sep">â€”</span>
                 <input type="number" name="peso_max" class="filtro-input"
                        placeholder="Máx" min="0" max="200" step="0.1"
                        value="<?= htmlspecialchars($peso_max) ?>">
@@ -305,7 +424,7 @@ elseif (isset($_SESSION['protectora'])) $nombre_sesion = $_SESSION['protectora']
                     <i class="zmdi zmdi-search"></i> Buscar
                 </button>
                 <?php if ($especie_filtro || $ciudad_filtro || $raza_filtro || $sexo_filtro || $color_filtro || $edad_min !== '' || $edad_max !== '' || $peso_min !== '' || $peso_max !== '' || $compat_perros || $compat_gatos || $compat_ninos): ?>
-                    <a href="/src/view/index.php" id="filtro-reset">✕ Limpiar</a>
+                    <a href="/src/view/index.php" id="filtro-reset">âœ• Limpiar</a>
                 <?php endif; ?>
             </div>
 
@@ -315,127 +434,9 @@ elseif (isset($_SESSION['protectora'])) $nombre_sesion = $_SESSION['protectora']
 </section>
 
 
-<!-- ══════════════════════════════════════════
-     MAPA
-══════════════════════════════════════════ -->
-<section id="mapa-section">
-
-    <div id="mapa-wrapper">
-        <div id="mapa"></div>
-    </div>
-
-    <div id="mapa-label">
-        <div id="mapa-label-content">
-            <i class="zmdi zmdi-pin"></i>
-            <h2>Mascotas<br>Cerca De Ti</h2>
-            <p>Activa tu ubicación para ver las protectoras más cercanas a ti</p>
-            <button id="btn-localizar" type="button">
-                <i class="zmdi zmdi-my-location"></i> Usar mi ubicación
-            </button>
-        </div>
-    </div>
-
-</section>
-
-
-<!-- ══════════════════════════════════════════
-     CROWDFUNDING (PÚBLICO)
-══════════════════════════════════════════ -->
-<?php if (!empty($crowd_casos)): ?>
-<section id="crowdfunding-public">
-    <p class="seccion-etiqueta">Ayuda a cambiar vidas</p>
-    <h2 class="seccion-titulo">Casos que necesitan tu apoyo</h2>
-
-    <div class="crowd-pub-grid">
-        <?php foreach ($crowd_casos as $caso):
-            $pct = $caso['meta_euros'] > 0
-                ? min(100, round($caso['recaudado'] / $caso['meta_euros'] * 100))
-                : 0;
-        ?>
-        <div class="crowd-pub-card">
-            <?php if (!empty($caso['foto'])): ?>
-            <div class="crowd-pub-foto">
-                <img src="<?= htmlspecialchars($caso['foto']) ?>" alt="<?= htmlspecialchars($caso['titulo']) ?>">
-            </div>
-            <?php else: ?>
-            <div class="crowd-pub-foto crowd-pub-foto-placeholder">
-                <i class="zmdi zmdi-money-box"></i>
-            </div>
-            <?php endif; ?>
-            <div class="crowd-pub-body">
-                <p class="crowd-pub-protectora"><?= htmlspecialchars($caso['nombre_protectora']) ?></p>
-                <h3 class="crowd-pub-titulo"><?= htmlspecialchars($caso['titulo']) ?></h3>
-                <?php if (!empty($caso['animal_nombre'])): ?>
-                <p class="crowd-pub-animal">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80" width="12" height="12" fill="currentColor" style="vertical-align:middle;margin-right:4px"><ellipse cx="40" cy="54" rx="18" ry="15"/><ellipse cx="20" cy="36" rx="9" ry="11"/><ellipse cx="34" cy="27" rx="9" ry="11"/><ellipse cx="50" cy="27" rx="9" ry="11"/><ellipse cx="64" cy="36" rx="9" ry="11"/></svg>
-                    <?= htmlspecialchars($caso['animal_nombre']) ?>
-                </p>
-                <?php endif; ?>
-                <p class="crowd-pub-desc">
-                    <?= htmlspecialchars(mb_substr($caso['descripcion'], 0, 120)) ?><?= mb_strlen($caso['descripcion']) > 120 ? '…' : '' ?>
-                </p>
-                <div class="crowd-pub-progress">
-                    <div class="crowd-pub-bar">
-                        <div class="crowd-pub-fill" style="width:<?= $pct ?>%"></div>
-                    </div>
-                    <div class="crowd-pub-nums">
-                        <span><?= number_format($caso['recaudado'], 0, ',', '.') ?> €</span>
-                        <span><?= $pct ?>% de <?= number_format($caso['meta_euros'], 0, ',', '.') ?> €</span>
-                    </div>
-                </div>
-                <button class="crowd-btn-donar" type="button"
-                    data-id="<?= $caso['id_caso'] ?>"
-                    data-titulo="<?= htmlspecialchars($caso['titulo'], ENT_QUOTES) ?>">
-                    <i class="zmdi zmdi-money"></i> Donar
-                </button>
-            </div>
-        </div>
-        <?php endforeach; ?>
-    </div>
-</section>
-
-<!-- Modal Donación -->
-<div id="don-modal" class="don-modal-overlay" style="display:none" role="dialog" aria-modal="true">
-    <div class="don-modal">
-        <div class="don-modal-header">
-            <h3>Apoya este caso</h3>
-            <button id="don-modal-close" type="button" aria-label="Cerrar">
-                <i class="zmdi zmdi-close"></i>
-            </button>
-        </div>
-        <p id="don-modal-titulo" style="color:#EDA677;font-size:13px;margin-bottom:16px;font-weight:600"></p>
-        <div class="don-form-group">
-            <label>Tu nombre <span style="color:#a8b8cc;font-weight:400">(opcional)</span></label>
-            <input type="text" id="don-nombre" placeholder="Anónimo">
-        </div>
-        <div class="don-form-group">
-            <label>Cantidad a donar (€)</label>
-            <div class="don-quick-amounts">
-                <button type="button" class="don-quick" data-v="5">5 €</button>
-                <button type="button" class="don-quick" data-v="10">10 €</button>
-                <button type="button" class="don-quick" data-v="25">25 €</button>
-                <button type="button" class="don-quick" data-v="50">50 €</button>
-            </div>
-            <input type="number" id="don-cantidad" min="1" step="0.01" placeholder="Otra cantidad…">
-        </div>
-        <p class="don-aviso">
-            <i class="zmdi zmdi-info-outline"></i>
-            La pasarela de pago estará disponible próximamente. Tu intención de donación quedará registrada.
-        </p>
-        <div class="don-acciones">
-            <button type="button" id="don-cancel">Cancelar</button>
-            <button type="button" id="don-submit"><i class="zmdi zmdi-money"></i> Confirmar donación</button>
-        </div>
-        <div id="don-feedback" style="display:none;margin-top:12px;padding:10px 14px;border-radius:6px;font-size:13px"></div>
-    </div>
-</div>
-
-<?php endif; ?>
-
-
-<!-- ══════════════════════════════════════════
+<!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
      CARRUSEL DE ANIMALES
-══════════════════════════════════════════ -->
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
 <section id="animales">
 
     <div id="carousel-wrapper">
@@ -512,9 +513,9 @@ elseif (isset($_SESSION['protectora'])) $nombre_sesion = $_SESSION['protectora']
 </section>
 
 
-<!-- ══════════════════════════════════════════
+<!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
      PROTECTORAS
-══════════════════════════════════════════ -->
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
 <section id="protectoras">
     <p class="seccion-etiqueta">Nuestras protectoras</p>
     <h2 class="seccion-titulo">Organizaciones que confían en nosotros</h2>
@@ -529,10 +530,11 @@ elseif (isset($_SESSION['protectora'])) $nombre_sesion = $_SESSION['protectora']
            href="/src/view/perfilProtectora.php?id=<?= (int)$p['id_protectora'] ?>">
 
             <div class="protectora-logo">
-                <?php if (!empty($p['logo'])): ?>
-                    <img src="<?= htmlspecialchars($p['logo']) ?>"
-                         alt="<?= htmlspecialchars($p['nombre_protectora']) ?>">
-                <?php endif; ?>
+                <?php
+                $logo_url = media_normalize_url($p['logo'] ?? null, '/img/profile/default/oficiales/1.jpg');
+                ?>
+                <img src="<?= htmlspecialchars($logo_url) ?>"
+                     alt="<?= htmlspecialchars($p['nombre_protectora']) ?>">
             </div>
 
             <div class="protectora-info">
@@ -572,9 +574,9 @@ elseif (isset($_SESSION['protectora'])) $nombre_sesion = $_SESSION['protectora']
 </section>
 
 
-<!-- ══════════════════════════════════════════
+<!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
      COLABORADORES
-══════════════════════════════════════════ -->
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
 <?php if (!empty($colaboradores_preview)): ?>
 <section id="colaboradores-preview">
     <p class="seccion-etiqueta">Nuestros colaboradores</p>
@@ -630,366 +632,14 @@ elseif (isset($_SESSION['protectora'])) $nombre_sesion = $_SESSION['protectora']
 <?php endif; ?>
 
 
-<!-- ══════════════════════════════════════════
+<!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
      SCRIPTS
-══════════════════════════════════════════ -->
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+<script id="index-page-data" type="application/json"><?= json_encode([
+    'protectoras' => $protectoras_arr,
+    'tieneDbAnimales' => !empty($animales_arr),
+], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?></script>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script>
-/* ─── DATOS DE PHP ──────────────────────────────────────────── */
-const PROTECTORAS = <?= json_encode($protectoras_arr, JSON_UNESCAPED_UNICODE) ?>;
-
-/* ─── MAPA LEAFLET ──────────────────────────────────────────── */
-const map = L.map('mapa', { zoomControl: true }).setView([40.4, -3.7], 6);
-
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '© <a href="https://openstreetmap.org">OpenStreetMap</a>',
-    maxZoom: 18
-}).addTo(map);
-
-// Icono personalizado con huella SVG
-const pawIcon = L.divIcon({
-    html: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80"
-                width="38" height="38" style="filter:drop-shadow(0 2px 4px rgba(0,0,0,0.4))">
-        <ellipse cx="40" cy="54" rx="18" ry="15" fill="#CA7842"/>
-        <ellipse cx="20" cy="36" rx="9"  ry="11" fill="#CA7842"/>
-        <ellipse cx="34" cy="27" rx="9"  ry="11" fill="#CA7842"/>
-        <ellipse cx="50" cy="27" rx="9"  ry="11" fill="#CA7842"/>
-        <ellipse cx="64" cy="36" rx="9"  ry="11" fill="#CA7842"/>
-    </svg>`,
-    className: 'paw-marker',
-    iconSize:   [38, 38],
-    iconAnchor: [19, 38],
-    popupAnchor:[0, -42]
-});
-
-// Cola de geocodificación (Nominatim: máx. 1 req/s)
-let geoIdx = 0;
-const markers = [];
-
-function geocodeNext() {
-    if (geoIdx >= PROTECTORAS.length) return;
-    const p = PROTECTORAS[geoIdx++];
-
-    // Construir dirección lo más completa posible
-    const parts = [p.direccion, p.localidad, p.ciudad, 'España']
-        .filter(v => v && v.trim() !== '');
-    if (parts.length === 0) { setTimeout(geocodeNext, 200); return; }
-
-    const query = encodeURIComponent(parts.join(', '));
-    fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${query}&limit=1`, {
-        headers: { 'Accept-Language': 'es' }
-    })
-    .then(r => r.json())
-    .then(data => {
-        if (data && data.length > 0) {
-            const lat = parseFloat(data[0].lat);
-            const lng = parseFloat(data[0].lon);
-            const m = L.marker([lat, lng], { icon: pawIcon }).addTo(map);
-            m.bindPopup(`
-                <div class="map-popup">
-                    <strong>${p.nombre_protectora}</strong><br>
-                    ${p.direccion  ? p.direccion + '<br>'  : ''}
-                    ${p.localidad  ? p.localidad + ', '    : ''}${p.ciudad || ''}<br>
-                    ${p.telefono   ? '📞 ' + p.telefono   : ''}
-                </div>`);
-            markers.push(m);
-        }
-    })
-    .catch(() => {})
-    .finally(() => setTimeout(geocodeNext, 1150));
-}
-
-if (PROTECTORAS.length > 0) geocodeNext();
-
-/* ─── GEOLOCALIZACIÓN DEL USUARIO ──────────────────────────── */
-document.getElementById('btn-localizar').addEventListener('click', () => {
-    if (!navigator.geolocation) {
-        alert('Tu navegador no soporta geolocalización.');
-        return;
-    }
-    navigator.geolocation.getCurrentPosition(
-        pos => {
-            map.setView([pos.coords.latitude, pos.coords.longitude], 11);
-            L.circle([pos.coords.latitude, pos.coords.longitude], {
-                radius: 800,
-                color: '#CA7842',
-                fillColor: '#CA7842',
-                fillOpacity: 0.12,
-                weight: 2
-            }).addTo(map);
-        },
-        () => alert('No se pudo obtener tu ubicación.')
-    );
-});
-
-/* ─── LIKES ─────────────────────────────────────────────────── */
-document.addEventListener('click', function(e) {
-    const btn = e.target.closest('.btn-like');
-    if (!btn) return;
-    e.preventDefault();
-    e.stopPropagation();
-
-    const id = btn.dataset.id;
-
-    fetch('/src/controller/like.php', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: 'id_animal=' + encodeURIComponent(id)
-    })
-    .then(r => r.json())
-    .then(data => {
-        if (data.error === 'not_logged_in') {
-            window.location.href = '/public/login.html';
-            return;
-        }
-        // Actualiza original y clones con el mismo data-id
-        document.querySelectorAll(`.btn-like[data-id="${id}"]`).forEach(b => {
-            const icon = b.querySelector('i');
-            if (data.liked) {
-                b.classList.add('liked');
-                icon.className = 'zmdi zmdi-favorite';
-            } else {
-                b.classList.remove('liked');
-                icon.className = 'zmdi zmdi-favorite-outline';
-            }
-        });
-    })
-    .catch(() => {});
-});
-
-/* ─── CARRUSEL ──────────────────────────────────────────────── */
-const TIENE_DB_ANIMALES = <?= json_encode(!empty($animales_arr)) ?>;
-
-function initCarousel() {
-    const track = document.getElementById('carousel-track');
-    if (!track) return;
-
-    // Tarjetas originales (sin clones previos)
-    const originals = Array.from(track.querySelectorAll('.animal-card'));
-    if (!originals.length) return;
-
-    const N     = originals.length;        // 10
-    const CLONE = Math.min(5, N);          // clones en cada extremo
-
-    // ── Clonar al INICIO: copias de las últimas CLONE tarjetas ──
-    const fragBefore = document.createDocumentFragment();
-    originals.slice(-CLONE).forEach(c => {
-        const cl = c.cloneNode(true);
-        cl.setAttribute('aria-hidden', 'true');
-        fragBefore.appendChild(cl);
-    });
-    track.insertBefore(fragBefore, track.firstChild);
-
-    // ── Clonar al FINAL: copias de las primeras CLONE tarjetas ──
-    const fragAfter = document.createDocumentFragment();
-    originals.slice(0, CLONE).forEach(c => {
-        const cl = c.cloneNode(true);
-        cl.setAttribute('aria-hidden', 'true');
-        fragAfter.appendChild(cl);
-    });
-    track.appendChild(fragAfter);
-
-    // current apunta al índice en el track completo (con clones)
-    let current = CLONE;   // empezar en la primera tarjeta real
-    let autoId;
-
-    function cardW() {
-        const gap = parseFloat(getComputedStyle(track).gap) || 0;
-        return track.children[0].offsetWidth + gap;
-    }
-
-    function moveTo(idx, animate = true) {
-        current = idx;
-        if (animate) {
-            track.style.transition = 'transform 0.45s cubic-bezier(0.4, 0, 0.2, 1)';
-        } else {
-            track.style.transition = 'none';
-            track.getBoundingClientRect(); // forzar layout para que transition:none se aplique antes del transform
-        }
-        track.style.transform = `translateX(-${current * cardW()}px)`;
-    }
-
-    // Cuando una transición termina, comprobamos si estamos en zona clonada
-    // y saltamos silenciosamente a la zona real equivalente
-    track.addEventListener('transitionend', () => {
-        if (current >= CLONE + N) moveTo(current - N, false); // pasamos del último → volver al primero real
-        if (current < CLONE)      moveTo(current + N, false); // pasamos del primero → ir al último real
-    });
-
-    function startAuto() {
-        clearInterval(autoId);
-        autoId = setInterval(() => moveTo(current + 1), 3800);
-    }
-
-    const prevBtn = document.getElementById('prev-btn');
-    const nextBtn = document.getElementById('next-btn');
-    if (prevBtn) prevBtn.addEventListener('click', () => { moveTo(current - 1); startAuto(); });
-    if (nextBtn) nextBtn.addEventListener('click', () => { moveTo(current + 1); startAuto(); });
-
-    window.addEventListener('resize', () => moveTo(current, false));
-
-    moveTo(CLONE, false); // posición inicial sin animación
-    startAuto();
-}
-
-/* ─── DEMO: imágenes de APIs externas cuando la BD está vacía ── */
-
-// Extrae la raza del perro desde la URL de dog.ceo
-// Ej: .../breeds/golden-retriever/... → "Golden Retriever"
-function razaDesdeUrl(url) {
-    const m = url.match(/breeds\/([^\/]+)\//);
-    if (!m) return 'Mestizo';
-    return m[1].split('-').map(w => w[0].toUpperCase() + w.slice(1)).join(' ');
-}
-
-const CIUDADES_DEMO = ['Sevilla', 'Madrid', 'Barcelona', 'Valencia', 'Málaga', 'Granada', 'Bilbao'];
-function ciudadDemo() {
-    return CIUDADES_DEMO[Math.floor(Math.random() * CIUDADES_DEMO.length)];
-}
-
-function crearTarjeta(url, tipo, raza, ciudad) {
-    return `<a class="animal-card" href="#">
-        <div class="animal-foto">
-            <img src="${url}" alt="${tipo} - ${raza}" loading="lazy">
-        </div>
-        <div class="animal-info">
-            <p class="animal-nombre">${tipo} · ${raza}</p>
-            <p class="animal-detalle">Disponible · ${ciudad}</p>
-        </div>
-    </a>`;
-}
-
-if (!TIENE_DB_ANIMALES) {
-    // Llamada en paralelo a las dos APIs
-    Promise.all([
-        fetch('https://dog.ceo/api/breeds/image/random/5').then(r => r.json()),
-        fetch('https://api.thecatapi.com/v1/images/search?limit=5').then(r => r.json())
-    ])
-    .then(([dogs, cats]) => {
-        const tarjetas = [];
-
-        // Perros — dog.ceo devuelve {message: [urls]}
-        (dogs.message || []).forEach(url => {
-            tarjetas.push(crearTarjeta(url, 'Perro', razaDesdeUrl(url), ciudadDemo()));
-        });
-
-        // Gatos — thecatapi devuelve [{url, id, ...}]
-        (cats || []).forEach(cat => {
-            tarjetas.push(crearTarjeta(cat.url, 'Gato', 'Doméstico', ciudadDemo()));
-        });
-
-        // Mezclar perros y gatos aleatoriamente
-        tarjetas.sort(() => Math.random() - 0.5);
-
-        const track = document.getElementById('carousel-track');
-        track.innerHTML = tarjetas.join('');
-
-        initCarousel();
-    })
-    .catch(() => {
-        // Si las APIs fallan, mostrar estado vacío
-        document.getElementById('carousel-wrapper').innerHTML = `
-            <div id="sin-animales">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80" fill="currentColor"
-                     style="width:56px;height:56px;opacity:.25;margin:0 auto 16px;display:block">
-                    <ellipse cx="40" cy="54" rx="18" ry="15"/>
-                    <ellipse cx="20" cy="36" rx="9"  ry="11"/>
-                    <ellipse cx="34" cy="27" rx="9"  ry="11"/>
-                    <ellipse cx="50" cy="27" rx="9"  ry="11"/>
-                    <ellipse cx="64" cy="36" rx="9"  ry="11"/>
-                </svg>
-                <p>No hay animales disponibles en este momento.</p>
-                <a href="/src/view/index.php">Reintentar</a>
-            </div>`;
-    });
-} else {
-    // La BD tiene animales: iniciar carrusel directamente
-    initCarousel();
-}
-
-/* ─── DONACIONES ─────────────────────────────────────────── */
-const donModal    = document.getElementById('don-modal');
-if (donModal) {
-    const donTitulo   = document.getElementById('don-modal-titulo');
-    const donNombre   = document.getElementById('don-nombre');
-    const donCantidad = document.getElementById('don-cantidad');
-    const donFeedback = document.getElementById('don-feedback');
-    const donSubmit   = document.getElementById('don-submit');
-    let   donCasoId   = null;
-
-    document.querySelectorAll('.crowd-btn-donar').forEach(btn => {
-        btn.addEventListener('click', () => {
-            donCasoId = btn.dataset.id;
-            donTitulo.textContent = btn.dataset.titulo;
-            donModal.style.display = 'flex';
-            donFeedback.style.display = 'none';
-            donSubmit.disabled = false;
-            donNombre.value = '';
-            donCantidad.value = '';
-            document.querySelectorAll('.don-quick').forEach(b => b.classList.remove('active'));
-        });
-    });
-
-    document.querySelectorAll('.don-quick').forEach(btn => {
-        btn.addEventListener('click', () => {
-            donCantidad.value = btn.dataset.v;
-            document.querySelectorAll('.don-quick').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-        });
-    });
-
-    function closeDonModal() { donModal.style.display = 'none'; }
-    document.getElementById('don-modal-close').addEventListener('click', closeDonModal);
-    document.getElementById('don-cancel').addEventListener('click', closeDonModal);
-    donModal.addEventListener('click', e => { if (e.target === donModal) closeDonModal(); });
-
-    donSubmit.addEventListener('click', () => {
-        const cantidad = parseFloat(donCantidad.value);
-        if (!cantidad || cantidad <= 0) {
-            donFeedback.style.cssText = 'display:block;background:rgba(220,60,60,.12);color:#ffaaaa;padding:10px 14px;border-radius:6px;font-size:13px';
-            donFeedback.textContent = 'Introduce una cantidad válida.';
-            return;
-        }
-        donSubmit.disabled = true;
-        fetch('/src/controller/crowdfunding-donacion.php', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: `id_caso=${encodeURIComponent(donCasoId)}&cantidad=${encodeURIComponent(cantidad)}&nombre=${encodeURIComponent(donNombre.value)}`
-        })
-        .then(r => r.json())
-        .then(data => {
-            donFeedback.style.display = 'block';
-            donFeedback.style.padding = '10px 14px';
-            donFeedback.style.borderRadius = '6px';
-            donFeedback.style.fontSize = '13px';
-            if (data.ok) {
-                donFeedback.style.background = 'rgba(60,200,100,.12)';
-                donFeedback.style.color = '#7dffb0';
-                donFeedback.textContent = '¡Gracias! Tu intención de donación ha sido registrada. La pasarela de pago estará disponible próximamente.';
-                // Update progress bar in the card
-                const pct = data.meta > 0 ? Math.min(100, Math.round(data.recaudado / data.meta * 100)) : 0;
-                const card = document.querySelector(`.crowd-btn-donar[data-id="${donCasoId}"]`)?.closest('.crowd-pub-card');
-                if (card) {
-                    const fill = card.querySelector('.crowd-pub-fill');
-                    const nums = card.querySelectorAll('.crowd-pub-nums span');
-                    if (fill) fill.style.width = pct + '%';
-                    if (nums[0]) nums[0].textContent = data.recaudado.toLocaleString('es-ES', {minimumFractionDigits:0}) + ' €';
-                    if (nums[1]) nums[1].textContent = pct + '% de ' + data.meta.toLocaleString('es-ES', {minimumFractionDigits:0}) + ' €';
-                }
-            } else {
-                donFeedback.style.background = 'rgba(220,60,60,.12)';
-                donFeedback.style.color = '#ffaaaa';
-                donFeedback.textContent = data.error || 'Error al registrar la donación.';
-                donSubmit.disabled = false;
-            }
-        })
-        .catch(() => {
-            donFeedback.style.cssText = 'display:block;background:rgba(220,60,60,.12);color:#ffaaaa;padding:10px 14px;border-radius:6px;font-size:13px';
-            donFeedback.textContent = 'Error de conexión.';
-            donSubmit.disabled = false;
-        });
-    });
-}
-</script>
+<script src="/public/js/index.js"></script>
 
 </body>

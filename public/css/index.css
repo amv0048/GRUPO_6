@@ -144,7 +144,7 @@ input, select, button { font-family: 'Poppins', sans-serif; }
 /* ================================================================
    FILTRO
    ================================================================ */
-#filtro { padding: 0 60px 0; }
+#filtro { padding: 48px 60px 28px; background: rgba(255,255,255,0.03); }
 
 #filtro-form {
     display: flex;
@@ -328,7 +328,7 @@ input, select, button { font-family: 'Poppins', sans-serif; }
     display: flex;
     align-items: stretch;
     min-height: 440px;
-    margin-top: 40px;
+    margin-top: 0;
 }
 
 #mapa-wrapper { flex: 0 0 62%; position: relative; }
@@ -406,7 +406,7 @@ input, select, button { font-family: 'Poppins', sans-serif; }
    CARRUSEL DE ANIMALES
    ================================================================ */
 #animales {
-    padding: 48px 0 64px;
+    padding: 0 0 64px;
     position: relative;
     overflow: hidden;   /* recorta los cards fuera de pantalla sin afectar los bordes de los visibles */
 }
@@ -419,6 +419,8 @@ input, select, button { font-family: 'Poppins', sans-serif; }
 /* Botones prev/next — misma paleta que el resto */
 .carousel-btn {
     flex-shrink: 0;
+    position: relative;
+    z-index: 5;
     width: 42px;
     height: 42px;
     background: rgba(255, 255, 255, 0.1);
