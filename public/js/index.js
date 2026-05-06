@@ -378,77 +378,95 @@
         const track = document.getElementById("carousel-track");
         if (!track) return;
 
-        const originals = Array.from(track.querySelectorAll(".animal-card"));
-        if (!originals.length) return;
+        const cards = Array.from(track.querySelectorAll(".animal-card"));
+        if (cards.length <= 1) return;
 
-        const total = originals.length;
-        const minCloneBuffer = 6;
-        const cloneCount = Math.max(minCloneBuffer, total);
-        const fragBefore = document.createDocumentFragment();
-        const fragAfter = document.createDocumentFragment();
-
-        buildClones(originals, cloneCount, true).forEach((card) => {
-            const clone = card.cloneNode(true);
-            clone.setAttribute("aria-hidden", "true");
-            fragBefore.appendChild(clone);
-        });
-        track.insertBefore(fragBefore, track.firstChild);
-
-        buildClones(originals, cloneCount, false).forEach((card) => {
-            const clone = card.cloneNode(true);
-            clone.setAttribute("aria-hidden", "true");
-            fragAfter.appendChild(clone);
-        });
-        track.appendChild(fragAfter);
-
-        let current = cloneCount;
         let autoId;
+        let isAnimating = false;
 
         function cardWidth() {
             const gap = parseFloat(getComputedStyle(track).gap) || 0;
             return track.children[0].offsetWidth + gap;
         }
 
-        function buildClones(cards, count, fromEnd) {
-            const clones = [];
-            for (let i = 0; i < count; i += 1) {
-                const sourceIndex = fromEnd
-                    ? (cards.length - (count - i) % cards.length) % cards.length
-                    : i % cards.length;
-                clones.push(cards[sourceIndex]);
-            }
-            return clones;
+        function resetPosition() {
+            track.style.transition = "none";
+            track.style.transform = "translateX(0)";
         }
 
-        function moveTo(index, animate) {
-            current = index;
-            if (animate !== false) {
-                track.style.transition = "transform 0.45s cubic-bezier(0.4, 0, 0.2, 1)";
-            } else {
-                track.style.transition = "none";
-                track.getBoundingClientRect();
+        function moveNext() {
+            if (isAnimating) return;
+            isAnimating = true;
+
+            track.style.transition = "transform 0.45s cubic-bezier(0.4, 0, 0.2, 1)";
+            track.style.transform = `translateX(-${cardWidth()}px)`;
+        }
+
+        function movePrev() {
+            if (isAnimating) return;
+            isAnimating = true;
+
+            const last = track.lastElementChild;
+            if (!last) {
+                isAnimating = false;
+                return;
             }
-            track.style.transform = `translateX(-${current * cardWidth()}px)`;
+
+            track.style.transition = "none";
+            track.insertBefore(last, track.firstElementChild);
+            track.style.transform = `translateX(-${cardWidth()}px)`;
+            track.getBoundingClientRect();
+            track.style.transition = "transform 0.45s cubic-bezier(0.4, 0, 0.2, 1)";
+            track.style.transform = "translateX(0)";
         }
 
         function startAuto() {
             clearInterval(autoId);
-            autoId = setInterval(() => moveTo(current + 1), 3800);
+            autoId = setInterval(() => {
+                if (!document.hidden) {
+                    moveNext();
+                }
+            }, 3800);
         }
 
         track.addEventListener("transitionend", () => {
-            if (current >= cloneCount + total) moveTo(current - total, false);
-            if (current < cloneCount) moveTo(current + total, false);
+            if (!isAnimating) return;
+
+            if (track.style.transform !== "translateX(0px)" && track.style.transform !== "translateX(0)") {
+                const first = track.firstElementChild;
+                if (first) {
+                    track.appendChild(first);
+                }
+            }
+
+            resetPosition();
+            track.getBoundingClientRect();
+            isAnimating = false;
         });
 
         const prevBtn = document.getElementById("prev-btn");
         const nextBtn = document.getElementById("next-btn");
-        if (prevBtn) prevBtn.addEventListener("click", () => { moveTo(current - 1); startAuto(); });
-        if (nextBtn) nextBtn.addEventListener("click", () => { moveTo(current + 1); startAuto(); });
+        if (prevBtn) prevBtn.addEventListener("click", () => {
+            movePrev();
+            startAuto();
+        });
+        if (nextBtn) nextBtn.addEventListener("click", () => {
+            moveNext();
+            startAuto();
+        });
 
-        window.addEventListener("resize", () => moveTo(current, false));
+        window.addEventListener("resize", () => {
+            resetPosition();
+        });
 
-        moveTo(cloneCount, false);
+        document.addEventListener("visibilitychange", () => {
+            if (!document.hidden) {
+                resetPosition();
+                startAuto();
+            }
+        });
+
+        resetPosition();
         startAuto();
     }
 
