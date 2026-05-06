@@ -59,16 +59,7 @@
         secStory.hidden = true;
     }
     btnAbrir.addEventListener('click', () => {
-        // Si el navegador soporta Web Share API y es móvil, usarla directamente
-        if (navigator.share && /Mobi|Android|iPhone/i.test(navigator.userAgent)) {
-            navigator.share({
-                title: TITLE,
-                text:  `${SHARE.nombre} busca un hogar`,
-                url:   URL_PUB
-            }).catch(() => abrir()); // si cancelan o falla, abrir modal
-        } else {
-            abrir();
-        }
+        abrir();
     });
     cerrarBtns.forEach(b => b.addEventListener('click', cerrar));
     if (btnCerrar) btnCerrar.addEventListener('click', cerrar);
