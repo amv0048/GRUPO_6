@@ -57,6 +57,93 @@ class AnimalModel {
         return $res ? array_map([$this, 'normalizeAnimalRow'], $res->fetch_all(MYSQLI_ASSOC)) : [];
     }
 
+    /**
+     * Devuelve un conjunto aleatorio de animales DISPONIBLES (para el carrusel del index).
+     */
+    public function getDisponiblesAleatorios(int $limit = 10): array {
+        $limit = max(1, $limit);
+        $sql = "SELECT a.id_animal, a.nombre, a.especie, a.raza, a.edad, a.sexo,
+                       g.ruta AS foto, p.nombre_protectora, p.ciudad, p.localidad
+                FROM Animales a
+                JOIN EstadoAnimal e ON a.id_estado = e.id_estado
+                JOIN Protectora p   ON a.id_protectora = p.id_protectora
+                LEFT JOIN Galeria g ON a.id_animal = g.id_animal AND g.es_principal = 1
+                WHERE e.nombre = 'DISPONIBLE'
+                ORDER BY RAND()
+                LIMIT $limit";
+        $res = $this->db->query($sql);
+        return $res ? array_map([$this, 'normalizeAnimalRow'], $res->fetch_all(MYSQLI_ASSOC)) : [];
+    }
+
+    /**
+     * Construye el WHERE y los parámetros comunes para la consulta de DISPONIBLES con filtros.
+     */
+    private function buildDisponiblesWhere(array $f): array {
+        $where  = " WHERE e.nombre = 'DISPONIBLE'";
+        $params = [];
+        $types  = '';
+        if (!empty($f['especie']))    { $where .= " AND a.especie = ?"; $params[] = $f['especie']; $types .= 's'; }
+        if (!empty($f['ciudad']))     { $where .= " AND p.ciudad = ?";  $params[] = $f['ciudad'];  $types .= 's'; }
+        if (!empty($f['raza']))       { $where .= " AND a.raza = ?";    $params[] = $f['raza'];    $types .= 's'; }
+        if (!empty($f['sexo']))       { $where .= " AND a.sexo = ?";    $params[] = $f['sexo'];    $types .= 's'; }
+        if (!empty($f['color']))      { $where .= " AND a.color = ?";   $params[] = $f['color'];   $types .= 's'; }
+        if (isset($f['edad_min']) && $f['edad_min'] !== '') { $where .= " AND a.edad >= ?"; $params[] = $f['edad_min']; $types .= 'i'; }
+        if (isset($f['edad_max']) && $f['edad_max'] !== '') { $where .= " AND a.edad <= ?"; $params[] = $f['edad_max']; $types .= 'i'; }
+        if (isset($f['peso_min']) && $f['peso_min'] !== '') { $where .= " AND a.peso >= ?"; $params[] = $f['peso_min']; $types .= 'd'; }
+        if (isset($f['peso_max']) && $f['peso_max'] !== '') { $where .= " AND a.peso <= ?"; $params[] = $f['peso_max']; $types .= 'd'; }
+        if (!empty($f['compat_perros'])) $where .= " AND a.compatibilidad_perros = 1";
+        if (!empty($f['compat_gatos']))  $where .= " AND a.compatibilidad_gatos = 1";
+        if (!empty($f['compat_ninos']))  $where .= " AND a.compatibilidad_ninos = 1";
+        return ['where' => $where, 'params' => $params, 'types' => $types];
+    }
+
+    /**
+     * Cuenta el total de animales DISPONIBLES aplicando los filtros recibidos.
+     */
+    public function countDisponibles(array $f): int {
+        $w = $this->buildDisponiblesWhere($f);
+        $sql = "SELECT COUNT(*) AS total
+                FROM Animales a
+                JOIN EstadoAnimal e ON a.id_estado = e.id_estado
+                JOIN Protectora p   ON a.id_protectora = p.id_protectora" . $w['where'];
+        if (!empty($w['params'])) {
+            $stmt = $this->db->prepare($sql);
+            $stmt->bind_param($w['types'], ...$w['params']);
+            $stmt->execute();
+            $row = $stmt->get_result()->fetch_assoc();
+            return (int)($row['total'] ?? 0);
+        }
+        $res = $this->db->query($sql);
+        $row = $res ? $res->fetch_assoc() : null;
+        return (int)($row['total'] ?? 0);
+    }
+
+    /**
+     * Devuelve los animales DISPONIBLES con filtros y paginación.
+     * Incluye ciudad y localidad de la protectora para mostrarlas en el listado.
+     */
+    public function getDisponiblesPaginado(array $f, int $limit = 30, int $offset = 0): array {
+        $limit  = max(1, $limit);
+        $offset = max(0, $offset);
+        $w = $this->buildDisponiblesWhere($f);
+        $sql = "SELECT a.id_animal, a.nombre, a.especie, a.raza, a.edad, a.sexo,
+                       g.ruta AS foto, p.nombre_protectora, p.ciudad, p.localidad
+                FROM Animales a
+                JOIN EstadoAnimal e ON a.id_estado = e.id_estado
+                JOIN Protectora p   ON a.id_protectora = p.id_protectora
+                LEFT JOIN Galeria g ON a.id_animal = g.id_animal AND g.es_principal = 1"
+                . $w['where']
+                . " ORDER BY a.fecha_entrada DESC LIMIT $limit OFFSET $offset";
+        if (!empty($w['params'])) {
+            $stmt = $this->db->prepare($sql);
+            $stmt->bind_param($w['types'], ...$w['params']);
+            $stmt->execute();
+            return array_map([$this, 'normalizeAnimalRow'], $stmt->get_result()->fetch_all(MYSQLI_ASSOC));
+        }
+        $res = $this->db->query($sql);
+        return $res ? array_map([$this, 'normalizeAnimalRow'], $res->fetch_all(MYSQLI_ASSOC)) : [];
+    }
+
     public function getByProtectora(int $id_protectora, array $f): array {
         $sql = "SELECT a.id_animal, a.nombre, a.especie, a.raza, a.edad, a.sexo,
                        g.ruta AS foto, p.nombre_protectora, p.ciudad, e.nombre AS estado

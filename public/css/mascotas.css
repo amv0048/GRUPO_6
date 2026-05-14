@@ -1,0 +1,239 @@
+/* ================================================================
+   MASCOTAS.CSS  —  Go Catch
+   Listado paginado de todas las mascotas con filtros.
+   Reutiliza la paleta y los estilos del filtro definidos en index.css.
+   ================================================================ */
+
+/* ───── HERO DE LA PÁGINA ───── */
+#mascotas-hero {
+    padding: 64px 60px 24px;
+}
+
+.mascotas-titulo {
+    font-size: clamp(1.8rem, 4vw, 2.6rem);
+    font-weight: 800;
+    color: #fff;
+    line-height: 1.15;
+    letter-spacing: -0.5px;
+    margin-bottom: 12px;
+}
+.mascotas-subtitulo {
+    font-size: 0.95rem;
+    color: #a8b8cc;
+    line-height: 1.6;
+    max-width: 720px;
+}
+
+
+/* ───── SECCIÓN DEL GRID ───── */
+#mascotas-grid-section {
+    padding: 8px 60px 80px;
+}
+
+/* Resumen "X mascotas · Página Y de Z" */
+#mascotas-resumen {
+    margin: 24px 0 18px;
+    font-size: 13px;
+    color: #a8b8cc;
+}
+#mascotas-resumen strong {
+    color: #fff;
+    font-weight: 700;
+}
+
+
+/* ───── GRID DE MASCOTAS ───── */
+#mascotas-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 20px;
+}
+
+.mascota-card {
+    position: relative;
+    background: #124076;
+    border-radius: 12px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    text-decoration: none;
+    color: inherit;
+    transition: transform 0.25s, box-shadow 0.25s;
+}
+.mascota-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
+}
+
+/* Foto */
+.mascota-foto {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    overflow: hidden;
+    background: #0D2D51;
+}
+.mascota-foto img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    transition: transform 0.4s;
+}
+.mascota-card:hover .mascota-foto img { transform: scale(1.05); }
+
+.mascota-foto-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(255, 255, 255, 0.15);
+}
+.mascota-foto-placeholder svg { width: 64px; height: 64px; }
+
+/* El botón de like reutiliza el .btn-like de index.css */
+
+/* Info */
+.mascota-info {
+    padding: 14px 16px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+.mascota-nombre {
+    font-size: 16px;
+    font-weight: 700;
+    color: #fff;
+    text-transform: capitalize;
+    margin-bottom: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.mascota-dato {
+    font-size: 12px;
+    color: #a8b8cc;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    line-height: 1.4;
+}
+.mascota-dato i {
+    color: #CA7842;
+    font-size: 14px;
+    flex-shrink: 0;
+}
+
+
+/* ───── ESTADO VACÍO ───── */
+#mascotas-vacio {
+    text-align: center;
+    padding: 80px 40px;
+    color: #a8b8cc;
+}
+#mascotas-vacio i {
+    font-size: 3rem;
+    color: rgba(202, 120, 66, 0.4);
+    margin-bottom: 14px;
+    display: block;
+}
+#mascotas-vacio p {
+    font-size: 0.95rem;
+    margin-bottom: 20px;
+}
+#mascotas-vacio a {
+    color: #CA7842;
+    font-weight: 600;
+    border-bottom: 1px solid #CA7842;
+    padding-bottom: 2px;
+    transition: color 0.2s, border-color 0.2s;
+}
+#mascotas-vacio a:hover { color: #EDA677; border-color: #EDA677; }
+
+
+/* ───── PAGINACIÓN ───── */
+#mascotas-paginacion {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 6px;
+    margin-top: 48px;
+}
+
+.pag-btn,
+.pag-num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    min-width: 38px;
+    height: 38px;
+    padding: 0 12px;
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.07);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: #fff;
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background 0.2s, border-color 0.2s, color 0.2s, transform 0.15s;
+}
+.pag-btn:hover,
+.pag-num:hover {
+    background: #CA7842;
+    border-color: #CA7842;
+    color: #fff;
+    transform: translateY(-1px);
+}
+
+.pag-num-activa {
+    background: #CA7842;
+    border-color: #CA7842;
+    color: #fff;
+    cursor: default;
+}
+.pag-num-activa:hover { transform: none; }
+
+.pag-btn-disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+.pag-elipsis {
+    color: #a8b8cc;
+    padding: 0 4px;
+    font-size: 14px;
+    user-select: none;
+}
+
+
+/* ───── RESPONSIVE ───── */
+@media (max-width: 960px) {
+    #mascotas-hero { padding: 48px 32px 16px; }
+    #mascotas-grid-section { padding: 8px 32px 60px; }
+    #mascotas-grid { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; }
+}
+
+@media (max-width: 640px) {
+    #mascotas-hero { padding: 36px 20px 12px; }
+    #mascotas-grid-section { padding: 8px 16px 48px; }
+    #mascotas-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+
+    .mascota-nombre { font-size: 14px; }
+    .mascota-dato   { font-size: 11px; }
+
+    .pag-btn, .pag-num {
+        min-width: 34px;
+        height: 34px;
+        padding: 0 9px;
+        font-size: 12px;
+    }
+}
+
+@media (max-width: 420px) {
+    #mascotas-grid { grid-template-columns: 1fr; }
+}

@@ -9,18 +9,20 @@ require_once "../model/CrowdfundingModel.php";
 require_once "../model/ColaboradorModel.php";
 
 // â”€â”€ FILTROS (GET) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-$especie_filtro = isset($_GET['especie']) ? trim($_GET['especie']) : '';
-$ciudad_filtro  = isset($_GET['ciudad'])  ? trim($_GET['ciudad'])  : '';
-$raza_filtro    = isset($_GET['raza'])    ? trim($_GET['raza'])    : '';
-$sexo_filtro    = isset($_GET['sexo'])    ? trim($_GET['sexo'])    : '';
-$color_filtro   = isset($_GET['color'])   ? trim($_GET['color'])   : '';
-$edad_min       = (isset($_GET['edad_min']) && $_GET['edad_min'] !== '') ? (int)$_GET['edad_min'] : '';
-$edad_max       = (isset($_GET['edad_max']) && $_GET['edad_max'] !== '') ? (int)$_GET['edad_max'] : '';
-$peso_min       = (isset($_GET['peso_min']) && $_GET['peso_min'] !== '') ? (float)$_GET['peso_min'] : '';
-$peso_max       = (isset($_GET['peso_max']) && $_GET['peso_max'] !== '') ? (float)$_GET['peso_max'] : '';
-$compat_perros  = !empty($_GET['compat_perros']);
-$compat_gatos   = !empty($_GET['compat_gatos']);
-$compat_ninos   = !empty($_GET['compat_ninos']);
+// El index ya no filtra: el formulario redirige a mascotas.php con los filtros.
+// Las variables se mantienen vacías para que los selects y los inputs arranquen limpios.
+$especie_filtro = '';
+$ciudad_filtro  = '';
+$raza_filtro    = '';
+$sexo_filtro    = '';
+$color_filtro   = '';
+$edad_min       = '';
+$edad_max       = '';
+$peso_min       = '';
+$peso_max       = '';
+$compat_perros  = false;
+$compat_gatos   = false;
+$compat_ninos   = false;
 
 $animalModel       = new AnimalModel($_conexion);
 $protectoraModel   = new ProtectoraModel($_conexion);
@@ -32,20 +34,8 @@ $colaboradorModel   = new ColaboradorModel($_conexion);
 $protectoras_arr = $protectoraModel->getAll();
 
 // â”€â”€ ANIMALES DISPONIBLES â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-$animales_arr = $animalModel->getDisponibles([
-    'especie'       => $especie_filtro,
-    'ciudad'        => $ciudad_filtro,
-    'raza'          => $raza_filtro,
-    'sexo'          => $sexo_filtro,
-    'color'         => $color_filtro,
-    'edad_min'      => $edad_min,
-    'edad_max'      => $edad_max,
-    'peso_min'      => $peso_min,
-    'peso_max'      => $peso_max,
-    'compat_perros' => $compat_perros,
-    'compat_gatos'  => $compat_gatos,
-    'compat_ninos'  => $compat_ninos,
-]);
+// Carrusel del index: mascotas aleatorias (independientes de los filtros).
+$animales_arr = $animalModel->getDisponiblesAleatorios(10);
 
 
 // â”€â”€ LIKES DEL USUARIO â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
@@ -148,7 +138,7 @@ elseif (isset($_SESSION['protectora'])) $nombre_sesion = $_SESSION['protectora']
         <h1>Adopta. Conecta.<br><span>Cambia Una Vida</span></h1>
         <p>Encuentra al nuevo miembro de tu familia</p>
         <div id="hero-cta">
-            <a href="#animales" class="cta-btn cta-primary">Ver animales</a>
+            <a href="/src/view/mascotas.php" class="cta-btn cta-primary">Conoce a nuestras mascotas</a>
             <a href="/public/registro.html" class="cta-btn cta-secondary">Únete a nosotros</a>
             <a class="cta-btn cta-primary" href="/public/pdf/BOE-204_Codigo_de_Proteccion_y_Bienestar_Animal.pdf" target="_blank">Ver ley de bienestar animal</a>
         </div>
@@ -302,7 +292,7 @@ elseif (isset($_SESSION['protectora'])) $nombre_sesion = $_SESSION['protectora']
 <section id="filtro">
     <p class="seccion-etiqueta">Adopta</p>
     <h2 class="seccion-titulo" style="margin-bottom:20px">Encuentra tu compañero ideal</h2>
-    <form method="GET" action="/src/view/index.php" id="filtro-form">
+    <form method="GET" action="/src/view/mascotas.php" id="filtro-form">
 
         <!-- Fila 1: selects -->
         <div class="filtro-fila">
